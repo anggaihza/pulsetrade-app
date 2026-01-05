@@ -15,5 +15,16 @@
   "light": "Claro",
   "dark": "Oscuro",
   "system": "Sistema",
-  "welcomeMessage": "Bienvenido de nuevo, {email}"
+  "welcomeMessage": "Bienvenido de nuevo, {email}",
+  "signIn": "Iniciar sesión",
+  "signInSubtitle": "¿Listo para continuar donde lo dejaste?",
+  "emailPhoneLabel": "Correo/Número de teléfono",
+  "emailPhonePlaceholder": "Escribe tu correo/número de teléfono",
+  "passwordLabel": "Contraseña",
+  "passwordPlaceholder": "Escribe tu contraseña",
+  "or": "o",
+  "continueWithGoogle": "Continuar con Google",
+  "createPulseAccount": "Crear una cuenta Pulse",
+  "pleaseEnterEmailPassword": "Por favor ingresa correo y contraseña",
+  "googleSignInNotImplemented": "Inicio de sesión con Google aún no implementado"
 }

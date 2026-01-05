@@ -10,6 +10,7 @@ import 'package:pulsetrade_app/features/auth/presentation/providers/auth_provide
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
+import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Sign-In screen matching the Figma design
 ///
@@ -63,21 +64,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _handleLogin() {
+    final strings = AppLocalizations.of(context);
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (email.isNotEmpty && password.isNotEmpty) {
       ref.read(authControllerProvider.notifier).login(email, password);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(strings.pleaseEnterEmailPassword)));
     }
   }
 
   void _handleGoogleSignIn() {
+    final strings = AppLocalizations.of(context);
     // TODO: Implement Google sign-in functionality
-    // This is a placeholder for future Google authentication integration
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(strings.googleSignInNotImplemented)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
 
@@ -94,11 +104,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title: "Sign in"
-                  Text('Sign in', style: AppTextStyles.displaySmall()),
+                  Text(strings.signIn, style: AppTextStyles.displaySmall()),
                   const SizedBox(height: 4),
                   // Subtitle: "Ready to start where you left off?"
                   Text(
-                    'Ready to start where you left off?',
+                    strings.signInSubtitle,
                     style: AppTextStyles.bodyLarge(
                       color: AppColors.textSecondary,
                     ),
@@ -114,23 +124,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     children: [
                       // Email/Phone number field
                       AppTextField(
-                        label: 'Email/Phone number',
-                        placeholder: 'Type your email/phone number',
+                        label: strings.emailPhoneLabel,
+                        placeholder: strings.emailPhonePlaceholder,
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: AppSpacing.fieldGap),
                       // Password field
                       AppTextField(
-                        label: 'Password',
-                        placeholder: 'Type your password',
+                        label: strings.passwordLabel,
+                        placeholder: strings.passwordPlaceholder,
                         controller: _passwordController,
                         obscureText: true,
                       ),
                       const SizedBox(height: AppSpacing.fieldGap),
                       // Login button (using shared AppButton)
                       AppButton(
-                        label: 'Login',
+                        label: strings.login,
                         onPressed: _handleLogin,
                         isLoading: isLoading,
                       ),
@@ -139,7 +149,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const OrDivider(),
                       const SizedBox(height: AppSpacing.fieldGap),
                       // Google sign-in button
-                      GoogleButton(onPressed: _handleGoogleSignIn),
+                      GoogleButton(
+                        label: strings.continueWithGoogle,
+                        onPressed: _handleGoogleSignIn,
+                      ),
                       const SizedBox(height: AppSpacing.fieldGap),
                       // Create account link
                       Align(
@@ -147,7 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: GestureDetector(
                           onTap: () => context.go(RegisterScreen.routePath),
                           child: Text(
-                            'Create a Pulse account',
+                            strings.createPulseAccount,
                             style: AppTextStyles.link(),
                           ),
                         ),

@@ -15,5 +15,16 @@
   "light": "Light",
   "dark": "Dark",
   "system": "System",
-  "welcomeMessage": "Welcome back, {email}"
+  "welcomeMessage": "Welcome back, {email}",
+  "signIn": "Sign in",
+  "signInSubtitle": "Ready to start where you left off?",
+  "emailPhoneLabel": "Email/Phone number",
+  "emailPhonePlaceholder": "Type your email/phone number",
+  "passwordLabel": "Password",
+  "passwordPlaceholder": "Type your password",
+  "or": "or",
+  "continueWithGoogle": "Continue with Google",
+  "createPulseAccount": "Create a Pulse account",
+  "pleaseEnterEmailPassword": "Please enter email and password",
+  "googleSignInNotImplemented": "Google Sign-In not yet implemented"
 }
