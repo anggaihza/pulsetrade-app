@@ -1,92 +1,154 @@
-# OTP Verification Screen Implementation
+# OTP Verification Feature
 
-Implementation details for the OTP (One-Time Password) email verification screen matching the Figma design.
+## Overview
+The OTP Verification screen supports both **email** and **phone** verification based on the [Figma design](https://www.figma.com/design/33pzR0AFb7Hz3R11vuYtwW/Untitled?node-id=1-447&m=dev).
 
-## 📱 Overview
+## Features
+- ✅ **Dual verification types**: Email and Phone
+- ✅ **6-digit OTP input** with auto-advance
+- ✅ **Paste support**: Paste any format (123456, 12-34-56, etc.)
+- ✅ **Countdown timer**: 60-second countdown with resend functionality
+- ✅ **Tabler Icons**: Uses `mail_filled` for email, `phone_filled` for phone
+- ✅ **Backspace navigation**: Smooth movement between fields
+- ✅ **Full localization**: English and Spanish support
+- ✅ **Clean UX**: No jumping, no keyboard errors
 
-The OTP Verification screen allows users to verify their email address by entering a 6-digit code sent to their email. It features an intuitive input interface with automatic focus management and a countdown timer.
+## Usage
 
-## 🎨 Design
-
-**Figma Design**: [OTP Verification Screen](https://www.figma.com/design/33pzR0AFb7Hz3R11vuYtwW/Untitled?node-id=1-248&m=dev)
-
-### Visual Elements
-
-- **App Bar**: Back button to return to previous screen
-- **Header**:
-  - Mail icon + "Email verification" title (24px, Bold)
-  - Description: "A 6-digit code has been sent to {email}. Please enter it within the next {seconds} seconds"
-- **Form**:
-  - "Verification Code" label
-  - 6 OTP input boxes (50px height, dark surface)
-  - Continue button (primary blue)
-  - "I haven't receive the code" link with countdown
-
-## 📁 File Locations
-
-```
-lib/features/auth/presentation/views/otp_verification_screen.dart
-lib/core/presentation/widgets/otp_input.dart
-```
-
-## 🔧 Implementation Details
-
-### OTP Input Widget
-
-A reusable component for OTP/PIN code entry:
-
+### Navigate to Email Verification
 ```dart
-class OTPInput extends StatefulWidget {
-  const OTPInput({
-    required this.onCompleted,
-    this.onChanged,
-    this.length = 6,
-  });
+context.go(
+  Uri(
+    path: OTPVerificationScreen.routePath,
+    queryParameters: {
+      'contact': 'user@example.com',
+      'type': 'email',
+    },
+  ).toString(),
+);
+```
 
-  final int length;
-  final ValueChanged<String> onCompleted;
-  final ValueChanged<String>? onChanged;
+### Navigate to Phone Verification
+```dart
+context.go(
+  Uri(
+    path: OTPVerificationScreen.routePath,
+    queryParameters: {
+      'contact': '+1234567890',
+      'type': 'phone',
+    },
+  ).toString(),
+);
+```
+
+### Auto-detect Type from Register Screen
+```dart
+final email = _emailController.text.trim();
+final isPhone = RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(email);
+
+context.go(
+  Uri(
+    path: OTPVerificationScreen.routePath,
+    queryParameters: {
+      'contact': email,
+      'type': isPhone ? 'phone' : 'email',
+    },
+  ).toString(),
+);
+```
+
+## VerificationType Enum
+```dart
+enum VerificationType {
+  email,  // Shows mail icon and "Email verification"
+  phone,  // Shows phone icon and "Phone verification"
 }
 ```
 
-**Features**:
-- ✅ Auto-focus to next box when digit entered
-- ✅ Backspace moves to previous box
-- ✅ Paste support (distributes digits across boxes)
-- ✅ Only accepts numeric input
-- ✅ Callback when all boxes filled
-- ✅ Reusable for any length (default 6)
+## Screen Components
 
-### OTP Verification Screen
+### 1. Header
+- **Icon**: `TablerIcons.mail_filled` or `TablerIcons.phone_filled`
+- **Title**: "Email verification" or "Phone verification"
+- **Description**: "A 6-digit code has been sent to {contact}..."
 
-```dart
-class OTPVerificationScreen extends ConsumerStatefulWidget {
-  const OTPVerificationScreen({
-    required this.email,
-  });
+### 2. OTP Input
+- **6 boxes**: Dark surface (#2C2C2C), 50px height, 12px radius
+- **Auto-advance**: Type digit → Jump to next box
+- **Backspace**: Clear current → Press again → Move to previous
+- **Paste**: Paste 123456 → Fills all boxes
+- **No white background**: Transparent TextField
 
-  final String email;
-  
-  static const String routePath = '/otp-verification';
-  static const String routeName = 'otp-verification';
+### 3. Actions
+- **Continue button**: Primary button (45px height)
+- **Resend link**: Enabled after 60-second countdown
+
+## Localization Keys
+
+### English (app_en.arb)
+```json
+{
+  "emailVerification": "Email verification",
+  "phoneVerification": "Phone verification",
+  "otpSentToEmail": "A 6-digit code has been sent to {email}. Please enter it within the next {seconds} seconds",
+  "otpSentToPhone": "A 6-digit code has been sent to {phone}. Please enter it within the next {seconds} seconds",
+  "verificationCode": "Verification Code",
+  "iHaventReceiveCode": "I haven't receive the code",
+  "continueButton": "Continue",
+  "resendCode": "Resend code",
+  "invalidOtpCode": "Invalid verification code",
+  "otpCodeRequired": "Please enter the 6-digit code"
 }
 ```
 
-**State Management**:
-- `_otpCode`: Current entered OTP code
-- `_secondsRemaining`: Countdown timer (starts at 60)
-- `_timer`: Timer for countdown
-- `_isLoading`: Loading state during verification
+### Spanish (app_es.arb)
+```json
+{
+  "emailVerification": "Verificación de correo",
+  "phoneVerification": "Verificación de teléfono",
+  "otpSentToEmail": "Se ha enviado un código de 6 dígitos a {email}. Por favor ingrésalo en los próximos {seconds} segundos",
+  "otpSentToPhone": "Se ha enviado un código de 6 dígitos a {phone}. Por favor ingrésalo en los próximos {seconds} segundos"
+}
+```
 
-### Key Features
+## OTP Input Widget
 
-#### 1. **Countdown Timer**
-Automatically starts 60-second countdown when screen loads:
+### Location
+`lib/core/presentation/widgets/otp_input.dart`
+
+### Features
 ```dart
+OTPInput(
+  length: 6,                          // Number of digits
+  onCompleted: (code) {               // Called when all 6 filled
+    print('OTP: $code');
+  },
+  onChanged: (code) {                 // Called on every change
+    print('Current: $code');
+  },
+)
+```
+
+### Behavior Table
+| Action | Behavior |
+|--------|----------|
+| Type "1" in empty Box 1 | Fill → Jump to Box 2 |
+| Type "2" in filled Box 2 | Replace "2" → Stay in Box 2 |
+| Backspace in filled Box 3 | Clear "3" → Stay in Box 3 |
+| Backspace in empty Box 3 | Jump to Box 2 |
+| Paste "123456" | Fill all 6 boxes |
+| Paste "12-34-56" | Strip dashes → Fill all 6 boxes |
+| Paste "123" | Fill first 3 → Focus Box 4 |
+
+## State Management
+
+### Timer State
+```dart
+int _secondsRemaining = 60;  // Countdown from 60
+Timer? _timer;               // Timer instance
+
 void _startTimer() {
-  _timer?.cancel();
-  setState(() => _secondsRemaining = 60);
-
+  _secondsRemaining = 60;
   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
     if (_secondsRemaining > 0) {
       setState(() => _secondsRemaining--);
@@ -97,237 +159,162 @@ void _startTimer() {
 }
 ```
 
-#### 2. **OTP Validation**
-Validates the 6-digit code:
+### OTP State
 ```dart
-Future<void> _handleContinue() async {
-  if (_otpCode.length != 6) {
-    // Show error
-    return;
-  }
+String _otpCode = '';        // Current OTP value
+bool _isLoading = false;     // Loading state for verification
 
-  // Verify OTP with API
-  final isValid = await verifyOTP(_otpCode);
-  
-  if (isValid) {
-    context.go(HomeScreen.routePath);
-  } else {
-    // Show error
-  }
+void _handleOTPChanged(String code) {
+  setState(() => _otpCode = code);
+}
+
+void _handleOTPCompleted(String code) {
+  print('OTP Complete: $code');
+  // Auto-verify when all 6 digits entered
 }
 ```
 
-#### 3. **Resend Code**
-Resends OTP code when timer expires:
+## Router Configuration
+
+### Route Path
 ```dart
-void _handleResendCode() {
-  // Only allowed when timer reaches 0
-  if (_secondsRemaining == 0) {
-    // Call API to resend code
-    // Restart timer
-    _startTimer();
-  }
-}
+static const String routePath = '/otp-verification';
+static const String routeName = 'otp-verification';
 ```
 
-#### 4. **Navigation**
-- **From Register** → OTP Verification (with email parameter)
-- **On Success** → Home Screen
-- **Back button** → Returns to Register Screen
-
-## 🌍 Localization
-
-All text is fully localized (English & Spanish):
-
-| Key | English | Spanish |
-|-----|---------|---------|
-| `emailVerification` | Email verification | Verificación de correo |
-| `otpSentMessage` | A 6-digit code has been sent to {email}. Please enter it within the next {seconds} seconds | Se ha enviado un código de 6 dígitos a {email}. Por favor ingrésalo en los próximos {seconds} segundos |
-| `verificationCode` | Verification Code | Código de verificación |
-| `continueButton` | Continue | Continuar |
-| `iHaventReceiveCode` | I haven't receive the code | No he recibido el código |
-| `resendCode` | Resend code | Reenviar código |
-| `invalidOtpCode` | Invalid verification code | Código de verificación inválido |
-| `otpCodeRequired` | Please enter the 6-digit code | Por favor ingresa el código de 6 dígitos |
-
-## 🎯 Usage Example
-
-### Navigation to OTP Screen
-
-```dart
-// From Register screen (after registration)
-final email = 'user@example.com';
-context.go(
-  '${OTPVerificationScreen.routePath}?email=${Uri.encodeComponent(email)}',
-);
-
-// Direct navigation
-context.go('/otp-verification?email=user@example.com');
-```
-
-### Router Configuration
-
+### Route Builder
 ```dart
 GoRoute(
-  path: OTPVerificationScreen.routePath,  // '/otp-verification'
-  name: OTPVerificationScreen.routeName,  // 'otp-verification'
+  path: OTPVerificationScreen.routePath,
+  name: OTPVerificationScreen.routeName,
   builder: (context, state) {
-    final email = state.uri.queryParameters['email'] ?? '';
-    return OTPVerificationScreen(email: email);
+    final contact = state.uri.queryParameters['contact'] ?? '';
+    final type = state.uri.queryParameters['type'] ?? 'email';
+    final verificationType = type == 'phone'
+        ? VerificationType.phone
+        : VerificationType.email;
+    return OTPVerificationScreen(
+      contact: contact,
+      verificationType: verificationType,
+    );
   },
-)
+),
 ```
 
-## 🧩 Components Used
-
-### Shared Components
-
-- **`OTPInput`** - 6-box OTP input widget (NEW)
-- **`AppButton`** - Continue button with loading state
-
-### Flutter Widgets
-
-- **`Timer`** - Countdown timer
-- **`Icons.mail_outline`** - Mail icon from Material Icons
-- **`Icons.arrow_back`** - Back button icon
-
-## 🎨 Design System
+## Design Tokens
 
 ### Colors
 ```dart
-AppColors.background      // #121212 - Screen background
-AppColors.surface        // #2C2C2C - OTP box background
-AppColors.primary        // #2979FF - Continue button
-AppColors.textPrimary    // #FFFFFF - Main text
-AppColors.textSecondary  // #DBDBDB - Description text
-AppColors.textLabel      // #AEAEAE - Disabled resend link
-AppColors.textTertiary   // #E7E7E7 - Active resend link
+AppColors.background        // #121212 (screen background)
+AppColors.surface          // #2C2C2C (OTP box background)
+AppColors.textPrimary      // #FFFFFF (main text)
+AppColors.textSecondary    // #DBDBDB (description text)
+AppColors.primary          // #2979FF (cursor color)
+```
+
+### Spacing
+```dart
+AppSpacing.screenPadding   // 24px (screen edges)
+AppSpacing.xl              // 40px (header to form gap)
+AppSpacing.fieldGap        // 16px (between form elements)
+AppSpacing.fieldLabelGap   // 8px (label to input gap)
 ```
 
 ### Typography
 ```dart
-AppTextStyles.labelLarge().copyWith(fontSize: 24)  // Title
-AppTextStyles.bodyLarge()                          // Description
-AppTextStyles.labelMedium()                        // Label, OTP digits
-AppTextStyles.link()                               // Resend link
+AppTextStyles.labelLarge()          // 14px Bold (title - increased to 24px)
+AppTextStyles.bodyLarge()           // 14px Regular (description, height 1.4)
+AppTextStyles.textFieldLabel()      // 12px SemiBold (label)
+AppTextStyles.labelMedium()         // 12px SemiBold (OTP input, 16px)
 ```
 
-### Spacing & Sizing
+## Integration Examples
+
+### From Register Screen
 ```dart
-AppSpacing.screenPadding  // 24px - Screen edges
-AppSpacing.xl             // 40px - Header to form
-AppSpacing.fieldGap       // 16px - Between elements
-AppSpacing.fieldLabelGap  // 8px - Label to input
-50px                      // OTP box height
-12px                      // Border radius
+// After successful registration API call
+if (registrationSuccess) {
+  final contact = _emailController.text.trim();
+  final isPhone = RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(contact);
+  
+  context.go(
+    Uri(
+      path: OTPVerificationScreen.routePath,
+      queryParameters: {
+        'contact': contact,
+        'type': isPhone ? 'phone' : 'email',
+      },
+    ).toString(),
+  );
+}
 ```
 
-## 🔄 User Flow
-
-```
-1. User completes registration on Register screen
-2. System sends OTP code to user's email
-3. User navigates to OTP Verification screen
-4. User sees:
-   - Email address where code was sent
-   - 60-second countdown timer
-   - 6 empty OTP input boxes
-5. User enters 6-digit code:
-   - Auto-focus moves between boxes
-   - Can paste entire code
-   - Continue button activates when all 6 digits entered
-6. User taps "Continue":
-   → If valid: Navigate to Home screen
-   → If invalid: Show error, allow retry
-7. If timer expires (0 seconds):
-   → "I haven't receive the code" link becomes active
-   → User can request new code
-   → Timer restarts to 60 seconds
-8. User can tap back button to return to Register screen
+### From Login Screen (if needed)
+```dart
+// Navigate to verification if user needs to verify
+GestureDetector(
+  onTap: () {
+    context.go(
+      Uri(
+        path: OTPVerificationScreen.routePath,
+        queryParameters: {
+          'contact': 'user@example.com',
+          'type': 'email',
+        },
+      ).toString(),
+    );
+  },
+  child: Text('Verify your email'),
+)
 ```
 
-## ✅ Features
+## Testing Checklist
 
-- ✅ Matches Figma design pixel-perfect
-- ✅ Fully localized (English & Spanish)
-- ✅ 6-box OTP input with auto-focus
-- ✅ 60-second countdown timer
-- ✅ Resend code functionality
-- ✅ Paste support for OTP codes
-- ✅ Loading state during verification
-- ✅ Error handling and validation
-- ✅ Back navigation
-- ✅ Dynamic email display
-- ✅ Responsive layout
-- ✅ Dark theme
+- [ ] Email verification shows mail icon
+- [ ] Phone verification shows phone icon
+- [ ] Description shows correct contact (email/phone)
+- [ ] OTP boxes are 50px height with dark background
+- [ ] Type digit → Auto-advances to next box
+- [ ] Backspace on filled → Clears digit, stays in box
+- [ ] Backspace on empty → Moves to previous box
+- [ ] Paste "123456" → Fills all boxes
+- [ ] Paste "12-34-56" → Strips formatting, fills all boxes
+- [ ] Countdown timer starts at 60 seconds
+- [ ] Resend link disabled during countdown
+- [ ] Resend link enabled when countdown reaches 0
+- [ ] Continue button triggers verification
+- [ ] No white background in OTP input
+- [ ] No KeyUpEvent errors in console
+- [ ] Localization works in Spanish
 
-## 🚧 TODO
+## Known Issues & Solutions
 
+### ✅ Fixed: KeyUpEvent Error
+**Problem**: `KeyboardListener` with extra `FocusNode` caused keyboard events
+**Solution**: Use `Focus` widget with `onKey` callback instead
+
+### ✅ Fixed: Paste Not Working
+**Problem**: `maxLength: 1` on TextField blocked paste
+**Solution**: Removed `maxLength`, detect paste in `onChanged` when `value.length > 1`
+
+### ✅ Fixed: White Background in OTP Boxes
+**Problem**: TextField default fill color
+**Solution**: Set `filled: false`, `fillColor: Colors.transparent`, remove all borders
+
+### ✅ Fixed: Auto-Advance Not Working
+**Problem**: `Future.delayed` prevented focus change
+**Solution**: Direct `requestFocus()` call without delay
+
+### ✅ Fixed: Stuck in One Field (Backspace)
+**Problem**: No way to move back on empty field
+**Solution**: `Focus` widget with `RawKeyDownEvent` detection for backspace
+
+## Next Steps
 - [ ] Implement actual OTP verification API call
+- [ ] Add error handling for invalid OTP
+- [ ] Add retry limit (e.g., max 3 attempts)
+- [ ] Add expiry time for OTP (e.g., 10 minutes)
 - [ ] Implement resend OTP API call
-- [ ] Add OTP expiration handling
-- [ ] Add rate limiting for resend
-- [ ] Add animation when OTP is wrong
-- [ ] Add haptic feedback
-- [ ] Store email securely during flow
-- [ ] Add analytics tracking
-- [ ] Add unit tests
-- [ ] Add widget tests
-- [ ] Test with different email lengths
-
-## 📝 Notes
-
-### Design Decisions
-
-1. **Auto-Focus**: Automatically moves focus to the next box when a digit is entered for better UX.
-
-2. **Countdown Timer**: Displays remaining time in the description text and enables/disables the resend link accordingly.
-
-3. **Paste Support**: Users can paste the entire OTP code, and it will be distributed across all 6 boxes automatically.
-
-4. **Material Icons**: Used Flutter's built-in `Icons.mail_outline` instead of a custom SVG for simplicity.
-
-5. **Query Parameters**: Email is passed via URL query parameter to maintain clean separation and allow deep linking.
-
-### Security Considerations
-
-- OTP codes should be 6 digits
-- Codes should expire after a set time (e.g., 5-10 minutes)
-- Limit resend attempts to prevent spam
-- Rate limit verification attempts to prevent brute force
-- Clear OTP code from memory after verification
-- Use HTTPS for all API calls
-
-### Accessibility
-
-- All interactive elements are properly sized
-- Timer countdown is visible in text
-- Clear error messages
-- Screen reader friendly
-- High contrast text
-
-### Testing Tips
-
-**Mock OTP**: For testing, use `123456` as valid OTP code (hardcoded in current implementation).
-
-**Test Scenarios**:
-1. Enter correct OTP → Should navigate to Home
-2. Enter incorrect OTP → Should show error
-3. Wait for timer to expire → Resend link becomes active
-4. Tap resend → Timer restarts
-5. Paste OTP code → Should distribute across boxes
-6. Backspace navigation → Should move to previous box
-7. Back button → Should return to Register screen
-
-## 🔗 Related Files
-
-- [Register Screen](./register.md)
-- [Login Screen](./sign-in.md)
-- [Reusable Components](../components.md)
-- [Design System](../design-system.md)
-- [Localization Guide](../localization.md)
-
----
-
-**Last Updated**: January 2026
-
+- [ ] Add analytics tracking for verification events
+- [ ] Add unit tests for OTP input widget
+- [ ] Add widget tests for verification screen

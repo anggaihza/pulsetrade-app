@@ -7,22 +7,31 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/otp_input.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
+/// Type of verification being performed
+enum VerificationType { email, phone }
+
 /// OTP Verification screen matching the Figma design
 ///
-/// This screen displays an OTP input for email verification with:
+/// This screen displays an OTP input for email/phone verification with:
 /// - Back button in app bar
-/// - Email icon + title
-/// - Description with email and countdown
+/// - Email/Phone icon + title
+/// - Description with contact info and countdown
 /// - 6-digit OTP input boxes
 /// - Continue button
 /// - "I haven't receive the code" link with countdown
 class OTPVerificationScreen extends ConsumerStatefulWidget {
-  const OTPVerificationScreen({required this.email, super.key});
+  const OTPVerificationScreen({
+    required this.contact,
+    super.key,
+    this.verificationType = VerificationType.email,
+  });
 
-  final String email;
+  final String contact; // Email or phone number
+  final VerificationType verificationType;
 
   static const String routePath = '/otp-verification';
   static const String routeName = 'otp-verification';
@@ -128,7 +137,14 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
             color: AppColors.textPrimary,
             size: 24,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            // Check if we can pop, otherwise navigate to login
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(LoginScreen.routePath);
+            }
+          },
         ),
       ),
       body: SafeArea(
@@ -144,14 +160,18 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
                   // Icon + Title
                   Row(
                     children: [
-                      const Icon(
-                        TablerIcons.mail_filled,
+                      Icon(
+                        widget.verificationType == VerificationType.email
+                            ? TablerIcons.mail_filled
+                            : TablerIcons.phone,
                         color: AppColors.textPrimary,
                         size: 24,
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        strings.emailVerification,
+                        widget.verificationType == VerificationType.email
+                            ? strings.emailVerification
+                            : strings.phoneVerification,
                         style: AppTextStyles.labelLarge().copyWith(
                           fontSize: 24,
                         ),
@@ -161,7 +181,15 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
                   const SizedBox(height: 4),
                   // Description
                   Text(
-                    strings.otpSentMessage(widget.email, _secondsRemaining),
+                    widget.verificationType == VerificationType.email
+                        ? strings.otpSentToEmail(
+                            widget.contact,
+                            _secondsRemaining,
+                          )
+                        : strings.otpSentToPhone(
+                            widget.contact,
+                            _secondsRemaining,
+                          ),
                     style:
                         AppTextStyles.bodyLarge(
                           color: AppColors.textSecondary,

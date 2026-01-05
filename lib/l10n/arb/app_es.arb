@@ -38,6 +38,7 @@
   "pleaseEnterEmail": "Por favor ingresa correo/número de teléfono",
   "pleaseAcceptTerms": "Por favor acepta los Términos de Servicio y la Política de Privacidad",
   "emailVerification": "Verificación de correo",
+  "phoneVerification": "Verificación de teléfono",
   "otpSentMessage": "Se ha enviado un código de 6 dígitos a {email}. Por favor ingrésalo en los próximos {seconds} segundos",
   "@otpSentMessage": {
     "placeholders": {
@@ -49,9 +50,33 @@
       }
     }
   },
+  "otpSentToEmail": "Se ha enviado un código de 6 dígitos a {email}. Por favor ingrésalo en los próximos {seconds} segundos",
+  "@otpSentToEmail": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "otpSentToPhone": "Se ha enviado un código de 6 dígitos a {phone}. Por favor ingrésalo en los próximos {seconds} segundos",
+  "@otpSentToPhone": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "verificationCode": "Código de verificación",
   "iHaventReceiveCode": "No he recibido el código",
   "resendCode": "Reenviar código",
   "invalidOtpCode": "Código de verificación inválido",
-  "otpCodeRequired": "Por favor ingresa el código de 6 dígitos"
+  "otpCodeRequired": "Por favor ingresa el código de 6 dígitos",
+  "chooseVerificationMethod": "Elige método de verificación",
+  "chooseVerificationSubtitle": "¿Cómo te gustaría recibir tu código de verificación?"
 }

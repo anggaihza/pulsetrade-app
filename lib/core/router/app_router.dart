@@ -75,8 +75,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: OTPVerificationScreen.routePath,
         name: OTPVerificationScreen.routeName,
         builder: (context, state) {
-          final email = state.uri.queryParameters['email'] ?? '';
-          return OTPVerificationScreen(email: email);
+          final contact = state.uri.queryParameters['contact'] ?? '';
+          final type = state.uri.queryParameters['type'] ?? 'email';
+          final verificationType = type == 'phone'
+              ? VerificationType.phone
+              : VerificationType.email;
+          return OTPVerificationScreen(
+            contact: contact,
+            verificationType: verificationType,
+          );
         },
       ),
     ],

@@ -11,6 +11,7 @@ import 'package:pulsetrade_app/features/auth/presentation/providers/auth_provide
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
+import 'package:pulsetrade_app/features/auth/presentation/widgets/verification_type_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
@@ -64,29 +65,48 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() {
+  void _handleRegister() async {
     final strings = AppLocalizations.of(context);
-    final email = _emailController.text.trim();
+    final contact = _emailController.text.trim();
 
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(strings.pleaseEnterEmail)),
-      );
+    if (contact.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(strings.pleaseEnterEmail)));
       return;
     }
 
     if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(strings.pleaseAcceptTerms)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(strings.pleaseAcceptTerms)));
       return;
     }
 
-    // TODO: Implement actual registration logic
-    // Navigate to OTP verification screen
-    context.go(
-      '${OTPVerificationScreen.routePath}?email=${Uri.encodeComponent(email)}',
+    // Show bottom sheet to choose verification method
+    final verificationType = await VerificationTypeBottomSheet.show(
+      context,
+      contact: contact,
     );
+
+    if (verificationType == null || !mounted) return;
+
+    // TODO: Implement actual registration API call here
+
+    // Navigate to OTP verification screen with selected type
+    if (mounted) {
+      context.go(
+        Uri(
+          path: OTPVerificationScreen.routePath,
+          queryParameters: {
+            'contact': contact,
+            'type': verificationType == VerificationType.email
+                ? 'email'
+                : 'phone',
+          },
+        ).toString(),
+      );
+    }
   }
 
   void _handleGoogleSignIn() {
@@ -185,7 +205,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Widget _buildTermsCheckbox(AppLocalizations strings) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Checkbox
         GestureDetector(
@@ -198,19 +218,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             width: 15,
             height: 15,
             decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.textTertiary,
-                width: 1,
-              ),
+              border: Border.all(color: AppColors.textTertiary, width: 1),
               borderRadius: BorderRadius.circular(4),
               color: _acceptedTerms ? AppColors.primary : Colors.transparent,
             ),
             child: _acceptedTerms
-                ? const Icon(
-                    Icons.check,
-                    size: 12,
-                    color: AppColors.onPrimary,
-                  )
+                ? const Icon(Icons.check, size: 12, color: AppColors.onPrimary)
                 : null,
           ),
         ),
@@ -219,7 +232,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: AppTextStyles.bodyMedium(),
+              style: AppTextStyles.bodyMedium().copyWith(
+                height: 1.5, // Better line height for multi-line text
+              ),
               children: [
                 TextSpan(text: strings.termsAgreement),
                 TextSpan(text: ' '),
@@ -250,9 +265,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ..onTap = () {
                       // TODO: Navigate to Privacy Policy
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Privacy Policy screen'),
-                        ),
+                        const SnackBar(content: Text('Privacy Policy screen')),
                       );
                     },
                 ),
