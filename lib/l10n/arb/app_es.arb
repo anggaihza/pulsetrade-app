@@ -1,0 +1,19 @@
+{
+  "@@locale": "es",
+  "appTitle": "PulseTrade",
+  "homeTitle": "Inicio",
+  "login": "Ingresar",
+  "register": "Registrar",
+  "logout": "Cerrar sesión",
+  "email": "Correo",
+  "password": "Contraseña",
+  "submit": "Enviar",
+  "surveyTitle": "Encuesta",
+  "settingsTitle": "Configuración",
+  "theme": "Tema",
+  "language": "Idioma",
+  "light": "Claro",
+  "dark": "Oscuro",
+  "system": "Sistema",
+  "welcomeMessage": "Bienvenido de nuevo, {email}"
+}
