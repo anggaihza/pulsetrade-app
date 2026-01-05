@@ -84,5 +84,9 @@
   "passwordRequirementUpperLower": "Capital and lowercase letters",
   "passwordRequirementNumber": "A number",
   "passwordRequirementSpecialChar": "A special character",
-  "pleaseCompletePasswordRequirements": "Please complete all password requirements"
+  "pleaseCompletePasswordRequirements": "Please complete all password requirements",
+  "setPIN": "Set PIN",
+  "setPINSubtitle": "Unlock your app access using PIN",
+  "pleaseEnter6DigitPin": "Please enter a 6-digit PIN",
+  "skipForNow": "Skip for now"
 }

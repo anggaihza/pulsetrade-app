@@ -84,5 +84,9 @@
   "passwordRequirementUpperLower": "Letras mayúsculas y minúsculas",
   "passwordRequirementNumber": "Un número",
   "passwordRequirementSpecialChar": "Un carácter especial",
-  "pleaseCompletePasswordRequirements": "Por favor completa todos los requisitos de contraseña"
+  "pleaseCompletePasswordRequirements": "Por favor completa todos los requisitos de contraseña",
+  "setPIN": "Establecer PIN",
+  "setPINSubtitle": "Desbloquea el acceso a tu app usando PIN",
+  "pleaseEnter6DigitPin": "Por favor ingresa un PIN de 6 dígitos",
+  "skipForNow": "Omitir por ahora"
 }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/config/environment.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/create_pin_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
@@ -37,13 +38,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final verifyingOTP = state.matchedLocation == OTPVerificationScreen.routePath;
       final creatingPassword =
           state.matchedLocation == CreatePasswordScreen.routePath;
+      final creatingPin = state.matchedLocation == CreatePinScreen.routePath;
       final authed = notifier.isAuthenticated;
       if (!authed &&
-          !(loggingIn || registering || verifyingOTP || creatingPassword)) {
+          !(loggingIn ||
+              registering ||
+              verifyingOTP ||
+              creatingPassword ||
+              creatingPin)) {
         return LoginScreen.routePath;
       }
       if (authed &&
-          (loggingIn || registering || verifyingOTP || creatingPassword)) {
+          (loggingIn ||
+              registering ||
+              verifyingOTP ||
+              creatingPassword ||
+              creatingPin)) {
         return HomeScreen.routePath;
       }
       return null;
@@ -95,6 +105,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: CreatePasswordScreen.routePath,
         name: CreatePasswordScreen.routeName,
         builder: (context, state) => const CreatePasswordScreen(),
+      ),
+      GoRoute(
+        path: CreatePinScreen.routePath,
+        name: CreatePinScreen.routeName,
+        builder: (context, state) => const CreatePinScreen(),
       ),
     ],
   );
