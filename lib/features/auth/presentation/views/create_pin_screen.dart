@@ -121,7 +121,7 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
                     strings.setPINSubtitle,
                     style: AppTextStyles.bodyLarge(
                       color: AppColors.textSecondary,
-                    ),
+                    ).copyWith(height: 1.4),
                   ),
                 ],
               ),

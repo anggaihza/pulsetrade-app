@@ -111,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     strings.signInSubtitle,
                     style: AppTextStyles.bodyLarge(
                       color: AppColors.textSecondary,
-                    ),
+                    ).copyWith(height: 1.4),
                   ),
                 ],
               ),

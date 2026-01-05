@@ -143,7 +143,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     strings.registerSubtitle,
                     style: AppTextStyles.bodyLarge(
                       color: AppColors.textSecondary,
-                    ),
+                    ).copyWith(height: 1.4),
                   ),
                 ],
               ),
