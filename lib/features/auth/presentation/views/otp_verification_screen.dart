@@ -7,8 +7,8 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/otp_input.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Type of verification being performed
@@ -101,8 +101,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
     final isValid = _otpCode == '123456'; // Mock validation
 
     if (isValid) {
-      // Navigate to home on success
-      context.go(HomeScreen.routePath);
+      // Navigate to Create Password screen on success
+      context.go(CreatePasswordScreen.routePath);
     } else {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(

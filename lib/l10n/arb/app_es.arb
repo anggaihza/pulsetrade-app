@@ -78,5 +78,11 @@
   "invalidOtpCode": "Código de verificación inválido",
   "otpCodeRequired": "Por favor ingresa el código de 6 dígitos",
   "chooseVerificationMethod": "Elige método de verificación",
-  "chooseVerificationSubtitle": "¿Cómo te gustaría recibir tu código de verificación?"
+  "chooseVerificationSubtitle": "¿Cómo te gustaría recibir tu código de verificación?",
+  "createPassword": "Crear una contraseña",
+  "passwordRequirement6to12": "6-12 caracteres",
+  "passwordRequirementUpperLower": "Letras mayúsculas y minúsculas",
+  "passwordRequirementNumber": "Un número",
+  "passwordRequirementSpecialChar": "Un carácter especial",
+  "pleaseCompletePasswordRequirements": "Por favor completa todos los requisitos de contraseña"
 }
