@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/config/environment.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
@@ -32,9 +33,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (BuildContext context, GoRouterState state) {
       final loggingIn = state.matchedLocation == LoginScreen.routePath;
       final registering = state.matchedLocation == RegisterScreen.routePath;
+      final verifyingOTP = state.matchedLocation == OTPVerificationScreen.routePath;
       final authed = notifier.isAuthenticated;
-      if (!authed && !(loggingIn || registering)) return LoginScreen.routePath;
-      if (authed && (loggingIn || registering)) return HomeScreen.routePath;
+      if (!authed && !(loggingIn || registering || verifyingOTP)) {
+        return LoginScreen.routePath;
+      }
+      if (authed && (loggingIn || registering || verifyingOTP)) {
+        return HomeScreen.routePath;
+      }
       return null;
     },
     routes: <RouteBase>[
@@ -64,6 +70,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RegisterScreen.routePath,
         name: RegisterScreen.routeName,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: OTPVerificationScreen.routePath,
+        name: OTPVerificationScreen.routeName,
+        builder: (context, state) {
+          final email = state.uri.queryParameters['email'] ?? '';
+          return OTPVerificationScreen(email: email);
+        },
       ),
     ],
   );

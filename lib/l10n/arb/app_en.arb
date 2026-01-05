@@ -36,5 +36,22 @@
   "privacyPolicy": "Privacy Policy",
   "iHavePulseAccount": "I have Pulse account",
   "pleaseEnterEmail": "Please enter email/phone number",
-  "pleaseAcceptTerms": "Please accept the Terms of Service and Privacy Policy"
+  "pleaseAcceptTerms": "Please accept the Terms of Service and Privacy Policy",
+  "emailVerification": "Email verification",
+  "otpSentMessage": "A 6-digit code has been sent to {email}. Please enter it within the next {seconds} seconds",
+  "@otpSentMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationCode": "Verification Code",
+  "iHaventReceiveCode": "I haven't receive the code",
+  "resendCode": "Resend code",
+  "invalidOtpCode": "Invalid verification code",
+  "otpCodeRequired": "Please enter the 6-digit code"
 }

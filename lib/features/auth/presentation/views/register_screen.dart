@@ -9,6 +9,7 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
@@ -82,9 +83,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
 
     // TODO: Implement actual registration logic
-    // For now, just show a message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registration not yet implemented')),
+    // Navigate to OTP verification screen
+    context.go(
+      '${OTPVerificationScreen.routePath}?email=${Uri.encodeComponent(email)}',
     );
   }
 
