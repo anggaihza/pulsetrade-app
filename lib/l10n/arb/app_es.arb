@@ -26,5 +26,15 @@
   "continueWithGoogle": "Continuar con Google",
   "createPulseAccount": "Crear una cuenta Pulse",
   "pleaseEnterEmailPassword": "Por favor ingresa correo y contraseña",
-  "googleSignInNotImplemented": "Inicio de sesión con Google aún no implementado"
+  "googleSignInNotImplemented": "Inicio de sesión con Google aún no implementado",
+  "welcome": "¡Bienvenido!",
+  "registerSubtitle": "Únete ahora y comienza tu viaje hacia el éxito. ¡Empecemos!",
+  "continueButton": "Continuar",
+  "termsAgreement": "Al crear una cuenta, acepto los",
+  "termsOfService": "Términos de Servicio",
+  "and": "y",
+  "privacyPolicy": "Política de Privacidad",
+  "iHavePulseAccount": "Ya tengo cuenta Pulse",
+  "pleaseEnterEmail": "Por favor ingresa correo/número de teléfono",
+  "pleaseAcceptTerms": "Por favor acepta los Términos de Servicio y la Política de Privacidad"
 }

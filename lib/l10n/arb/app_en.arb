@@ -26,5 +26,15 @@
   "continueWithGoogle": "Continue with Google",
   "createPulseAccount": "Create a Pulse account",
   "pleaseEnterEmailPassword": "Please enter email and password",
-  "googleSignInNotImplemented": "Google Sign-In not yet implemented"
+  "googleSignInNotImplemented": "Google Sign-In not yet implemented",
+  "welcome": "Welcome!",
+  "registerSubtitle": "Join now and embark on your journey to success. Let's get started!",
+  "continueButton": "Continue",
+  "termsAgreement": "By Creating an account, I agree to Pulse Trading's",
+  "termsOfService": "Terms of Service",
+  "and": "and",
+  "privacyPolicy": "Privacy Policy",
+  "iHavePulseAccount": "I have Pulse account",
+  "pleaseEnterEmail": "Please enter email/phone number",
+  "pleaseAcceptTerms": "Please accept the Terms of Service and Privacy Policy"
 }
