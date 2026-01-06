@@ -92,5 +92,31 @@
   "pleaseEnter6DigitPin": "Por favor ingresa un PIN de 6 dígitos",
   "skipForNow": "Omitir por ahora",
   "accountCreated": "¡Cuenta creada!",
-  "accountCreatedSubtitle": "Es hora de embarcarte en tu viaje hacia el éxito"
+  "accountCreatedSubtitle": "Es hora de embarcarte en tu viaje hacia el éxito",
+  "home": "Inicio",
+  "portfolio": "Portafolio",
+  "discover": "Descubrir",
+  "watchlist": "Lista de seguimiento",
+  "wallet": "Billetera",
+  "bullish": "Alcista",
+  "bearish": "Bajista",
+  "neutral": "Neutral",
+  "more": "más",
+  "less": "menos",
+  "comments": "comentarios",
+  "comment": "comentario",
+  "addComment": "Agregar comentario",
+  "reply": "Responder",
+  "viewReplies": "Ver {count} Respuestas",
+  "@viewReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "swipeRightForCharts": "Desliza a la derecha para ver gráficos",
+  "swipeLeftToBuy": "Desliza a la izquierda para comprar",
+  "buy": "COMPRAR",
+  "chart": "GRÁFICO"
 }

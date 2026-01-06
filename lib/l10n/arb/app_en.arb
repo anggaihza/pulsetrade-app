@@ -92,5 +92,31 @@
   "pleaseEnter6DigitPin": "Please enter a 6-digit PIN",
   "skipForNow": "Skip for now",
   "accountCreated": "Account created!",
-  "accountCreatedSubtitle": "Time to embark your journey to success"
+  "accountCreatedSubtitle": "Time to embark your journey to success",
+  "home": "Home",
+  "portfolio": "Portfolio",
+  "discover": "Discover",
+  "watchlist": "Watchlist",
+  "wallet": "Wallet",
+  "bullish": "Bullish",
+  "bearish": "Bearish",
+  "neutral": "Neutral",
+  "more": "more",
+  "less": "less",
+  "comments": "comments",
+  "comment": "comment",
+  "addComment": "Add comment",
+  "reply": "Reply",
+  "viewReplies": "View {count} Replies",
+  "@viewReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "swipeRightForCharts": "Swipe right for charts",
+  "swipeLeftToBuy": "Swipe left to buy",
+  "buy": "BUY",
+  "chart": "CHART"
 }

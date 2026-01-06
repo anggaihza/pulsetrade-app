@@ -18,6 +18,12 @@ class AppColors {
   // Foundation/Primary
   static const Color primaryNormal = Color(0xFF2979FF); // Foundation/Primary/Normal
 
+  // Foundation/Success
+  static const Color successNormal = Color(0xFF1BC865); // Foundation/Success/Normal
+
+  // Foundation/Error
+  static const Color errorNormal = Color(0xFFFF4D4D); // Foundation/Error/Normal
+
   // Semantic color aliases for better readability
   static const Color background = black;
   static const Color surface = blackField;
@@ -28,6 +34,8 @@ class AppColors {
   static const Color border = whiteDark;
   static const Color primary = primaryNormal;
   static const Color onPrimary = black; // Text on primary buttons is black
+  static const Color success = successNormal;
+  static const Color error = errorNormal;
 }
 
 /// Global spacing constants for the application

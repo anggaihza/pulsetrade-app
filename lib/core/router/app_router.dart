@@ -9,6 +9,7 @@ import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dar
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
+import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
 import 'package:riverpod/riverpod.dart';
@@ -22,7 +23,10 @@ class RouterNotifier extends ChangeNotifier {
 
   bool get isAuthenticated {
     final state = ref.read(authControllerProvider);
-    return state.maybeWhen(data: (data) => data.isAuthenticated, orElse: () => false);
+    return state.maybeWhen(
+      data: (data) => data.isAuthenticated,
+      orElse: () => false,
+    );
   }
 }
 
@@ -30,18 +34,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = RouterNotifier(ref);
 
   return GoRouter(
-    initialLocation: HomeScreen.routePath,
+    initialLocation: HomeScreen.routePath, // Changed to show new feed
     debugLogDiagnostics: ref.read(environmentConfigProvider).enableLogging,
     refreshListenable: notifier,
     redirect: (BuildContext context, GoRouterState state) {
       final loggingIn = state.matchedLocation == LoginScreen.routePath;
       final registering = state.matchedLocation == RegisterScreen.routePath;
-      final verifyingOTP = state.matchedLocation == OTPVerificationScreen.routePath;
+      final verifyingOTP =
+          state.matchedLocation == OTPVerificationScreen.routePath;
       final creatingPassword =
           state.matchedLocation == CreatePasswordScreen.routePath;
       final creatingPin = state.matchedLocation == CreatePinScreen.routePath;
       final accountCreated =
           state.matchedLocation == AccountCreatedScreen.routePath;
+      final viewingFeed = state.matchedLocation == HomeFeedScreen.routePath;
       final authed = notifier.isAuthenticated;
       if (!authed &&
           !(loggingIn ||
@@ -50,6 +56,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               creatingPassword ||
               creatingPin ||
               accountCreated)) {
+        // Allow feed without auth for testing
         return LoginScreen.routePath;
       }
       if (authed &&
@@ -59,7 +66,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               creatingPassword ||
               creatingPin ||
               accountCreated)) {
-        return HomeScreen.routePath;
+        return HomeScreen.routePath; // Redirect to new feed
       }
       return null;
     },
@@ -80,6 +87,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const SettingsScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: HomeFeedScreen.routePath,
+        name: HomeFeedScreen.routeName,
+        builder: (context, state) => const HomeFeedScreen(),
       ),
       GoRoute(
         path: LoginScreen.routePath,

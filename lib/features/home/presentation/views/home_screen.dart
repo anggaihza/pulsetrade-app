@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_card.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
+import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
@@ -37,6 +38,13 @@ class HomeScreen extends ConsumerWidget {
             Text(
               strings.welcomeMessage(email),
               style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            const _NavigationCard(
+              title: '📱 Trading Feed',
+              description:
+                  'TikTok-style video feed with stock charts and interactions.',
+              route: HomeFeedScreen.routePath,
             ),
             const SizedBox(height: 16),
             const _NavigationCard(

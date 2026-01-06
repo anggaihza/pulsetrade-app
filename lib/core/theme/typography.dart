@@ -19,6 +19,16 @@ class AppTextStyles {
         color: color ?? AppColors.textPrimary,
       );
 
+  // Headline Styles
+  // headline-large: Font(family: "Montserrat", style: Bold, size: 24)
+  static TextStyle headlineLarge({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 24,
+        fontWeight: FontWeight.w700, // Bold
+        height: 1.0,
+        letterSpacing: 0,
+        color: color ?? AppColors.textPrimary,
+      );
+
   // Body Styles
   // body-large: Font(family: "Montserrat", style: Regular, size: 14)
   static TextStyle bodyLarge({Color? color}) => GoogleFonts.montserrat(
@@ -32,6 +42,15 @@ class AppTextStyles {
   // body-medium: Font(family: "Montserrat", style: Regular, size: 12)
   static TextStyle bodyMedium({Color? color}) => GoogleFonts.montserrat(
         fontSize: 12,
+        fontWeight: FontWeight.w400, // Regular
+        height: 1.0,
+        letterSpacing: 0,
+        color: color ?? AppColors.textPrimary,
+      );
+
+  // body-small: Font(family: "Montserrat", style: Regular, size: 10)
+  static TextStyle bodySmall({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 10,
         fontWeight: FontWeight.w400, // Regular
         height: 1.0,
         letterSpacing: 0,
@@ -55,6 +74,15 @@ class AppTextStyles {
         height: 1.0,
         letterSpacing: 0,
         color: color ?? AppColors.textLabel,
+      );
+
+  // label-small: Font(family: "Montserrat", style: SemiBold, size: 10)
+  static TextStyle labelSmall({Color? color}) => GoogleFonts.montserrat(
+        fontSize: 10,
+        fontWeight: FontWeight.w600, // SemiBold
+        height: 1.0,
+        letterSpacing: 0,
+        color: color ?? AppColors.textPrimary,
       );
 
   // Special Purpose Styles
