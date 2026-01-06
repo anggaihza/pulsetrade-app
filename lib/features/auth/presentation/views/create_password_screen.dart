@@ -105,105 +105,102 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-            size: 24,
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              TablerIcons.arrow_narrow_left,
+              color: AppColors.textPrimary,
+              size: 24,
+            ),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go(HomeScreen.routePath);
+              }
+            },
           ),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(HomeScreen.routePath);
-            }
-          },
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  const Icon(
-                    TablerIcons.lock_square_rounded_filled,
-                    color: AppColors.textPrimary,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    strings.createPassword,
-                    style: AppTextStyles.labelLarge().copyWith(fontSize: 24),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              // Form
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Password field
-                      AppTextField(
-                        label: strings.passwordLabel,
-                        placeholder: strings.passwordPlaceholder,
-                        controller: _passwordController,
-                        obscureText: true,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Password requirements
-                      _PasswordRequirement(
-                        text: strings.passwordRequirement6to12,
-                        isMet: _hasMinLength,
-                      ),
-                      const SizedBox(height: 4),
-                      _PasswordRequirement(
-                        text: strings.passwordRequirementUpperLower,
-                        isMet: _hasUpperLower,
-                      ),
-                      const SizedBox(height: 4),
-                      _PasswordRequirement(
-                        text: strings.passwordRequirementNumber,
-                        isMet: _hasNumber,
-                      ),
-                      const SizedBox(height: 4),
-                      _PasswordRequirement(
-                        text: strings.passwordRequirementSpecialChar,
-                        isMet: _hasSpecialChar,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Continue button
-                      AppButton(
-                        label: strings.continueButton,
-                        onPressed: _handleContinue,
-                        isLoading: _isLoading,
-                      ),
-                    ],
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    const Icon(
+                      TablerIcons.lock_square_rounded_filled,
+                      color: AppColors.textPrimary,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      strings.createPassword,
+                      style: AppTextStyles.labelLarge().copyWith(fontSize: 24),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                // Form
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Password field
+                        AppTextField(
+                          label: strings.passwordLabel,
+                          placeholder: strings.passwordPlaceholder,
+                          controller: _passwordController,
+                          obscureText: true,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Password requirements
+                        _PasswordRequirement(
+                          text: strings.passwordRequirement6to12,
+                          isMet: _hasMinLength,
+                        ),
+                        const SizedBox(height: 4),
+                        _PasswordRequirement(
+                          text: strings.passwordRequirementUpperLower,
+                          isMet: _hasUpperLower,
+                        ),
+                        const SizedBox(height: 4),
+                        _PasswordRequirement(
+                          text: strings.passwordRequirementNumber,
+                          isMet: _hasNumber,
+                        ),
+                        const SizedBox(height: 4),
+                        _PasswordRequirement(
+                          text: strings.passwordRequirementSpecialChar,
+                          isMet: _hasSpecialChar,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Continue button
+                        AppButton(
+                          label: strings.continueButton,
+                          onPressed: _handleContinue,
+                          isLoading: _isLoading,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 }
 
 /// Password requirement item with check indicator
 class _PasswordRequirement extends StatelessWidget {
-  const _PasswordRequirement({
-    required this.text,
-    required this.isMet,
-  });
+  const _PasswordRequirement({required this.text, required this.isMet});
 
   final String text;
   final bool isMet;
@@ -213,19 +210,13 @@ class _PasswordRequirement extends StatelessWidget {
     return Row(
       children: [
         Icon(
-          isMet ? TablerIcons.circle_check : TablerIcons.circle_dashed,
+          isMet ? TablerIcons.circle_dashed_check : TablerIcons.circle_dashed,
           size: 16,
           color: isMet ? const Color(0xFF1BC865) : AppColors.textLabel,
         ),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: AppTextStyles.bodyMedium(
-            color: AppColors.textLabel,
-          ),
-        ),
+        Text(text, style: AppTextStyles.bodyMedium(color: AppColors.textLabel)),
       ],
     );
   }
 }
-
