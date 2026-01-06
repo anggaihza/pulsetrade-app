@@ -6,7 +6,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/otp_input.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/account_created_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Create PIN Screen
@@ -58,14 +58,14 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() => _isLoading = false);
-        context.go(HomeScreen.routePath);
+        context.go(AccountCreatedScreen.routePath);
       }
     });
   }
 
   void _handleSkip() {
-    // Skip PIN setup and go to home
-    context.go(HomeScreen.routePath);
+    // Skip PIN setup and go to account created screen
+    context.go(AccountCreatedScreen.routePath);
   }
 
   @override
@@ -88,8 +88,6 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
           onPressed: () {
             if (context.canPop()) {
               context.pop();
-            } else {
-              context.go(HomeScreen.routePath);
             }
           },
         ),

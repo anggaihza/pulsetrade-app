@@ -114,48 +114,63 @@ class _OTPInputState extends State<OTPInput> {
   }
 
   Widget _buildBox(int index) {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.field),
-      ),
-      child: Center(
-        child: Focus(
-          onKey: (node, event) {
-            if (event is RawKeyDownEvent &&
-                event.logicalKey == LogicalKeyboardKey.backspace) {
-              _handleBackspace(index);
-            }
-            return KeyEventResult.ignored;
-          },
-          child: TextField(
-            controller: _controllers[index],
-            focusNode: _focusNodes[index],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            textAlignVertical: TextAlignVertical.center,
-            style: AppTextStyles.labelMedium(
-              color: AppColors.textPrimary,
-            ).copyWith(fontSize: 16, height: 1.0),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              counterText: '',
-              contentPadding: EdgeInsets.zero,
-              isDense: true,
-              filled: false,
-              fillColor: Colors.transparent,
+    return GestureDetector(
+      onTap: () {
+        _focusNodes[index].requestFocus();
+      },
+      child: AnimatedBuilder(
+        animation: _focusNodes[index],
+        builder: (context, child) {
+          final isFocused = _focusNodes[index].hasFocus;
+          return Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.field),
+              border: Border.all(
+                color: isFocused ? AppColors.primary : AppColors.border,
+                width: isFocused ? 1.5 : 0.5,
+              ),
             ),
-            cursorColor: AppColors.primary,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(1),
-            ],
-            onChanged: (value) => _handleChange(index, value),
-          ),
-        ),
+            child: Center(
+              child: Focus(
+                onKey: (node, event) {
+                  if (event is RawKeyDownEvent &&
+                      event.logicalKey == LogicalKeyboardKey.backspace) {
+                    _handleBackspace(index);
+                  }
+                  return KeyEventResult.ignored;
+                },
+                child: TextField(
+                  controller: _controllers[index],
+                  focusNode: _focusNodes[index],
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: AppTextStyles.labelMedium(
+                    color: AppColors.textPrimary,
+                  ).copyWith(fontSize: 16, height: 1.0),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    counterText: '',
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
+                    filled: false,
+                    fillColor: Colors.transparent,
+                  ),
+                  cursorColor: AppColors.primary,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(1),
+                  ],
+                  onChanged: (value) => _handleChange(index, value),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

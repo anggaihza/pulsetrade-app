@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/config/environment.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/account_created_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_pin_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
@@ -39,13 +40,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final creatingPassword =
           state.matchedLocation == CreatePasswordScreen.routePath;
       final creatingPin = state.matchedLocation == CreatePinScreen.routePath;
+      final accountCreated =
+          state.matchedLocation == AccountCreatedScreen.routePath;
       final authed = notifier.isAuthenticated;
       if (!authed &&
           !(loggingIn ||
               registering ||
               verifyingOTP ||
               creatingPassword ||
-              creatingPin)) {
+              creatingPin ||
+              accountCreated)) {
         return LoginScreen.routePath;
       }
       if (authed &&
@@ -53,7 +57,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               registering ||
               verifyingOTP ||
               creatingPassword ||
-              creatingPin)) {
+              creatingPin ||
+              accountCreated)) {
         return HomeScreen.routePath;
       }
       return null;
@@ -110,6 +115,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: CreatePinScreen.routePath,
         name: CreatePinScreen.routeName,
         builder: (context, state) => const CreatePinScreen(),
+      ),
+      GoRoute(
+        path: AccountCreatedScreen.routePath,
+        name: AccountCreatedScreen.routeName,
+        builder: (context, state) => const AccountCreatedScreen(),
       ),
     ],
   );

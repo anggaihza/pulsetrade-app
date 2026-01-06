@@ -88,5 +88,7 @@
   "setPIN": "Set PIN",
   "setPINSubtitle": "Unlock your app access using PIN",
   "pleaseEnter6DigitPin": "Please enter a 6-digit PIN",
-  "skipForNow": "Skip for now"
+  "skipForNow": "Skip for now",
+  "accountCreated": "Account created!",
+  "accountCreatedSubtitle": "Time to embark your journey to success"
 }
