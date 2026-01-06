@@ -10,6 +10,7 @@ import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
+import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/verification_type_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
@@ -47,9 +48,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         if (!mounted) return;
         if (next.hasError) {
           final failure = next.error;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(failure.toString())));
+          showErrorToast(context, failure.toString());
         }
         if (next.hasValue && next.value?.isAuthenticated == true) {
           context.go(HomeScreen.routePath);
@@ -70,16 +69,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final contact = _emailController.text.trim();
 
     if (contact.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(strings.pleaseEnterEmail)));
+      showErrorToast(context, strings.pleaseEnterEmail);
       return;
     }
 
     if (!_acceptedTerms) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(strings.pleaseAcceptTerms)));
+      showErrorToast(context, strings.pleaseAcceptTerms);
       return;
     }
 
@@ -112,9 +107,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void _handleGoogleSignIn() {
     final strings = AppLocalizations.of(context);
     // TODO: Implement Google sign-in functionality
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(strings.googleSignInNotImplemented)));
+    showWarningToast(context, strings.googleSignInNotImplemented);
   }
 
   @override
@@ -250,11 +243,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       // TODO: Navigate to Terms of Service
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Terms of Service screen'),
-                        ),
-                      );
+                      showWarningToast(context, 'Terms of Service screen');
                     },
                 ),
                 TextSpan(text: ' ${strings.and} '),
@@ -267,9 +256,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       // TODO: Navigate to Privacy Policy
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Privacy Policy screen')),
-                      );
+                      showWarningToast(context, 'Privacy Policy screen');
                     },
                 ),
                 const TextSpan(text: '.'),

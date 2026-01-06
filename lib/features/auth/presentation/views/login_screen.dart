@@ -6,6 +6,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_text_field.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/google_button.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
@@ -44,9 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (!mounted) return;
         if (next.hasError) {
           final failure = next.error;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(failure.toString())));
+          showErrorToast(context, failure.toString());
         }
         if (next.hasValue && next.value?.isAuthenticated == true) {
           context.go(HomeScreen.routePath);
@@ -71,18 +70,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (email.isNotEmpty && password.isNotEmpty) {
       ref.read(authControllerProvider.notifier).login(email, password);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(strings.pleaseEnterEmailPassword)));
+      showErrorToast(context, strings.pleaseEnterEmailPassword);
     }
   }
 
   void _handleGoogleSignIn() {
     final strings = AppLocalizations.of(context);
     // TODO: Implement Google sign-in functionality
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(strings.googleSignInNotImplemented)));
+    showWarningToast(context, strings.googleSignInNotImplemented);
   }
 
   @override

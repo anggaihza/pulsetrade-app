@@ -6,6 +6,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/otp_input.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/account_created_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
@@ -46,9 +47,7 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
     final strings = AppLocalizations.of(context);
 
     if (_pinCode.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(strings.pleaseEnter6DigitPin)),
-      );
+      showErrorToast(context, strings.pleaseEnter6DigitPin);
       return;
     }
 

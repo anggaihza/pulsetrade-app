@@ -7,6 +7,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/otp_input.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
@@ -84,9 +85,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
     final strings = AppLocalizations.of(context);
 
     if (_otpCode.length != 6) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(strings.otpCodeRequired)));
+      showErrorToast(context, strings.otpCodeRequired);
       return;
     }
 
@@ -105,9 +104,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
       context.go(CreatePasswordScreen.routePath);
     } else {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(strings.invalidOtpCode)));
+      showErrorToast(context, strings.invalidOtpCode);
     }
   }
 
@@ -115,9 +112,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
     final strings = AppLocalizations.of(context);
 
     // TODO: Implement actual resend code API call
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(strings.resendCode)));
+    showSuccessToast(context, strings.resendCode);
 
     _startTimer();
   }

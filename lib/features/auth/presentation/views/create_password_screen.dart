@@ -6,6 +6,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_text_field.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_pin_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
@@ -77,9 +78,7 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
     final strings = AppLocalizations.of(context);
 
     if (!_isPasswordValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(strings.pleaseCompletePasswordRequirements)),
-      );
+      showErrorToast(context, strings.pleaseCompletePasswordRequirements);
       return;
     }
 
