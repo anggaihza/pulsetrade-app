@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 
 /// Reusable text field widget with label and optional password visibility toggle
-/// 
+///
 /// This is a generic text field that can be used across the app.
 /// It matches the Figma design with dark surface background.
 class AppTextField extends StatefulWidget {
@@ -106,14 +108,23 @@ class _AppTextFieldState extends State<AppTextField> {
                       });
                       widget.onSuffixIconTap?.call();
                     },
-                    child: widget.suffixIcon ??
-                        Icon(
-                          _obscured
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 16,
-                          color: AppColors.textLabel,
-                        ),
+                    child:
+                        widget.suffixIcon ??
+                        (_obscured
+                            ? SvgPicture.asset(
+                                'assets/icons/eye_closed.svg',
+                                width: 16,
+                                height: 16,
+                                colorFilter: ColorFilter.mode(
+                                  AppColors.textLabel,
+                                  BlendMode.srcIn,
+                                ),
+                              )
+                            : Icon(
+                                TablerIcons.eye,
+                                size: 16,
+                                color: AppColors.textLabel,
+                              )),
                   )
                 else if (widget.suffixIcon != null)
                   GestureDetector(
@@ -128,4 +139,3 @@ class _AppTextFieldState extends State<AppTextField> {
     );
   }
 }
-
