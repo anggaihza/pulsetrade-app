@@ -126,130 +126,134 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-            size: 24,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              TablerIcons.arrow_narrow_left,
+              color: AppColors.textPrimary,
+              size: 24,
+            ),
+            onPressed: () {
+              // Check if we can pop, otherwise navigate to login
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go(LoginScreen.routePath);
+              }
+            },
           ),
-          onPressed: () {
-            // Check if we can pop, otherwise navigate to login
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(LoginScreen.routePath);
-            }
-          },
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header section
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Icon + Title
-                  Row(
-                    children: [
-                      Icon(
-                        widget.verificationType == VerificationType.email
-                            ? TablerIcons.mail_filled
-                            : TablerIcons.phone,
-                        color: AppColors.textPrimary,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        widget.verificationType == VerificationType.email
-                            ? strings.emailVerification
-                            : strings.phoneVerification,
-                        style: AppTextStyles.labelLarge().copyWith(
-                          fontSize: 24,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header section
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Icon + Title
+                    Row(
+                      children: [
+                        Icon(
+                          widget.verificationType == VerificationType.email
+                              ? TablerIcons.mail_filled
+                              : TablerIcons.phone,
+                          color: AppColors.textPrimary,
+                          size: 24,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  // Description
-                  Text(
-                    widget.verificationType == VerificationType.email
-                        ? strings.otpSentToEmail(
-                            widget.contact,
-                            _secondsRemaining,
-                          )
-                        : strings.otpSentToPhone(
-                            widget.contact,
-                            _secondsRemaining,
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.verificationType == VerificationType.email
+                              ? strings.emailVerification
+                              : strings.phoneVerification,
+                          style: AppTextStyles.labelLarge().copyWith(
+                            fontSize: 24,
                           ),
-                    style:
-                        AppTextStyles.bodyLarge(
-                          color: AppColors.textSecondary,
-                        ).copyWith(
-                          height: 1.4, // Better line height for multi-line text
                         ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              // Form section
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Verification Code label
-                      Text(
-                        strings.verificationCode,
-                        style: AppTextStyles.textFieldLabel(),
-                      ),
-                      const SizedBox(height: AppSpacing.fieldLabelGap),
-                      // OTP Input
-                      OTPInput(
-                        onCompleted: _handleOTPCompleted,
-                        onChanged: _handleOTPChanged,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Continue button
-                      AppButton(
-                        label: strings.continueButton,
-                        onPressed: _handleContinue,
-                        isLoading: _isLoading,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Resend code link
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: _secondsRemaining == 0
-                              ? _handleResendCode
-                              : null,
-                          child: Text(
-                            strings.iHaventReceiveCode,
-                            style: AppTextStyles.link().copyWith(
-                              color: _secondsRemaining == 0
-                                  ? AppColors.textTertiary
-                                  : AppColors.textLabel,
-                              decoration: _secondsRemaining == 0
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // Description
+                    Text(
+                      widget.verificationType == VerificationType.email
+                          ? strings.otpSentToEmail(
+                              widget.contact,
+                              _secondsRemaining,
+                            )
+                          : strings.otpSentToPhone(
+                              widget.contact,
+                              _secondsRemaining,
+                            ),
+                      style:
+                          AppTextStyles.bodyLarge(
+                            color: AppColors.textSecondary,
+                          ).copyWith(
+                            height:
+                                1.4, // Better line height for multi-line text
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                // Form section
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Verification Code label
+                        Text(
+                          strings.verificationCode,
+                          style: AppTextStyles.textFieldLabel(),
+                        ),
+                        const SizedBox(height: AppSpacing.fieldLabelGap),
+                        // OTP Input
+                        OTPInput(
+                          onCompleted: _handleOTPCompleted,
+                          onChanged: _handleOTPChanged,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Continue button
+                        AppButton(
+                          label: strings.continueButton,
+                          onPressed: _handleContinue,
+                          isLoading: _isLoading,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Resend code link
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: _secondsRemaining == 0
+                                ? _handleResendCode
+                                : null,
+                            child: Text(
+                              strings.iHaventReceiveCode,
+                              style: AppTextStyles.link().copyWith(
+                                color: _secondsRemaining == 0
+                                    ? AppColors.textTertiary
+                                    : AppColors.textLabel,
+                                decoration: _secondsRemaining == 0
+                                    ? TextDecoration.underline
+                                    : TextDecoration.none,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -72,9 +72,11 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
@@ -165,6 +167,7 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }

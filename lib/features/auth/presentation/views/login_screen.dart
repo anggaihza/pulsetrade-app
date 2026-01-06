@@ -91,85 +91,88 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header section
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title: "Sign in"
-                  Text(strings.signIn, style: AppTextStyles.displaySmall()),
-                  const SizedBox(height: 4),
-                  // Subtitle: "Ready to start where you left off?"
-                  Text(
-                    strings.signInSubtitle,
-                    style: AppTextStyles.bodyLarge(
-                      color: AppColors.textSecondary,
-                    ).copyWith(height: 1.4),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              // Form section
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Email/Phone number field
-                      AppTextField(
-                        label: strings.emailPhoneLabel,
-                        placeholder: strings.emailPhonePlaceholder,
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Password field
-                      AppTextField(
-                        label: strings.passwordLabel,
-                        placeholder: strings.passwordPlaceholder,
-                        controller: _passwordController,
-                        obscureText: true,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Login button (using shared AppButton)
-                      AppButton(
-                        label: strings.login,
-                        onPressed: _handleLogin,
-                        isLoading: isLoading,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Or divider
-                      const OrDivider(),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Google sign-in button
-                      GoogleButton(
-                        label: strings.continueWithGoogle,
-                        onPressed: _handleGoogleSignIn,
-                      ),
-                      const SizedBox(height: AppSpacing.fieldGap),
-                      // Create account link
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () => context.go(RegisterScreen.routePath),
-                          child: Text(
-                            strings.createPulseAccount,
-                            style: AppTextStyles.link(),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header section
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title: "Sign in"
+                    Text(strings.signIn, style: AppTextStyles.displaySmall()),
+                    const SizedBox(height: 4),
+                    // Subtitle: "Ready to start where you left off?"
+                    Text(
+                      strings.signInSubtitle,
+                      style: AppTextStyles.bodyLarge(
+                        color: AppColors.textSecondary,
+                      ).copyWith(height: 1.4),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                // Form section
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Email/Phone number field
+                        AppTextField(
+                          label: strings.emailPhoneLabel,
+                          placeholder: strings.emailPhonePlaceholder,
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Password field
+                        AppTextField(
+                          label: strings.passwordLabel,
+                          placeholder: strings.passwordPlaceholder,
+                          controller: _passwordController,
+                          obscureText: true,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Login button (using shared AppButton)
+                        AppButton(
+                          label: strings.login,
+                          onPressed: _handleLogin,
+                          isLoading: isLoading,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Or divider
+                        const OrDivider(),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Google sign-in button
+                        GoogleButton(
+                          label: strings.continueWithGoogle,
+                          onPressed: _handleGoogleSignIn,
+                        ),
+                        const SizedBox(height: AppSpacing.fieldGap),
+                        // Create account link
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () => context.go(RegisterScreen.routePath),
+                            child: Text(
+                              strings.createPulseAccount,
+                              style: AppTextStyles.link(),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
