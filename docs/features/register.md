@@ -91,23 +91,54 @@ Widget _buildTermsCheckbox(AppLocalizations strings) {
 }
 ```
 
-#### 3. **Validation**
-Validates email and terms acceptance before proceeding:
+#### 3. **Automatic Contact Type Detection**
+The system automatically detects whether the user entered an email or phone number:
 ```dart
-void _handleRegister() {
-  if (email.isEmpty) {
-    // Show error: "Please enter email/phone number"
+VerificationType _detectContactType(String contact) {
+  // Check if it's an email (contains @ symbol and has valid email pattern)
+  final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+  if (emailRegex.hasMatch(contact)) {
+    return VerificationType.email;
   }
-  if (!_acceptedTerms) {
-    // Show error: "Please accept the Terms of Service"
-  }
-  // Proceed with registration
+  
+  // Otherwise treat it as a phone number
+  return VerificationType.phone;
 }
 ```
 
-#### 4. **Navigation**
+#### 4. **Validation**
+Validates email/phone and terms acceptance before proceeding:
+```dart
+void _handleRegister() {
+  if (contact.isEmpty) {
+    showErrorToast(context, strings.pleaseEnterEmail);
+    return;
+  }
+  if (!_acceptedTerms) {
+    showErrorToast(context, strings.pleaseAcceptTerms);
+    return;
+  }
+  
+  // Auto-detect if input is email or phone
+  final verificationType = _detectContactType(contact);
+  
+  // Navigate to OTP screen with detected type
+  context.go(
+    Uri(
+      path: OTPVerificationScreen.routePath,
+      queryParameters: {
+        'contact': contact,
+        'type': verificationType == VerificationType.email ? 'email' : 'phone',
+      },
+    ).toString(),
+  );
+}
+```
+
+#### 5. **Navigation**
 - "I have Pulse account" → Navigates to Login screen
-- After successful registration → Navigates to Home screen
+- After validation → Automatically detects input type and navigates to OTP Verification screen
+- After successful registration flow → Navigates to Home screen
 
 ## 🌍 Localization
 
@@ -198,14 +229,16 @@ AppSpacing.fieldGap       // 16px - Between form elements
 
 ```
 1. User lands on Register screen
-2. User enters email/phone number
+2. User enters email or phone number (e.g., "user@example.com" or "+1234567890")
 3. User checks Terms of Service checkbox
 4. User taps "Continue" button
    → Validation:
-     - Email field must not be empty
+     - Contact field must not be empty
      - Terms checkbox must be checked
-   → If valid: Create account and navigate to Home
-   → If invalid: Show error message
+   → If valid:
+     ✓ System automatically detects if input is email or phone
+     ✓ Navigate to OTP Verification screen with detected type
+   → If invalid: Show error toast message
 5. Alternative: User taps "Continue with Google"
    → Google Sign-In flow (to be implemented)
 6. Alternative: User taps "I have Pulse account"
@@ -218,7 +251,9 @@ AppSpacing.fieldGap       // 16px - Between form elements
 - ✅ Fully localized (English & Spanish)
 - ✅ Uses shared design system
 - ✅ Reusable components
-- ✅ Form validation
+- ✅ Form validation with error toasts
+- ✅ Automatic email/phone detection
+- ✅ Smart OTP routing (email or phone)
 - ✅ Loading states
 - ✅ Clickable Terms/Privacy links
 - ✅ Custom checkbox with check icon
@@ -245,11 +280,15 @@ AppSpacing.fieldGap       // 16px - Between form elements
 
 1. **Single Field Registration**: Following Figma, the screen only asks for email/phone initially. Additional information can be collected in a follow-up screen.
 
-2. **Custom Checkbox**: Used a custom checkbox instead of Flutter's default to match the exact Figma design (15x15px with 4px border radius).
+2. **Automatic Type Detection**: The system intelligently detects whether the user entered an email (contains `@`) or phone number, eliminating the need for manual selection. This provides a seamless UX without extra steps.
 
-3. **Clickable Links**: Terms of Service and Privacy Policy are tappable within the checkbox text using `TapGestureRecognizer`.
+3. **Smart OTP Routing**: Based on the detected input type, users are automatically routed to the appropriate OTP verification method (email or SMS), streamlining the registration flow.
 
-4. **No Password Field**: The Figma design doesn't include a password field on the initial registration screen. This follows a modern pattern where the password might be set in a follow-up step or sent via email/SMS.
+4. **Custom Checkbox**: Used a custom checkbox instead of Flutter's default to match the exact Figma design (15x15px with 4px border radius).
+
+5. **Clickable Links**: Terms of Service and Privacy Policy are tappable within the checkbox text using `TapGestureRecognizer`.
+
+6. **No Password Field**: The Figma design doesn't include a password field on the initial registration screen. This follows a modern pattern where the password is set in a follow-up step after OTP verification.
 
 ### Accessibility
 

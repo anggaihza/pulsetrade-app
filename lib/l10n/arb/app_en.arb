@@ -37,6 +37,8 @@
   "iHavePulseAccount": "I have Pulse account",
   "pleaseEnterEmail": "Please enter email/phone number",
   "pleaseAcceptTerms": "Please accept the Terms of Service and Privacy Policy",
+  "invalidEmailFormat": "Please enter a valid email address",
+  "invalidPhoneFormat": "Please enter a valid phone number",
   "emailVerification": "Email verification",
   "phoneVerification": "Phone verification",
   "otpSentMessage": "A 6-digit code has been sent to {email}. Please enter it within the next {seconds} seconds",

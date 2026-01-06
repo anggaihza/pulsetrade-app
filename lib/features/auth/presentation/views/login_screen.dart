@@ -7,6 +7,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/google_button.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
+import 'package:pulsetrade_app/core/utils/validators.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
@@ -67,11 +68,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isNotEmpty && password.isNotEmpty) {
-      ref.read(authControllerProvider.notifier).login(email, password);
-    } else {
+    // Check if fields are not empty
+    if (email.isEmpty || password.isEmpty) {
       showErrorToast(context, strings.pleaseEnterEmailPassword);
+      return;
     }
+
+    // Validate email format
+    if (!Validators.isValidEmail(email)) {
+      showErrorToast(context, strings.invalidEmailFormat);
+      return;
+    }
+
+    // Proceed with login
+    ref.read(authControllerProvider.notifier).login(email, password);
   }
 
   void _handleGoogleSignIn() {

@@ -11,8 +11,8 @@ import 'package:pulsetrade_app/features/auth/presentation/providers/auth_provide
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
+import 'package:pulsetrade_app/core/utils/validators.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
-import 'package:pulsetrade_app/features/auth/presentation/widgets/verification_type_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
@@ -64,6 +64,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
+  /// Automatically detects if the input is an email or phone number
+  VerificationType _detectContactType(String contact) {
+    // Check if it contains @ symbol - likely an email
+    if (contact.contains('@')) {
+      return VerificationType.email;
+    }
+
+    // Otherwise treat it as a phone number
+    return VerificationType.phone;
+  }
+
   void _handleRegister() async {
     final strings = AppLocalizations.of(context);
     final contact = _emailController.text.trim();
@@ -73,22 +84,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
+    // Automatically detect if input is email or phone
+    final verificationType = _detectContactType(contact);
+
+    // Validate based on detected type
+    if (verificationType == VerificationType.email) {
+      if (!Validators.isValidEmail(contact)) {
+        showErrorToast(context, strings.invalidEmailFormat);
+        return;
+      }
+    } else {
+      if (!Validators.isValidPhone(contact)) {
+        showErrorToast(context, strings.invalidPhoneFormat);
+        return;
+      }
+    }
+
     if (!_acceptedTerms) {
       showErrorToast(context, strings.pleaseAcceptTerms);
       return;
     }
 
-    // Show bottom sheet to choose verification method
-    final verificationType = await VerificationTypeBottomSheet.show(
-      context,
-      contact: contact,
-    );
-
-    if (verificationType == null || !mounted) return;
-
     // TODO: Implement actual registration API call here
 
-    // Navigate to OTP verification screen with selected type
+    // Navigate to OTP verification screen with detected type
     if (mounted) {
       context.go(
         Uri(
