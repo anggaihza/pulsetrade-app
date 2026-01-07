@@ -7,6 +7,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_text_field.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
+import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_pin_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
@@ -30,7 +31,6 @@ class CreatePasswordScreen extends ConsumerStatefulWidget {
 
 class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
 
   // Password validation states
   bool _hasMinLength = false;
@@ -73,7 +73,7 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
   bool get _isPasswordValid =>
       _hasMinLength && _hasUpperLower && _hasNumber && _hasSpecialChar;
 
-  void _handleContinue() {
+  Future<void> _handleContinue() async {
     final strings = AppLocalizations.of(context);
 
     if (!_isPasswordValid) {
@@ -81,23 +81,24 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
       return;
     }
 
-    // TODO: Implement password creation API call
-    setState(() => _isLoading = true);
-
-    // Simulate API call
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // Navigate to Create PIN screen after successful password creation.
-        // Use push so that back button returns to this screen.
-        context.push(CreatePinScreen.routePath);
-      }
-    });
+    final saved = await ref
+        .read(authControllerProvider.notifier)
+        .savePassword(_passwordController.text);
+    if (!mounted) return;
+    if (!saved) {
+      showErrorToast(context, strings.invalidOtpCode);
+      return;
+    }
+    // Navigate to Create PIN screen after successful password creation.
+    // Use push so that back button returns to this screen.
+    context.push(CreatePinScreen.routePath);
   }
 
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final authState = ref.watch(authControllerProvider);
+    final isLoading = authState.isLoading;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -176,7 +177,7 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
                         AppButton(
                           label: strings.continueButton,
                           onPressed: _handleContinue,
-                          isLoading: _isLoading,
+                          isLoading: isLoading,
                         ),
                       ],
                     ),

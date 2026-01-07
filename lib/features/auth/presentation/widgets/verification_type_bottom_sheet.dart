@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
-import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
+import 'package:pulsetrade_app/features/auth/domain/entities/verification_type.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Bottom sheet to select verification type (Email or Phone)
@@ -172,4 +172,3 @@ class _VerificationOption extends StatelessWidget {
     );
   }
 }
-

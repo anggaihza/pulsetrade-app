@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
+import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
+import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
+import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Account Created Success Screen
@@ -20,16 +22,26 @@ class AccountCreatedScreen extends ConsumerWidget {
   static const String routePath = '/account-created';
   static const String routeName = 'account_created';
 
-  void _handleContinue(BuildContext context) {
-    context.go(HomeScreen.routePath);
+  Future<void> _handleContinue(BuildContext context, WidgetRef ref) async {
+    final completed =
+        await ref.read(authControllerProvider.notifier).completeRegistration();
+    if (!context.mounted) return;
+    if (completed) {
+      context.go(HomeFeedScreen.routePath);
+    } else {
+      context.go(LoginScreen.routePath);
+    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
+    final authState = ref.watch(authControllerProvider);
+    final isLoading = authState.isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -73,7 +85,8 @@ class AccountCreatedScreen extends ConsumerWidget {
                   width: double.infinity,
                   child: AppButton(
                     label: strings.continueButton,
-                    onPressed: () => _handleContinue(context),
+                    onPressed: () => _handleContinue(context, ref),
+                    isLoading: isLoading,
                   ),
                 ),
               ],
@@ -84,4 +97,3 @@ class AccountCreatedScreen extends ConsumerWidget {
     );
   }
 }
-

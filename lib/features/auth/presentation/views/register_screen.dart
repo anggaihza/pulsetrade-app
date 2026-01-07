@@ -12,8 +12,9 @@ import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dar
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/core/utils/validators.dart';
+import 'package:pulsetrade_app/features/auth/domain/entities/verification_type.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
+import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Register screen matching the Figma design
@@ -52,7 +53,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           showErrorToast(context, failure.toString());
         }
         if (next.hasValue && next.value?.isAuthenticated == true) {
-          context.go(HomeScreen.routePath);
+          context.go(HomeFeedScreen.routePath);
         }
       },
     );
@@ -112,7 +113,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    // TODO: Implement actual registration API call here
+    // TODO: Trigger OTP request API call here.
+    ref.read(authControllerProvider.notifier).startRegistration(
+      contact: contact,
+      verificationType: verificationType,
+    );
 
     // Navigate to OTP verification screen with detected type
     // Use push so that back button returns to this Register screen

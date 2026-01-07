@@ -20,6 +20,7 @@ class AppTextField extends StatefulWidget {
     this.suffixIcon,
     this.onSuffixIconTap,
     this.hasError = false,
+    this.showLabel = true,
   });
 
   final String label;
@@ -31,6 +32,7 @@ class AppTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final VoidCallback? onSuffixIconTap;
   final bool hasError;
+  final bool showLabel;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -61,9 +63,10 @@ class _AppTextFieldState extends State<AppTextField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Label
-        Text(widget.label, style: AppTextStyles.textFieldLabel()),
-        const SizedBox(height: AppSpacing.fieldLabelGap),
+        if (widget.showLabel) ...[
+          Text(widget.label, style: AppTextStyles.textFieldLabel()),
+          const SizedBox(height: AppSpacing.fieldLabelGap),
+        ],
         // Input field - wrapped with GestureDetector for better UX
         GestureDetector(
           onTap: () {

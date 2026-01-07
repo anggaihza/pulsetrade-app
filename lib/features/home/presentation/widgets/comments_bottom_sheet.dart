@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:pulsetrade_app/core/presentation/widgets/app_text_field.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
@@ -23,7 +24,6 @@ class CommentsBottomSheet extends StatefulWidget {
 
 class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
   final TextEditingController _commentController = TextEditingController();
-  final List<String> _emojis = ['❤️', '😊', '🙈', '😎', '👋', '😌'];
 
   @override
   void dispose() {
@@ -85,40 +85,9 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
             ),
           ),
           
-          // Emoji bar
-          Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Color(0xFF2C2C2C),
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: _emojis.map((emoji) {
-                return GestureDetector(
-                  onTap: () {
-                    _commentController.text += emoji;
-                  },
-                  child: Text(
-                    emoji,
-                    style: const TextStyle(fontSize: 28),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          
           // Comment input
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1A1A1A),
-            ),
             child: SafeArea(
               top: false,
               child: Row(
@@ -141,28 +110,22 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                   
                   // Text field
                   Expanded(
-                    child: TextField(
+                    child: AppTextField(
+                      label: '',
+                      placeholder: 'Add comment',
                       controller: _commentController,
-                      style: AppTextStyles.bodyMedium(
-                        color: AppColors.textPrimary,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Add comment',
-                        hintStyle: AppTextStyles.bodyMedium(
-                          color: const Color(0xFFAEAEAE),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                      showLabel: false,
+                      onChanged: (_) => setState(() {}),
                     ),
                   ),
                   
                   // Send button (optional, if needed)
-                  if (_commentController.text.isNotEmpty)
+                  if (_commentController.text.trim().isNotEmpty)
                     GestureDetector(
                       onTap: () {
                         widget.onAddComment?.call();
                         _commentController.clear();
+                        setState(() {});
                       },
                       child: Icon(
                         TablerIcons.send,
@@ -305,11 +268,18 @@ void showCommentsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => CommentsBottomSheet(
-      comments: comments,
-      onAddComment: onAddComment,
-      onLikeComment: onLikeComment,
-    ),
+    builder: (context) {
+      final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+      return AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: CommentsBottomSheet(
+          comments: comments,
+          onAddComment: onAddComment,
+          onLikeComment: onLikeComment,
+        ),
+      );
+    },
   );
 }
-

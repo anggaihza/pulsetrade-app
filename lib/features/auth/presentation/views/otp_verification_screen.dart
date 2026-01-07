@@ -8,11 +8,10 @@ import 'package:pulsetrade_app/core/presentation/widgets/otp_input.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
+import 'package:pulsetrade_app/features/auth/domain/entities/verification_type.dart';
+import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
-
-/// Type of verification being performed
-enum VerificationType { email, phone }
 
 /// OTP Verification screen matching the Figma design
 ///
@@ -45,12 +44,20 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
   String _otpCode = '';
   int _secondsRemaining = 60;
   Timer? _timer;
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    final registration = ref.read(authControllerProvider).value?.registration;
+    if (registration == null ||
+        registration.contact != widget.contact ||
+        registration.verificationType != widget.verificationType) {
+      ref.read(authControllerProvider.notifier).startRegistration(
+        contact: widget.contact,
+        verificationType: widget.verificationType,
+      );
+    }
   }
 
   @override
@@ -88,22 +95,17 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    // TODO: Implement actual OTP verification API call
-    await Future<void>.delayed(const Duration(seconds: 2));
+    final isValid = await ref
+        .read(authControllerProvider.notifier)
+        .verifyOtp(_otpCode);
 
     if (!mounted) return;
-
-    // Simulate success/failure
-    final isValid = _otpCode == '123456'; // Mock validation
 
     if (isValid) {
       // Navigate to Create Password screen on success.
       // Use push so that back button returns to this OTP screen.
       context.push(CreatePasswordScreen.routePath);
     } else {
-      setState(() => _isLoading = false);
       showErrorToast(context, strings.invalidOtpCode);
     }
   }
@@ -120,6 +122,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final authState = ref.watch(authControllerProvider);
+    final isLoading = authState.isLoading;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -213,7 +217,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
                         AppButton(
                           label: strings.continueButton,
                           onPressed: _handleContinue,
-                          isLoading: _isLoading,
+                          isLoading: isLoading,
                         ),
                         const SizedBox(height: AppSpacing.fieldGap),
                         // Resend code link

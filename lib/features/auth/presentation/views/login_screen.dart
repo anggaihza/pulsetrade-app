@@ -11,7 +11,7 @@ import 'package:pulsetrade_app/core/utils/validators.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
+import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Sign-In screen matching the Figma design
@@ -50,8 +50,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           showErrorToast(context, failure.toString());
         }
         if (next.value?.isAuthenticated == true) {
-          // Go to the main Home screen after successful login
-          context.go(HomeScreen.routePath);
+          // Go to the main feed after successful login
+          context.go(HomeFeedScreen.routePath);
         }
       },
     );

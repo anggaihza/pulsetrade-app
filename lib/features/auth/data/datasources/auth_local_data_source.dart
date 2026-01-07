@@ -9,6 +9,8 @@ class AuthLocalDataSource {
   final CacheClient _cacheClient;
 
   static const String _tokenKey = 'auth_token';
+  static const String _localContactKey = 'local_auth_contact';
+  static const String _localPasswordKey = 'local_auth_password';
   static const String _box = 'userBox';
   static const String _userKey = 'currentUser';
 
@@ -28,6 +30,35 @@ class AuthLocalDataSource {
       merged['token'] = token;
     }
     return UserModel.fromJson(merged);
+  }
+
+  Future<void> cacheCredentials({
+    required String contact,
+    required String password,
+  }) async {
+    final normalized = contact.trim();
+    await _secureStorage.write(_localContactKey, normalized);
+    await _secureStorage.write(_localPasswordKey, password);
+  }
+
+  Future<bool> validateCredentials({
+    required String contact,
+    required String password,
+  }) async {
+    final normalized = contact.trim();
+    final storedContact = await _secureStorage.read(_localContactKey);
+    final storedPassword = await _secureStorage.read(_localPasswordKey);
+    if (storedContact == null || storedPassword == null) return false;
+    return storedContact == normalized && storedPassword == password;
+  }
+
+  Future<void> cacheLocalUser({
+    required String id,
+    required String contact,
+    required String token,
+  }) async {
+    final normalized = contact.trim();
+    await cacheUser(UserModel(id: id, email: normalized, token: token));
   }
 
   Future<void> clear() async {

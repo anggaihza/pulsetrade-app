@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/config/environment.dart';
+import 'package:pulsetrade_app/features/auth/domain/entities/verification_type.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/account_created_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
@@ -8,7 +9,6 @@ import 'package:pulsetrade_app/features/auth/presentation/views/create_pin_scree
 import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
@@ -34,7 +34,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = RouterNotifier(ref);
 
   return GoRouter(
-    initialLocation: HomeScreen.routePath, // Changed to show new feed
+    initialLocation: HomeFeedScreen.routePath,
     debugLogDiagnostics: ref.read(environmentConfigProvider).enableLogging,
     refreshListenable: notifier,
     redirect: (BuildContext context, GoRouterState state) {
@@ -47,7 +47,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final creatingPin = state.matchedLocation == CreatePinScreen.routePath;
       final accountCreated =
           state.matchedLocation == AccountCreatedScreen.routePath;
-      final viewingFeed = state.matchedLocation == HomeFeedScreen.routePath;
       final authed = notifier.isAuthenticated;
       if (!authed &&
           !(loggingIn ||
@@ -56,7 +55,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               creatingPassword ||
               creatingPin ||
               accountCreated)) {
-        // Allow feed without auth for testing
+        // Require authentication outside the auth flow.
         return LoginScreen.routePath;
       }
       if (authed &&
@@ -66,32 +65,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               creatingPassword ||
               creatingPin ||
               accountCreated)) {
-        return HomeScreen.routePath; // Redirect to new feed
+        return HomeFeedScreen.routePath;
       }
       return null;
     },
     routes: <RouteBase>[
       GoRoute(
-        path: HomeScreen.routePath,
-        name: HomeScreen.routeName,
-        builder: (context, state) => const HomeScreen(),
-        routes: <RouteBase>[
-          GoRoute(
-            path: SurveyFormScreen.routeName,
-            name: SurveyFormScreen.routeName,
-            builder: (context, state) => const SurveyFormScreen(),
-          ),
-          GoRoute(
-            path: SettingsScreen.routeName,
-            name: SettingsScreen.routeName,
-            builder: (context, state) => const SettingsScreen(),
-          ),
-        ],
-      ),
-      GoRoute(
         path: HomeFeedScreen.routePath,
         name: HomeFeedScreen.routeName,
         builder: (context, state) => const HomeFeedScreen(),
+      ),
+      GoRoute(
+        path: '/${SurveyFormScreen.routeName}',
+        name: SurveyFormScreen.routeName,
+        builder: (context, state) => const SurveyFormScreen(),
+      ),
+      GoRoute(
+        path: '/${SettingsScreen.routeName}',
+        name: SettingsScreen.routeName,
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: LoginScreen.routePath,

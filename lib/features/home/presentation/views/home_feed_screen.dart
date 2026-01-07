@@ -14,7 +14,7 @@ import 'package:pulsetrade_app/features/home/presentation/widgets/video_player_w
 class HomeFeedScreen extends StatefulWidget {
   const HomeFeedScreen({super.key});
 
-  static const String routePath = '/feed';
+  static const String routePath = '/';
   static const String routeName = 'feed';
 
   @override
@@ -139,6 +139,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Video background
@@ -300,4 +301,3 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 }
-
