@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
@@ -9,6 +10,7 @@ import 'package:pulsetrade_app/features/home/presentation/widgets/interaction_si
 import 'package:pulsetrade_app/features/home/presentation/widgets/stock_chart_widget.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/stock_description.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/video_player_widget.dart';
+import 'package:pulsetrade_app/features/profile/presentation/views/profile_screen.dart';
 
 /// Main home screen with TikTok-style video feed
 class HomeScreen extends StatefulWidget {
@@ -661,17 +663,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 8),
 
                     // Profile button
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        color: AppColors.surface,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        TablerIcons.user,
-                        size: 24,
-                        color: AppColors.whiteNormal,
+                    GestureDetector(
+                      onTap: () => context.push(ProfileScreen.routePath),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          color: AppColors.surface,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          TablerIcons.user,
+                          size: 24,
+                          color: AppColors.whiteNormal,
+                        ),
                       ),
                     ),
                   ],
