@@ -45,17 +45,13 @@ class _StockDescriptionState extends State<StockDescription> {
         // Title
         Text(
           widget.title,
-          style: AppTextStyles.labelLarge(
-            color: AppColors.textPrimary,
-          ).copyWith(fontSize: 14),
+          style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
         ),
-        
+
         // Description with "more" button
         RichText(
           text: TextSpan(
-            style: AppTextStyles.bodyMedium(
-              color: AppColors.textPrimary,
-            ).copyWith(fontSize: 12),
+            style: AppTextStyles.bodyMedium(color: AppColors.textPrimary),
             children: [
               TextSpan(text: displayText),
               if (shouldTruncate) ...[
@@ -68,7 +64,7 @@ class _StockDescriptionState extends State<StockDescription> {
                     child: Text(
                       _isExpanded ? 'less' : 'more',
                       style: AppTextStyles.labelSmall(
-                        color: const Color(0xFFAEAEAE),
+                        color: AppColors.textLabel,
                       ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -78,16 +74,13 @@ class _StockDescriptionState extends State<StockDescription> {
           ),
         ),
         const SizedBox(height: 4),
-        
+
         // Date
         Text(
           widget.date,
-          style: AppTextStyles.labelSmall(
-            color: const Color(0xFFAEAEAE),
-          ).copyWith(fontSize: 10),
+          style: AppTextStyles.labelSmall(color: AppColors.textLabel),
         ),
       ],
     );
   }
 }
-
