@@ -167,8 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     colors: [
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.4),
-                      Colors.black.withOpacity(0.7),
+                      AppColors.black.withValues(alpha: 0.4),
+                      AppColors.black.withValues(alpha: 0.7),
                     ],
                     stops: const [0.0, 0.6, 0.85, 1.0],
                   ),
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 48,
                         height: 48,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFEAF2FF),
+                          color: AppColors.primaryLight,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -208,13 +208,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 48,
                         height: 48,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.surface,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           TablerIcons.user,
                           size: 24,
-                          color: Color(0xFFAEAEAE),
+                          color: AppColors.textLabel,
                         ),
                       ),
                     ],
@@ -243,8 +243,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: _isChartExpanded
-                                        ? AppColors.background.withOpacity(0.9)
-                                        : AppColors.background.withOpacity(0.5),
+                                        ? AppColors.background.withValues(
+                                            alpha: 0.9,
+                                          )
+                                        : AppColors.background.withValues(
+                                            alpha: 0.5,
+                                          ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
@@ -270,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: const BoxDecoration(
                                             border: Border(
                                               bottom: BorderSide(
-                                                color: Color(0xFF2C2C2C),
+                                                color: AppColors.surface,
                                                 width: 0.5,
                                               ),
                                             ),
@@ -304,9 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 border: Border.all(
-                                                  color: const Color(
-                                                    0xFF2C2C2C,
-                                                  ),
+                                                  color: AppColors.surface,
                                                   width: 0.5,
                                                 ),
                                                 borderRadius:
@@ -384,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Container(
                                             height: 4,
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF2C2C2C),
+                                              color: AppColors.surface,
                                               borderRadius:
                                                   BorderRadius.circular(2),
                                             ),
@@ -430,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Text(
                                             _currentStock.sentiment,
                                             style: AppTextStyles.bodySmall(
-                                              color: const Color(0xFFAEAEAE),
+                                              color: AppColors.textLabel,
                                             ),
                                           ),
                                         ],

@@ -17,6 +17,7 @@ class AppColors {
 
   // Foundation/Primary
   static const Color primaryNormal = Color(0xFF2979FF); // Foundation/Primary/Normal
+  static const Color primaryLight = Color(0xFFEAF2FF); // Foundation/Primary/Light
 
   // Foundation/Success
   static const Color successNormal = Color(0xFF1BC865); // Foundation/Success/Normal
