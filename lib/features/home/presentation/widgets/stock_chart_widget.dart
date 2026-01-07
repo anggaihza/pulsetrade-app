@@ -4,23 +4,15 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
 
-/// Stock chart widget with expand/collapse functionality
+/// Pure chart widget for displaying stock price data
 class StockChartWidget extends StatefulWidget {
-  final String ticker;
-  final double currentPrice;
-  final double changePercentage;
   final List<ChartDataPoint> chartData;
   final bool isExpanded;
-  final VoidCallback? onToggleExpand;
 
   const StockChartWidget({
     super.key,
-    required this.ticker,
-    required this.currentPrice,
-    required this.changePercentage,
     required this.chartData,
     this.isExpanded = false,
-    this.onToggleExpand,
   });
 
   @override
@@ -33,87 +25,12 @@ class _StockChartWidgetState extends State<StockChartWidget> {
   @override
   Widget build(BuildContext context) {
     if (!widget.isExpanded) {
-      // Collapsed mini chart
-      return GestureDetector(
-        onTap: widget.onToggleExpand,
-        child: Container(
-          height: 80,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.background.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: _buildMiniChart(),
-        ),
-      );
+      // Mini chart - just the chart visualization
+      return _buildMiniChart();
     }
 
-    // Expanded full chart
-    return GestureDetector(
-      onTap: widget.onToggleExpand,
-      child: Container(
-        height: 300,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.background.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with ticker and price
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.ticker,
-                      style: AppTextStyles.headlineLarge(
-                        color: AppColors.textPrimary,
-                      ).copyWith(fontSize: 24),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          widget.currentPrice.toStringAsFixed(2),
-                          style: AppTextStyles.labelLarge(
-                            color: AppColors.textPrimary,
-                          ).copyWith(fontSize: 14),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${widget.changePercentage >= 0 ? '+' : ''}${widget.changePercentage.toStringAsFixed(2)}%',
-                          style: AppTextStyles.labelSmall(
-                            color: widget.changePercentage >= 0 
-                                ? AppColors.success 
-                                : AppColors.error,
-                          ).copyWith(fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                // Collapse icon
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  color: AppColors.textSecondary,
-                  size: 24,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // Chart
-            Expanded(
-              child: _buildFullChart(),
-            ),
-          ],
-        ),
-      ),
-    );
+    // Full expanded chart - just the chart visualization
+    return _buildFullChart();
   }
 
   Widget _buildMiniChart() {
@@ -157,8 +74,12 @@ class _StockChartWidgetState extends State<StockChartWidget> {
       return FlSpot(entry.key.toDouble(), entry.value.value);
     }).toList();
 
-    final minY = widget.chartData.map((e) => e.value).reduce((a, b) => a < b ? a : b);
-    final maxY = widget.chartData.map((e) => e.value).reduce((a, b) => a > b ? a : b);
+    final minY = widget.chartData
+        .map((e) => e.value)
+        .reduce((a, b) => a < b ? a : b);
+    final maxY = widget.chartData
+        .map((e) => e.value)
+        .reduce((a, b) => a > b ? a : b);
     final padding = (maxY - minY) * 0.1;
 
     return LineChart(
@@ -171,6 +92,7 @@ class _StockChartWidgetState extends State<StockChartWidget> {
             return FlLine(
               color: const Color(0xFF2C2C2C),
               strokeWidth: 0.5,
+              dashArray: [5, 5], // Dashed line
             );
           },
         ),
@@ -225,17 +147,19 @@ class _StockChartWidgetState extends State<StockChartWidget> {
         maxY: maxY + padding,
         lineTouchData: LineTouchData(
           enabled: true,
-          touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
-            if (touchResponse == null || touchResponse.lineBarSpots == null) {
-              setState(() {
-                _touchedIndex = null;
-              });
-              return;
-            }
-            setState(() {
-              _touchedIndex = touchResponse.lineBarSpots!.first.x.toInt();
-            });
-          },
+          touchCallback:
+              (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                if (touchResponse == null ||
+                    touchResponse.lineBarSpots == null) {
+                  setState(() {
+                    _touchedIndex = null;
+                  });
+                  return;
+                }
+                setState(() {
+                  _touchedIndex = touchResponse.lineBarSpots!.first.x.toInt();
+                });
+              },
           touchTooltipData: LineTouchTooltipData(
             getTooltipColor: (touchedSpot) => const Color(0xFFFFC107),
             getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
@@ -249,27 +173,28 @@ class _StockChartWidgetState extends State<StockChartWidget> {
               }).toList();
             },
           ),
-          getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
-            return spotIndexes.map((spotIndex) {
-              return TouchedSpotIndicatorData(
-                FlLine(
-                  color: const Color(0xFFAEAEAE),
-                  strokeWidth: 1,
-                  dashArray: [5, 5],
-                ),
-                FlDotData(
-                  getDotPainter: (spot, percent, barData, index) {
-                    return FlDotCirclePainter(
-                      radius: 6,
-                      color: const Color(0xFFFFC107),
-                      strokeWidth: 2,
-                      strokeColor: AppColors.textPrimary,
-                    );
-                  },
-                ),
-              );
-            }).toList();
-          },
+          getTouchedSpotIndicator:
+              (LineChartBarData barData, List<int> spotIndexes) {
+                return spotIndexes.map((spotIndex) {
+                  return TouchedSpotIndicatorData(
+                    FlLine(
+                      color: const Color(0xFFAEAEAE),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                    ),
+                    FlDotData(
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 6,
+                          color: const Color(0xFFFFC107),
+                          strokeWidth: 2,
+                          strokeColor: AppColors.textPrimary,
+                        );
+                      },
+                    ),
+                  );
+                }).toList();
+              },
         ),
         lineBarsData: [
           LineChartBarData(
@@ -296,4 +221,3 @@ class _StockChartWidgetState extends State<StockChartWidget> {
     );
   }
 }
-

@@ -27,7 +27,7 @@ class AccountCreatedScreen extends ConsumerWidget {
         await ref.read(authControllerProvider.notifier).completeRegistration();
     if (!context.mounted) return;
     if (completed) {
-      context.go(HomeFeedScreen.routePath);
+      context.go(HomeScreen.routePath);
     } else {
       context.go(LoginScreen.routePath);
     }

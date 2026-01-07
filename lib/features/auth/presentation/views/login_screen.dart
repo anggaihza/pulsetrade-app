@@ -50,8 +50,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           showErrorToast(context, failure.toString());
         }
         if (next.value?.isAuthenticated == true) {
-          // Go to the main feed after successful login
-          context.go(HomeFeedScreen.routePath);
+          // Go to the main home screen after successful login
+          context.go(HomeScreen.routePath);
         }
       },
     );

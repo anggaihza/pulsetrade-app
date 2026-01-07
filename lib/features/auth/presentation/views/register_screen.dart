@@ -53,7 +53,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           showErrorToast(context, failure.toString());
         }
         if (next.hasValue && next.value?.isAuthenticated == true) {
-          context.go(HomeFeedScreen.routePath);
+          context.go(HomeScreen.routePath);
         }
       },
     );

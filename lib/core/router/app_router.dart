@@ -34,7 +34,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = RouterNotifier(ref);
 
   return GoRouter(
-    initialLocation: HomeFeedScreen.routePath,
+    initialLocation: HomeScreen.routePath,
     debugLogDiagnostics: ref.read(environmentConfigProvider).enableLogging,
     refreshListenable: notifier,
     redirect: (BuildContext context, GoRouterState state) {
@@ -65,15 +65,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               creatingPassword ||
               creatingPin ||
               accountCreated)) {
-        return HomeFeedScreen.routePath;
+        return HomeScreen.routePath;
       }
       return null;
     },
     routes: <RouteBase>[
       GoRoute(
-        path: HomeFeedScreen.routePath,
-        name: HomeFeedScreen.routeName,
-        builder: (context, state) => const HomeFeedScreen(),
+        path: HomeScreen.routePath,
+        name: HomeScreen.routeName,
+        builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
         path: '/${SurveyFormScreen.routeName}',
