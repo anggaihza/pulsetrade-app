@@ -118,5 +118,35 @@
   "swipeRightForCharts": "Desliza a la derecha para ver gráficos",
   "swipeLeftToBuy": "Desliza a la izquierda para comprar",
   "buy": "COMPRAR",
-  "chart": "GRÁFICO"
+  "chart": "GRÁFICO",
+  "profile": "Perfil",
+  "verified": "Verificado",
+  "real": "Real",
+  "demo": "Demo",
+  "myInfo": "Mi información",
+  "accountCenter": "Centro de cuenta",
+  "tradingMode": "Modo de trading",
+  "lite": "Ligero",
+  "advanced": "Avanzado",
+  "connectedAccount": "Cuenta conectada",
+  "history": "Historial",
+  "other": "Otro",
+  "faqs": "Preguntas frecuentes",
+  "privacy": "Privacidad",
+  "notification": "Notificación",
+  "helpAndSupport": "Ayuda y soporte",
+  "id": "ID",
+  "phone": "Teléfono",
+  "copiedToClipboard": "{label} copiado al portapapeles",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "verifications": "Verificaciones",
+  "security": "Seguridad",
+  "logOut": "Cerrar sesión",
+  "loggingOut": "Cerrando sesión..."
 }

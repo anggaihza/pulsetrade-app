@@ -19,20 +19,24 @@ class HiveCacheClient implements CacheClient {
 
   @override
   Future<void> write<T>(String box, String key, T value) async {
-    final targetBox = await Hive.openBox<T>(box);
+    final targetBox = Hive.isBoxOpen(box) 
+        ? Hive.box<dynamic>(box) 
+        : await Hive.openBox<dynamic>(box);
     await targetBox.put(key, value);
   }
 
   @override
   T? read<T>(String box, String key) {
-    final targetBox = Hive.isBoxOpen(box) ? Hive.box<T>(box) : null;
-    return targetBox?.get(key);
+    if (!Hive.isBoxOpen(box)) return null;
+    final targetBox = Hive.box<dynamic>(box);
+    final value = targetBox.get(key);
+    return value as T?;
   }
 
   @override
   Future<void> delete(String box, String key) async {
     if (!Hive.isBoxOpen(box)) return;
-    final Box<dynamic> targetBox = Hive.box<dynamic>(box);
+    final targetBox = Hive.box<dynamic>(box);
     await targetBox.delete(key);
   }
 }

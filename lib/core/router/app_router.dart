@@ -10,6 +10,7 @@ import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dar
 import 'package:pulsetrade_app/features/auth/presentation/views/otp_verification_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
+import 'package:pulsetrade_app/features/profile/presentation/views/account_center_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/profile_screen.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
@@ -80,6 +81,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: ProfileScreen.routePath,
         name: ProfileScreen.routeName,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AccountCenterScreen.routePath,
+        name: AccountCenterScreen.routeName,
+        builder: (context, state) => const AccountCenterScreen(),
       ),
       GoRoute(
         path: '/${SurveyFormScreen.routeName}',

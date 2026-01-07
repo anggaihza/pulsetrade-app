@@ -118,5 +118,35 @@
   "swipeRightForCharts": "Swipe right for charts",
   "swipeLeftToBuy": "Swipe left to buy",
   "buy": "BUY",
-  "chart": "CHART"
+  "chart": "CHART",
+  "profile": "Profile",
+  "verified": "Verified",
+  "real": "Real",
+  "demo": "Demo",
+  "myInfo": "My Info",
+  "accountCenter": "Account Center",
+  "tradingMode": "Trading Mode",
+  "lite": "Lite",
+  "advanced": "Advanced",
+  "connectedAccount": "Connected Account",
+  "history": "History",
+  "other": "Other",
+  "faqs": "FAQs",
+  "privacy": "Privacy",
+  "notification": "Notification",
+  "helpAndSupport": "Help & Support",
+  "id": "ID",
+  "phone": "Phone",
+  "copiedToClipboard": "{label} copied to clipboard",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "verifications": "Verifications",
+  "security": "Security",
+  "logOut": "Log out",
+  "loggingOut": "Logging out..."
 }

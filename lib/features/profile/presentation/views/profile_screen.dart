@@ -4,6 +4,9 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/features/profile/presentation/views/account_center_screen.dart';
+import 'package:pulsetrade_app/features/profile/presentation/widgets/trading_mode_modal.dart';
+import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,9 +20,12 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isRealMode = true; // true = Real, false = Demo
+  TradingMode _tradingMode = TradingMode.lite;
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -32,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Profile',
+          strings.profile,
           style: AppTextStyles.headlineLarge(
             color: AppColors.textPrimary,
           ).copyWith(fontSize: 20),
@@ -92,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'Verified',
+                          strings.verified,
                           style: AppTextStyles.labelSmall(
                             color: AppColors.success,
                           ),
@@ -134,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Real',
+                            strings.real,
                             style: _isRealMode
                                 ? AppTextStyles.labelLarge(
                                     color: AppColors.textPrimary,
@@ -164,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Demo',
+                            strings.demo,
                             style: !_isRealMode
                                 ? AppTextStyles.labelLarge(
                                     color: AppColors.textPrimary,
@@ -201,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     // My Info Section
                     Text(
-                      'My Info',
+                      strings.myInfo,
                       style: AppTextStyles.labelMedium(
                         color: AppColors.textLabel,
                       ),
@@ -209,29 +215,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 12),
                     _ProfileMenuItem(
                       icon: TablerIcons.user,
-                      title: 'Account Center',
+                      title: strings.accountCenter,
                       onTap: () {
-                        // TODO: Navigate to Account Center
+                        context.push(AccountCenterScreen.routePath);
                       },
                     ),
                     _ProfileMenuItem(
                       iconAsset: 'assets/icons/blocks.svg',
-                      title: 'Trading Mode',
-                      badge: 'Lite',
-                      onTap: () {
-                        // TODO: Navigate to Trading Mode
+                      title: strings.tradingMode,
+                      badge: _tradingMode == TradingMode.lite
+                          ? strings.lite
+                          : strings.advanced,
+                      onTap: () async {
+                        final selected = await TradingModeModal.show(
+                          context,
+                          currentMode: _tradingMode,
+                        );
+                        if (selected != null) {
+                          setState(() {
+                            _tradingMode = selected;
+                          });
+                        }
                       },
                     ),
                     _ProfileMenuItem(
                       icon: TablerIcons.users_group,
-                      title: 'Connected Account',
+                      title: strings.connectedAccount,
                       onTap: () {
                         // TODO: Navigate to Connected Account
                       },
                     ),
                     _ProfileMenuItem(
                       icon: TablerIcons.history,
-                      title: 'History',
+                      title: strings.history,
                       onTap: () {
                         // TODO: Navigate to History
                       },
@@ -240,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // Other Section
                     Text(
-                      'Other',
+                      strings.other,
                       style: AppTextStyles.labelMedium(
                         color: AppColors.textLabel,
                       ),
@@ -248,28 +264,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 12),
                     _ProfileMenuItem(
                       icon: TablerIcons.bubble_text,
-                      title: 'FAQs',
+                      title: strings.faqs,
                       onTap: () {
                         // TODO: Navigate to FAQs
                       },
                     ),
                     _ProfileMenuItem(
                       icon: TablerIcons.shield_check,
-                      title: 'Privacy',
+                      title: strings.privacy,
                       onTap: () {
                         // TODO: Navigate to Privacy
                       },
                     ),
                     _ProfileMenuItem(
                       icon: TablerIcons.bell_ringing,
-                      title: 'Notification',
+                      title: strings.notification,
                       onTap: () {
                         // TODO: Navigate to Notification
                       },
                     ),
                     _ProfileMenuItem(
                       icon: TablerIcons.help_hexagon,
-                      title: 'Help & Support',
+                      title: strings.helpAndSupport,
                       onTap: () {
                         // TODO: Navigate to Help & Support
                       },
