@@ -8,9 +8,9 @@ import 'package:pulsetrade_app/core/theme/typography.dart';
 /// Behavior:
 /// - Type digit: Fill current box, move to next
 /// - Backspace on filled box: Clear it, stay in box
-/// - Backspace on empty box: Move to previous box
+/// - Backspace on empty box: Move to previous box and clear it
 /// - Click box: Focus that box
-/// - Paste: Fill all boxes from start
+/// - Paste: Fill boxes from the current field
 class OTPInput extends StatefulWidget {
   const OTPInput({
     required this.onCompleted,
@@ -36,6 +36,13 @@ class _OTPInputState extends State<OTPInput> {
     super.initState();
     _controllers = List.generate(widget.length, (_) => TextEditingController());
     _focusNodes = List.generate(widget.length, (_) => FocusNode());
+    for (int i = 0; i < widget.length; i++) {
+      _focusNodes[i].addListener(() {
+        if (_focusNodes[i].hasFocus) {
+          _selectAll(i);
+        }
+      });
+    }
   }
 
   @override
@@ -51,6 +58,14 @@ class _OTPInputState extends State<OTPInput> {
 
   String get _code => _controllers.map((c) => c.text).join();
 
+  void _selectAll(int index) {
+    final controller = _controllers[index];
+    controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: controller.text.length,
+    );
+  }
+
   void _notifyChange() {
     final code = _code;
     widget.onChanged?.call(code);
@@ -62,7 +77,12 @@ class _OTPInputState extends State<OTPInput> {
   void _handleChange(int index, String value) {
     // Handle paste
     if (value.length > 1) {
-      _handlePaste(value);
+      _handlePaste(index, value);
+      return;
+    }
+
+    if (value.isEmpty) {
+      _notifyChange();
       return;
     }
 
@@ -76,25 +96,34 @@ class _OTPInputState extends State<OTPInput> {
     }
   }
 
-  void _handlePaste(String value) {
+  void _handlePaste(int startIndex, String value) {
     final digits = value.replaceAll(RegExp(r'\D'), '');
     if (digits.isEmpty) return;
 
-    for (int i = 0; i < widget.length && i < digits.length; i++) {
-      _controllers[i].text = digits[i];
+    for (int i = startIndex; i < widget.length; i++) {
+      _controllers[i].clear();
+    }
+
+    for (int i = 0; i < digits.length && startIndex + i < widget.length; i++) {
+      _controllers[startIndex + i].text = digits[i];
     }
 
     // Focus last filled box or last box
-    final focusIndex = (digits.length - 1).clamp(0, widget.length - 1);
+    final focusIndex =
+        (startIndex + digits.length - 1).clamp(0, widget.length - 1);
     _focusNodes[focusIndex].requestFocus();
 
     _notifyChange();
   }
 
-  void _handleBackspace(int index) {
+  bool _handleBackspace(int index) {
     if (_controllers[index].text.isEmpty && index > 0) {
+      _controllers[index - 1].clear();
       _focusNodes[index - 1].requestFocus();
+      _notifyChange();
+      return true;
     }
+    return false;
   }
 
   @override
@@ -117,6 +146,7 @@ class _OTPInputState extends State<OTPInput> {
     return GestureDetector(
       onTap: () {
         _focusNodes[index].requestFocus();
+        _selectAll(index);
       },
       child: AnimatedBuilder(
         animation: _focusNodes[index],
@@ -135,9 +165,16 @@ class _OTPInputState extends State<OTPInput> {
             child: Center(
               child: Focus(
                 onKey: (node, event) {
-                  if (event is RawKeyDownEvent &&
-                      event.logicalKey == LogicalKeyboardKey.backspace) {
-                    _handleBackspace(index);
+                  if (event is RawKeyDownEvent) {
+                    final isBackspace =
+                        event.logicalKey == LogicalKeyboardKey.backspace;
+                    final isDelete =
+                        event.logicalKey == LogicalKeyboardKey.delete;
+                    if (isBackspace || isDelete) {
+                      if (_handleBackspace(index)) {
+                        return KeyEventResult.handled;
+                      }
+                    }
                   }
                   return KeyEventResult.ignored;
                 },
@@ -163,7 +200,6 @@ class _OTPInputState extends State<OTPInput> {
                   cursorColor: AppColors.primary,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(1),
                   ],
                   onChanged: (value) => _handleChange(index, value),
                 ),
