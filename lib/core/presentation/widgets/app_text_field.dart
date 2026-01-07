@@ -19,6 +19,7 @@ class AppTextField extends StatefulWidget {
     this.onChanged,
     this.suffixIcon,
     this.onSuffixIconTap,
+    this.hasError = false,
   });
 
   final String label;
@@ -29,6 +30,7 @@ class AppTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final Widget? suffixIcon;
   final VoidCallback? onSuffixIconTap;
+  final bool hasError;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -68,71 +70,88 @@ class _AppTextFieldState extends State<AppTextField> {
             // Request focus when clicking anywhere in the container
             _focusNode.requestFocus();
           },
-          child: Container(
-            height: AppSpacing.fieldHeight,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(AppRadius.field),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            alignment: Alignment.centerLeft,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: widget.controller,
-                    focusNode: _focusNode,
-                    keyboardType: widget.keyboardType,
-                    obscureText: isPassword && _obscured,
-                    style: AppTextStyles.textFieldInput(),
-                    decoration: InputDecoration(
-                      hintText: widget.placeholder,
-                      hintStyle: AppTextStyles.textFieldInput(),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
-                      filled: false,
-                      fillColor: Colors.transparent,
-                    ),
-                    cursorColor: AppColors.primary,
-                    onChanged: widget.onChanged,
+          child: AnimatedBuilder(
+            animation: _focusNode,
+            builder: (context, child) {
+              final isFocused = _focusNode.hasFocus;
+              final hasError = widget.hasError;
+
+              return Container(
+                height: AppSpacing.fieldHeight,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.field),
+                  border: Border.all(
+                    color: hasError
+                        ? AppColors.error
+                        : (isFocused ? AppColors.primary : Colors.transparent),
+                    width: hasError || isFocused ? 1.5 : 0,
                   ),
                 ),
-                if (showObscureToggle)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _obscured = !_obscured;
-                      });
-                      widget.onSuffixIconTap?.call();
-                    },
-                    child:
-                        widget.suffixIcon ??
-                        (_obscured
-                            ? SvgPicture.asset(
-                                'assets/icons/eye_closed.svg',
-                                width: 16,
-                                height: 16,
-                                colorFilter: ColorFilter.mode(
-                                  AppColors.textLabel,
-                                  BlendMode.srcIn,
-                                ),
-                              )
-                            : Icon(
-                                TablerIcons.eye,
-                                size: 16,
-                                color: AppColors.textLabel,
-                              )),
-                  )
-                else if (widget.suffixIcon != null)
-                  GestureDetector(
-                    onTap: widget.onSuffixIconTap,
-                    child: widget.suffixIcon,
-                  ),
-              ],
-            ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: widget.controller,
+                        focusNode: _focusNode,
+                        keyboardType: widget.keyboardType,
+                        obscureText: isPassword && _obscured,
+                        style: AppTextStyles.textFieldInput(),
+                        decoration: InputDecoration(
+                          hintText: widget.placeholder,
+                          hintStyle: AppTextStyles.textFieldInput(),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                          filled: false,
+                          fillColor: Colors.transparent,
+                        ),
+                        cursorColor: AppColors.primary,
+                        onChanged: widget.onChanged,
+                      ),
+                    ),
+                    if (showObscureToggle)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _obscured = !_obscured;
+                          });
+                          widget.onSuffixIconTap?.call();
+                        },
+                        child:
+                            widget.suffixIcon ??
+                            (_obscured
+                                ? SvgPicture.asset(
+                                    'assets/icons/eye_closed.svg',
+                                    width: 16,
+                                    height: 16,
+                                    colorFilter: ColorFilter.mode(
+                                      AppColors.textLabel,
+                                      BlendMode.srcIn,
+                                    ),
+                                  )
+                                : Icon(
+                                    TablerIcons.eye,
+                                    size: 16,
+                                    color: AppColors.textLabel,
+                                  )),
+                      )
+                    else if (widget.suffixIcon != null)
+                      GestureDetector(
+                        onTap: widget.onSuffixIconTap,
+                        child: widget.suffixIcon,
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ],

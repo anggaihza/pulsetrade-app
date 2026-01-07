@@ -9,7 +9,6 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_password_screen.dart';
-import 'package:pulsetrade_app/features/auth/presentation/views/login_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Type of verification being performed
@@ -100,8 +99,9 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
     final isValid = _otpCode == '123456'; // Mock validation
 
     if (isValid) {
-      // Navigate to Create Password screen on success
-      context.go(CreatePasswordScreen.routePath);
+      // Navigate to Create Password screen on success.
+      // Use push so that back button returns to this OTP screen.
+      context.push(CreatePasswordScreen.routePath);
     } else {
       setState(() => _isLoading = false);
       showErrorToast(context, strings.invalidOtpCode);
@@ -134,14 +134,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen> {
               color: AppColors.textPrimary,
               size: 24,
             ),
-            onPressed: () {
-              // Check if we can pop, otherwise navigate to login
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go(LoginScreen.routePath);
-              }
-            },
+            onPressed: () => context.pop(),
           ),
         ),
         body: SafeArea(

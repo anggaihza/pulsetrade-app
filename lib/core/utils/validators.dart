@@ -20,25 +20,26 @@ class Validators {
     return emailRegex.hasMatch(email);
   }
 
-  /// Validates if the input is a valid phone number format
-  /// 
-  /// Accepts phone numbers with optional country code, spaces, dashes, and parentheses
-  /// Must contain 7-15 digits after cleaning
-  /// 
-  /// Example:
+  /// Validates if the input is a valid phone number in international format.
+  ///
+  /// Requirements:
+  /// - Must start with a `+`
+  /// - Followed by 7–15 digits
+  /// - No spaces or other characters allowed
+  ///
+  /// Examples:
   /// ```dart
-  /// Validators.isValidPhone('+1 (234) 567-8900'); // true
-  /// Validators.isValidPhone('1234567890'); // true
-  /// Validators.isValidPhone('123'); // false (too short)
+  /// Validators.isValidPhone('+628123456789'); // true
+  /// Validators.isValidPhone('08123456789');   // false (missing +)
+  /// Validators.isValidPhone('+62 812 345');   // false (spaces not allowed)
   /// ```
   static bool isValidPhone(String phone) {
     if (phone.isEmpty) return false;
-    
-    // Remove common phone number characters for validation
-    final cleanPhone = phone.replaceAll(RegExp(r'[\s\-\(\)\+]'), '');
-    
-    // Check if it contains only digits and has reasonable length (7-15 digits)
-    return RegExp(r'^\d{7,15}$').hasMatch(cleanPhone);
+
+    final trimmed = phone.trim();
+
+    // Require a leading + followed by 7–15 digits, no spaces or symbols.
+    return RegExp(r'^\+\d{7,15}$').hasMatch(trimmed);
   }
 
   /// Validates if the input is a valid password

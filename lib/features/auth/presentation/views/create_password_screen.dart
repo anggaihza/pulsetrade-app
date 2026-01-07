@@ -8,7 +8,6 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/toast_utils.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/create_pin_screen.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Create Password Screen
@@ -89,8 +88,9 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() => _isLoading = false);
-        // Navigate to Create PIN screen after successful password creation
-        context.go(CreatePinScreen.routePath);
+        // Navigate to Create PIN screen after successful password creation.
+        // Use push so that back button returns to this screen.
+        context.push(CreatePinScreen.routePath);
       }
     });
   }
@@ -112,13 +112,7 @@ class _CreatePasswordScreenState extends ConsumerState<CreatePasswordScreen> {
               color: AppColors.textPrimary,
               size: 24,
             ),
-            onPressed: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go(HomeScreen.routePath);
-              }
-            },
+            onPressed: () => context.pop(),
           ),
         ),
         body: SafeArea(

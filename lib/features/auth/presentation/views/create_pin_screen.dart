@@ -57,14 +57,15 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() => _isLoading = false);
-        context.go(AccountCreatedScreen.routePath);
+        // Use push so that back button can return to this screen if needed.
+        context.push(AccountCreatedScreen.routePath);
       }
     });
   }
 
   void _handleSkip() {
     // Skip PIN setup and go to account created screen
-    context.go(AccountCreatedScreen.routePath);
+    context.push(AccountCreatedScreen.routePath);
   }
 
   @override

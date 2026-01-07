@@ -36,6 +36,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
+  bool _hasContactError = false;
   bool _acceptedTerms = false;
   ProviderSubscription<AsyncValue<AuthState>>? _authSubscription;
 
@@ -79,7 +80,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final strings = AppLocalizations.of(context);
     final contact = _emailController.text.trim();
 
+    // Reset error state on each attempt
+    setState(() => _hasContactError = false);
+
     if (contact.isEmpty) {
+      setState(() => _hasContactError = true);
       showErrorToast(context, strings.pleaseEnterEmail);
       return;
     }
@@ -90,11 +95,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     // Validate based on detected type
     if (verificationType == VerificationType.email) {
       if (!Validators.isValidEmail(contact)) {
+        setState(() => _hasContactError = true);
         showErrorToast(context, strings.invalidEmailFormat);
         return;
       }
     } else {
       if (!Validators.isValidPhone(contact)) {
+        setState(() => _hasContactError = true);
         showErrorToast(context, strings.invalidPhoneFormat);
         return;
       }
@@ -108,8 +115,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     // TODO: Implement actual registration API call here
 
     // Navigate to OTP verification screen with detected type
+    // Use push so that back button returns to this Register screen
     if (mounted) {
-      context.go(
+      context.push(
         Uri(
           path: OTPVerificationScreen.routePath,
           queryParameters: {
@@ -120,6 +128,29 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           },
         ).toString(),
       );
+    }
+  }
+
+  void _handleContactChanged(String value) {
+    final contact = value.trim();
+
+    // Clear error when user is editing
+    setState(() => _hasContactError = false);
+
+    if (contact.isEmpty) {
+      return;
+    }
+
+    final verificationType = _detectContactType(contact);
+
+    if (verificationType == VerificationType.email) {
+      if (!Validators.isValidEmail(contact)) {
+        setState(() => _hasContactError = true);
+      }
+    } else {
+      if (!Validators.isValidPhone(contact)) {
+        setState(() => _hasContactError = true);
+      }
     }
   }
 
@@ -174,6 +205,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           placeholder: strings.emailPhonePlaceholder,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          hasError: _hasContactError,
+                          onChanged: _handleContactChanged,
                         ),
                         const SizedBox(height: AppSpacing.fieldGap),
                         // Terms of Service checkbox

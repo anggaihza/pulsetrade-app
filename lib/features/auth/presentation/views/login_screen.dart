@@ -11,7 +11,7 @@ import 'package:pulsetrade_app/core/utils/validators.dart';
 import 'package:pulsetrade_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.dart';
 import 'package:pulsetrade_app/features/auth/presentation/widgets/or_divider.dart';
-import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
+import 'package:pulsetrade_app/features/home/presentation/views/home_screen.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
 /// Sign-In screen matching the Figma design
@@ -36,6 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   ProviderSubscription<AsyncValue<AuthState>>? _authSubscription;
+  bool _hasContactError = false;
 
   @override
   void initState() {
@@ -48,7 +49,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           final failure = next.error;
           showErrorToast(context, failure.toString());
         }
-        if (next.hasValue && next.value?.isAuthenticated == true) {
+        if (next.value?.isAuthenticated == true) {
+          // Go to the main Home screen after successful login
           context.go(HomeScreen.routePath);
         }
       },
@@ -65,23 +67,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _handleLogin() {
     final strings = AppLocalizations.of(context);
-    final email = _emailController.text.trim();
+    final contact = _emailController.text.trim();
     final password = _passwordController.text;
 
+    setState(() => _hasContactError = false);
+
     // Check if fields are not empty
-    if (email.isEmpty || password.isEmpty) {
+    if (contact.isEmpty || password.isEmpty) {
+      setState(() => _hasContactError = true);
       showErrorToast(context, strings.pleaseEnterEmailPassword);
       return;
     }
 
-    // Validate email format
-    if (!Validators.isValidEmail(email)) {
-      showErrorToast(context, strings.invalidEmailFormat);
+    // Detect email vs phone based on presence of '@'
+    final isEmail = contact.contains('@');
+
+    if (isEmail) {
+      // Validate email format
+      if (!Validators.isValidEmail(contact)) {
+        setState(() => _hasContactError = true);
+        showErrorToast(context, strings.invalidEmailFormat);
+        return;
+      }
+    } else {
+      // Validate phone in +xx format
+      if (!Validators.isValidPhone(contact)) {
+        setState(() => _hasContactError = true);
+        showErrorToast(context, strings.invalidPhoneFormat);
+        return;
+      }
+    }
+
+    // Proceed with login using the validated contact value
+    ref.read(authControllerProvider.notifier).login(contact, password);
+  }
+
+  void _handleContactChanged(String value) {
+    final contact = value.trim();
+
+    // Clear error when user is editing
+    setState(() => _hasContactError = false);
+
+    if (contact.isEmpty) {
       return;
     }
 
-    // Proceed with login
-    ref.read(authControllerProvider.notifier).login(email, password);
+    final isEmail = contact.contains('@');
+
+    if (isEmail) {
+      if (!Validators.isValidEmail(contact)) {
+        setState(() => _hasContactError = true);
+      }
+    } else {
+      if (!Validators.isValidPhone(contact)) {
+        setState(() => _hasContactError = true);
+      }
+    }
   }
 
   void _handleGoogleSignIn() {
@@ -135,6 +176,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           placeholder: strings.emailPhonePlaceholder,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          hasError: _hasContactError,
+                          onChanged: _handleContactChanged,
                         ),
                         const SizedBox(height: AppSpacing.fieldGap),
                         // Password field
