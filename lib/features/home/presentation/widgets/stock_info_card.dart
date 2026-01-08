@@ -7,17 +7,14 @@ import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
 class StockInfoCard extends StatelessWidget {
   final StockData stock;
 
-  const StockInfoCard({
-    super.key,
-    required this.stock,
-  });
+  const StockInfoCard({super.key, required this.stock});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background.withOpacity(0.5),
+        color: AppColors.background.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -28,10 +25,7 @@ class StockInfoCard extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 4),
             decoration: const BoxDecoration(
               border: Border(
-                bottom: BorderSide(
-                  color: Color(0xFF2C2C2C),
-                  width: 0.5,
-                ),
+                bottom: BorderSide(color: Color(0xFF2C2C2C), width: 0.5),
               ),
             ),
             child: Text(
@@ -42,7 +36,7 @@ class StockInfoCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          
+
           // Price and change
           Row(
             children: [
@@ -56,15 +50,13 @@ class StockInfoCard extends StatelessWidget {
               Text(
                 '${stock.change >= 0 ? '+' : ''}${stock.change.toStringAsFixed(2)}',
                 style: AppTextStyles.labelSmall(
-                  color: stock.isPositive 
-                      ? AppColors.success 
-                      : AppColors.error,
+                  color: stock.isPositive ? AppColors.success : AppColors.error,
                 ).copyWith(fontSize: 10),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          
+
           // Sentiment bar
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,13 +94,11 @@ class StockInfoCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              
+
               // Sentiment label
               Text(
                 stock.sentiment,
-                style: AppTextStyles.bodySmall(
-                  color: const Color(0xFFAEAEAE),
-                ),
+                style: AppTextStyles.bodySmall(color: const Color(0xFFAEAEAE)),
               ),
             ],
           ),
@@ -117,4 +107,3 @@ class StockInfoCard extends StatelessWidget {
     );
   }
 }
-

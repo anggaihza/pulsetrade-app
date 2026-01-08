@@ -20,7 +20,6 @@ class StockChartWidget extends StatefulWidget {
 }
 
 class _StockChartWidgetState extends State<StockChartWidget> {
-  int? _touchedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +55,8 @@ class _StockChartWidgetState extends State<StockChartWidget> {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.3),
-                  AppColors.primary.withOpacity(0.0),
+                  AppColors.primary.withValues(alpha: 0.3),
+                  AppColors.primary.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -151,13 +150,11 @@ class _StockChartWidgetState extends State<StockChartWidget> {
               (FlTouchEvent event, LineTouchResponse? touchResponse) {
                 if (touchResponse == null ||
                     touchResponse.lineBarSpots == null) {
-                  setState(() {
-                    _touchedIndex = null;
-                  });
+                setState(() {});
                   return;
                 }
                 setState(() {
-                  _touchedIndex = touchResponse.lineBarSpots!.first.x.toInt();
+                  // Touch detected - could be used for future interactions
                 });
               },
           touchTooltipData: LineTouchTooltipData(
@@ -208,8 +205,8 @@ class _StockChartWidgetState extends State<StockChartWidget> {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.3),
-                  AppColors.primary.withOpacity(0.0),
+                  AppColors.primary.withValues(alpha: 0.3),
+                  AppColors.primary.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

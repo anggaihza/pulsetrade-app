@@ -25,7 +25,7 @@ class TradingModeModal extends StatefulWidget {
   }) {
     return showDialog<TradingMode>(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.7),
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (context) => TradingModeModal(currentMode: currentMode),
     );
   }

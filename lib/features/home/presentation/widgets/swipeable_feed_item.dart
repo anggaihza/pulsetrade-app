@@ -155,7 +155,9 @@ class _SwipeableFeedItemState extends State<SwipeableFeedItem>
               builder: (context, child) {
                 return Positioned.fill(
                   child: Container(
-                    color: Colors.black.withOpacity(0.7 * (1 - _hintAnimation.value)),
+                    color: Colors.black.withValues(
+                      alpha: 0.7 * (1 - _hintAnimation.value),
+                    ),
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -164,8 +166,8 @@ class _SwipeableFeedItemState extends State<SwipeableFeedItem>
                           Icon(
                             Icons.swipe,
                             size: 64,
-                            color: AppColors.textPrimary.withOpacity(
-                              1 - _hintAnimation.value * 0.5,
+                            color: AppColors.textPrimary.withValues(
+                              alpha: 1 - _hintAnimation.value * 0.5,
                             ),
                           ),
                           const SizedBox(height: 16),
