@@ -3,18 +3,12 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
-enum TradingMode {
-  lite,
-  advanced,
-}
+enum TradingMode { lite, advanced }
 
 class TradingModeModal extends StatefulWidget {
   final TradingMode currentMode;
 
-  const TradingModeModal({
-    super.key,
-    required this.currentMode,
-  });
+  const TradingModeModal({super.key, required this.currentMode});
 
   @override
   State<TradingModeModal> createState() => _TradingModeModalState();
@@ -43,7 +37,7 @@ class _TradingModeModalState extends State<TradingModeModal> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(24),
@@ -60,9 +54,7 @@ class _TradingModeModalState extends State<TradingModeModal> {
             // Title
             Text(
               strings.tradingMode,
-              style: AppTextStyles.labelSmall(
-                color: AppColors.textLabel,
-              ),
+              style: AppTextStyles.labelSmall(color: AppColors.textLabel),
               textAlign: TextAlign.left,
             ),
             const SizedBox(height: 12),
@@ -120,16 +112,11 @@ class _ModeOption extends StatelessWidget {
         child: Text(
           label,
           style: isSelected
-              ? AppTextStyles.labelMedium(
-                  color: AppColors.textPrimary,
-                )
-              : AppTextStyles.bodyMedium(
-                  color: AppColors.textPrimary,
-                ),
+              ? AppTextStyles.labelMedium(color: AppColors.textPrimary)
+              : AppTextStyles.bodyMedium(color: AppColors.textPrimary),
           textAlign: TextAlign.left,
         ),
       ),
     );
   }
 }
-

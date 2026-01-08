@@ -29,6 +29,16 @@ class AppTextStyles {
     color: color ?? AppColors.textPrimary,
   );
 
+  // Title Styles
+  // title-small: Font(family: "Montserrat", style: Bold, size: 16, lineHeight: 22)
+  static TextStyle titleSmall({Color? color}) => GoogleFonts.montserrat(
+    fontSize: 16,
+    fontWeight: FontWeight.w700, // Bold
+    height: 22 / 16, // lineHeight: 22
+    letterSpacing: 0,
+    color: color ?? AppColors.textPrimary,
+  );
+
   // Body Styles
   // body-large: Font(family: "Montserrat", style: Regular, size: 14)
   static TextStyle bodyLarge({Color? color}) => GoogleFonts.montserrat(

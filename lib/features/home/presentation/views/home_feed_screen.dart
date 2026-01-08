@@ -9,6 +9,7 @@ import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/bottom_navigation_bar.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/comments_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/interaction_sidebar.dart';
+import 'package:pulsetrade_app/features/home/presentation/widgets/news_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/stock_chart_widget.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/stock_description.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/video_player_widget.dart';
@@ -46,6 +47,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late List<StockData> _stockFeed;
   late List<List<CommentData>> _commentsList;
   late List<List<ChartDataPoint>> _chartDataList;
+  late List<List<NewsEvent>> _newsEventsList;
+  late List<List<NewsItem>> _newsItemsList; // News items for each stock
 
   @override
   void initState() {
@@ -68,6 +71,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() {
       _isPageActive = state == AppLifecycleState.resumed;
     });
+  }
+
+  String _formatNewsDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  void _handleNewsEventTap(NewsEvent event, int stockIndex) {
+    // Show news bottom sheet with news items for this stock
+    if (stockIndex >= 0 && stockIndex < _newsItemsList.length) {
+      showNewsSheet(context, _newsItemsList[stockIndex]);
+    }
   }
 
   void _initializeMockData() {
@@ -96,6 +124,82 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           value: 380 - (distFromMid * 2.0) + (i % 4 * 3),
         );
       }),
+    ];
+
+    // Create news events for each stock (matching chart data)
+    _newsEventsList = [
+      // TSLA news event at index 29 (day 30)
+      [
+        NewsEvent(
+          chartIndex: 29,
+          title: 'Tesla Stock Analysis',
+          date: DateTime(2025, 8, 19),
+        ),
+      ],
+      // NVDA news event at index 25
+      [
+        NewsEvent(
+          chartIndex: 25,
+          title: 'NVIDIA AI Boom Continues',
+          date: DateTime(2025, 8, 21),
+        ),
+      ],
+      // MSFT news event at index 20
+      [
+        NewsEvent(
+          chartIndex: 20,
+          title: 'Microsoft Azure Growth',
+          date: DateTime(2025, 8, 22),
+        ),
+      ],
+    ];
+
+    // Mock news items for each stock
+    _newsItemsList = [
+      // TSLA news items
+      [
+        NewsItem(
+          id: '1',
+          timestamp: '5:55 PM • Dec 3 • American News',
+          headline: 'Mergers and acquisitions',
+        ),
+        NewsItem(
+          id: '2',
+          timestamp: '4:21 PM • Dec 3 • London Stock Exchange',
+          headline: 'REG - UBS ETF MSCI EMU - Net Asset Value(s)',
+        ),
+        NewsItem(
+          id: '3',
+          timestamp: '4:40 PM • Dec 3 • dpa-AFX',
+          headline: 'Liberty Global is Maintained at Neutral by UBS Software',
+        ),
+      ],
+      // NVDA news items
+      [
+        NewsItem(
+          id: '4',
+          timestamp: '3:15 PM • Dec 3 • Tech News',
+          headline: 'NVIDIA AI Chip Demand Surges',
+        ),
+        NewsItem(
+          id: '5',
+          timestamp: '2:30 PM • Dec 3 • Market Watch',
+          headline: 'Data Centers Rush to Upgrade Infrastructure',
+        ),
+      ],
+      // MSFT news items
+      [
+        NewsItem(
+          id: '6',
+          timestamp: '1:45 PM • Dec 3 • Cloud Weekly',
+          headline: 'Microsoft Azure Gains Market Share',
+        ),
+        NewsItem(
+          id: '7',
+          timestamp: '12:20 PM • Dec 3 • Enterprise News',
+          headline: 'Enterprise Sector Shows Steady Growth',
+        ),
+      ],
     ];
 
     // Mock stock data with different videos
@@ -530,6 +634,14 @@ Shared via PulseTrade 📱''';
                                                         child: StockChartWidget(
                                                           chartData: chartData,
                                                           isExpanded: false,
+                                                          newsEvents:
+                                                              _newsEventsList[index],
+                                                          onNewsEventTap: (event) {
+                                                            _handleNewsEventTap(
+                                                              event,
+                                                              index,
+                                                            );
+                                                          },
                                                         ),
                                                       ),
                                                     ),
@@ -551,14 +663,64 @@ Shared via PulseTrade 📱''';
                                                           ),
                                                           SizedBox(
                                                             height: 164.5,
-                                                            child:
-                                                                StockChartWidget(
-                                                                  chartData:
-                                                                      chartData,
-                                                                  isExpanded:
-                                                                      true,
-                                                                ),
+                                                            child: StockChartWidget(
+                                                              chartData:
+                                                                  chartData,
+                                                              isExpanded: true,
+                                                              newsEvents:
+                                                                  _newsEventsList[index],
+                                                              onNewsEventTap:
+                                                                  (event) {
+                                                                    _handleNewsEventTap(
+                                                                      event,
+                                                                      index,
+                                                                    );
+                                                                  },
+                                                            ),
                                                           ),
+                                                          // News event info (only when expanded and news event exists)
+                                                          if (_newsEventsList[index]
+                                                              .isNotEmpty)
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets.only(
+                                                                    top: 8,
+                                                                  ),
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                    _newsEventsList[index]
+                                                                        .first
+                                                                        .title,
+                                                                    style:
+                                                                        AppTextStyles.labelLarge(
+                                                                          color:
+                                                                              AppColors.textPrimary,
+                                                                        ).copyWith(
+                                                                          fontSize:
+                                                                              14,
+                                                                        ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 4,
+                                                                  ),
+                                                                  Text(
+                                                                    _formatNewsDate(
+                                                                      _newsEventsList[index]
+                                                                          .first
+                                                                          .date,
+                                                                    ),
+                                                                    style: AppTextStyles.bodySmall(
+                                                                      color: AppColors
+                                                                          .textLabel,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
                                                         ],
                                                       )
                                                     : const SizedBox.shrink(),

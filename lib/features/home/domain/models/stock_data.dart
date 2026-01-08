@@ -57,6 +57,19 @@ class ChartDataPoint {
   });
 }
 
+/// News event marker on the chart
+class NewsEvent {
+  final int chartIndex; // Index in the chart data array where this event occurs
+  final String title;
+  final DateTime date;
+
+  NewsEvent({
+    required this.chartIndex,
+    required this.title,
+    required this.date,
+  });
+}
+
 /// Comment data
 class CommentData {
   final String id;
@@ -77,6 +90,21 @@ class CommentData {
     required this.likes,
     required this.replies,
     this.isLiked = false,
+  });
+}
+
+/// News item data for news list
+class NewsItem {
+  final String id;
+  final String timestamp; // e.g., "5:55 PM • Dec 3 • American News"
+  final String headline;
+  final String? source; // Optional source name
+
+  NewsItem({
+    required this.id,
+    required this.timestamp,
+    required this.headline,
+    this.source,
   });
 }
 
