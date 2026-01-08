@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:video_player/video_player.dart';
 import 'package:pulsetrade_app/core/router/app_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
@@ -34,8 +35,12 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isBookmarked = false;
   double _videoProgress = 0.0;
   bool _isPageActive = true;
+  bool _isSeeking = false; // Track if user is currently seeking/dragging
 
   late PageController _pageController;
+
+  // Track current video controller for seeking
+  VideoPlayerController? _currentVideoController;
 
   // Mock data - In production, this would come from a provider/repository
   late List<StockData> _stockFeed;
@@ -326,7 +331,10 @@ Shared via PulseTrade 📱''';
             onPageChanged: (index) {
               setState(() {
                 _currentFeedIndex = index;
-                _isChartExpanded = false; // Reset chart state on page change
+                _isChartExpanded = false;
+                _videoProgress = 0.0;
+                _currentVideoController = null;
+                _isSeeking = false;
               });
             },
             itemBuilder: (context, index) {
@@ -341,13 +349,21 @@ Shared via PulseTrade 📱''';
                       videoUrl: stock.videoUrl,
                       isPlaying: _isPageActive && index == _currentFeedIndex,
                       onProgressUpdate: (progress) {
-                        if (index == _currentFeedIndex && mounted) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) {
-                              setState(() {
-                                _videoProgress = progress;
-                              });
-                            }
+                        // Don't update progress while user is seeking/dragging
+                        if (index == _currentFeedIndex &&
+                            mounted &&
+                            !_isSeeking) {
+                          // Update immediately without deferring to avoid delays
+                          setState(() {
+                            _videoProgress = progress;
+                          });
+                        }
+                      },
+                      onControllerReady: (controller) {
+                        // Track the current video controller for seeking
+                        if (index == _currentFeedIndex) {
+                          setState(() {
+                            _currentVideoController = controller;
                           });
                         }
                       },
@@ -687,7 +703,62 @@ Shared via PulseTrade 📱''';
                             vertical: 4,
                           ),
                           color: AppColors.background,
-                          child: VideoProgressBar(progress: _videoProgress),
+                          child: VideoProgressBar(
+                            progress: _videoProgress,
+                            onDragStart: () {
+                              setState(() {
+                                _isSeeking = true;
+                              });
+                            },
+                            onDragEnd: () {
+                              // Use a small delay to ensure seek completes before allowing updates
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () {
+                                  if (mounted) {
+                                    setState(() {
+                                      _isSeeking = false;
+                                    });
+                                  }
+                                },
+                              );
+                            },
+                            onSeek: (progress) {
+                              // Seek the current video to the specified position
+                              if (_currentVideoController != null &&
+                                  _currentVideoController!
+                                      .value
+                                      .isInitialized &&
+                                  _currentVideoController!
+                                          .value
+                                          .duration
+                                          .inMilliseconds >
+                                      0) {
+                                final duration =
+                                    _currentVideoController!.value.duration;
+                                final position = duration * progress;
+                                _currentVideoController!.seekTo(position);
+                                // Update progress immediately after seeking
+                                setState(() {
+                                  _videoProgress = progress;
+                                });
+                                Future.delayed(
+                                  const Duration(milliseconds: 200),
+                                  () {
+                                    if (mounted) {
+                                      setState(() {
+                                        _isSeeking = false;
+                                      });
+                                    }
+                                  },
+                                );
+                              } else {
+                                setState(() {
+                                  _isSeeking = false;
+                                });
+                              }
+                            },
+                          ),
                         ),
                       ],
                     ),
