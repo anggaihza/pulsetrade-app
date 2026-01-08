@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:pulsetrade_app/core/router/app_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
@@ -292,6 +293,22 @@ class _HomeScreenState extends State<HomeScreen>
         // TODO: Implement like comment
       },
     );
+  }
+
+  void _handleShare(StockData stock) {
+    final changeSymbol = stock.isPositive ? '+' : '';
+    final shareText =
+        '''📈 ${stock.ticker} - $changeSymbol${stock.changePercentage.toStringAsFixed(2)}%
+
+💰 Price: \$${stock.price.toStringAsFixed(2)} ($changeSymbol\$${stock.change.abs().toStringAsFixed(2)})
+
+📰 ${stock.newsTitle}
+
+${stock.newsDescription}
+
+Shared via PulseTrade 📱''';
+
+    Share.share(shareText, subject: '${stock.ticker} Stock Update');
   }
 
   @override
@@ -655,7 +672,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     });
                                   },
                                   onShare: () {
-                                    // TODO: Implement share
+                                    _handleShare(stock);
                                   },
                                 ),
                               ],
