@@ -73,24 +73,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
-  String _formatNewsDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
-
   void _handleNewsEventTap(NewsEvent event, int stockIndex) {
     // Show news bottom sheet with news items for this stock
     if (stockIndex >= 0 && stockIndex < _newsItemsList.length) {
@@ -678,49 +660,6 @@ Shared via PulseTrade 📱''';
                                                                   },
                                                             ),
                                                           ),
-                                                          // News event info (only when expanded and news event exists)
-                                                          if (_newsEventsList[index]
-                                                              .isNotEmpty)
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets.only(
-                                                                    top: 8,
-                                                                  ),
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    _newsEventsList[index]
-                                                                        .first
-                                                                        .title,
-                                                                    style:
-                                                                        AppTextStyles.labelLarge(
-                                                                          color:
-                                                                              AppColors.textPrimary,
-                                                                        ).copyWith(
-                                                                          fontSize:
-                                                                              14,
-                                                                        ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 4,
-                                                                  ),
-                                                                  Text(
-                                                                    _formatNewsDate(
-                                                                      _newsEventsList[index]
-                                                                          .first
-                                                                          .date,
-                                                                    ),
-                                                                    style: AppTextStyles.bodySmall(
-                                                                      color: AppColors
-                                                                          .textLabel,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
                                                         ],
                                                       )
                                                     : const SizedBox.shrink(),
