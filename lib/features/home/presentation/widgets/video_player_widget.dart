@@ -91,11 +91,16 @@ class _StockVideoPlayerState extends State<StockVideoPlayer> {
       _controller?.dispose();
       _initializeVideo();
     } else if (widget.isPlaying != oldWidget.isPlaying && _controller != null) {
-      if (widget.isPlaying) {
-        _controller!.play();
-      } else {
-        _controller!.pause();
-      }
+      // Defer pause/play to avoid triggering listener during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _controller != null) {
+          if (widget.isPlaying) {
+            _controller!.play();
+          } else {
+            _controller!.pause();
+          }
+        }
+      });
     }
   }
 

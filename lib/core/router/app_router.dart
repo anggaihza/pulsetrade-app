@@ -16,6 +16,10 @@ import 'package:pulsetrade_app/features/settings/presentation/views/settings_scr
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
 import 'package:riverpod/riverpod.dart';
 
+/// Global route observer for tracking navigation events
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
+
 class RouterNotifier extends ChangeNotifier {
   RouterNotifier(this.ref) {
     ref.listen(authControllerProvider, (_, __) => notifyListeners());
@@ -39,6 +43,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: HomeScreen.routePath,
     debugLogDiagnostics: ref.read(environmentConfigProvider).enableLogging,
     refreshListenable: notifier,
+    observers: [routeObserver],
     redirect: (BuildContext context, GoRouterState state) {
       final loggingIn = state.matchedLocation == LoginScreen.routePath;
       final registering = state.matchedLocation == RegisterScreen.routePath;

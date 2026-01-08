@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulsetrade_app/core/router/app_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
@@ -23,13 +24,15 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver, RouteAware {
   int _currentNavIndex = 0;
   int _currentFeedIndex = 0;
   bool _isChartExpanded = false;
   bool _isLiked = false;
   bool _isBookmarked = false;
   double _videoProgress = 0.0;
+  bool _isPageActive = true;
 
   late PageController _pageController;
 
@@ -43,12 +46,51 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pageController = PageController();
     _initializeMockData();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route observer
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      routeObserver.subscribe(this, modalRoute);
+    }
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    setState(() {
+      _isPageActive = state == AppLifecycleState.resumed;
+    });
+  }
+
+  /// Called when another route is pushed on top (e.g., navigating to profile)
+  @override
+  void didPushNext() {
+    super.didPushNext();
+    setState(() {
+      _isPageActive = false;
+    });
+  }
+
+  /// Called when returning to this route (e.g., popping profile screen)
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    setState(() {
+      _isPageActive = true;
+    });
   }
 
   void _initializeMockData() {
@@ -223,8 +265,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   StockData get _currentStock => _stockFeed[_currentFeedIndex];
   List<CommentData> get _currentComments => _commentsList[_currentFeedIndex];
-  List<ChartDataPoint> get _currentChartData =>
-      _chartDataList[_currentFeedIndex];
 
   void _toggleChart() {
     setState(() {
@@ -282,10 +322,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Positioned.fill(
                     child: StockVideoPlayer(
                       videoUrl: stock.videoUrl,
+                      isPlaying: _isPageActive && index == _currentFeedIndex,
                       onProgressUpdate: (progress) {
-                        if (index == _currentFeedIndex) {
-                          setState(() {
-                            _videoProgress = progress;
+                        if (index == _currentFeedIndex && mounted) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) {
+                              setState(() {
+                                _videoProgress = progress;
+                              });
+                            }
                           });
                         }
                       },
