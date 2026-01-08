@@ -3,7 +3,6 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
-import 'package:pulsetrade_app/core/router/app_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
@@ -26,8 +25,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with WidgetsBindingObserver, RouteAware {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentNavIndex = 0;
   int _currentFeedIndex = 0;
   bool _isChartExpanded = false;
@@ -36,11 +34,13 @@ class _HomeScreenState extends State<HomeScreen>
   double _videoProgress = 0.0;
   bool _isPageActive = true;
   bool _isSeeking = false; // Track if user is currently seeking/dragging
+  double? _lastSeekedProgress; // Track last seeked position to prevent override
+  DateTime? _lastSeekTime; // Track when last seek happened
 
   late PageController _pageController;
 
-  // Track current video controller for seeking
-  VideoPlayerController? _currentVideoController;
+  // Track video controllers per index for seeking
+  final Map<int, VideoPlayerController> _videoControllers = {};
 
   // Mock data - In production, this would come from a provider/repository
   late List<StockData> _stockFeed;
@@ -56,18 +56,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Subscribe to route observer
-    final modalRoute = ModalRoute.of(context);
-    if (modalRoute is PageRoute) {
-      routeObserver.subscribe(this, modalRoute);
-    }
-  }
-
-  @override
   void dispose() {
-    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
@@ -78,24 +67,6 @@ class _HomeScreenState extends State<HomeScreen>
     super.didChangeAppLifecycleState(state);
     setState(() {
       _isPageActive = state == AppLifecycleState.resumed;
-    });
-  }
-
-  /// Called when another route is pushed on top (e.g., navigating to profile)
-  @override
-  void didPushNext() {
-    super.didPushNext();
-    setState(() {
-      _isPageActive = false;
-    });
-  }
-
-  /// Called when returning to this route (e.g., popping profile screen)
-  @override
-  void didPopNext() {
-    super.didPopNext();
-    setState(() {
-      _isPageActive = true;
     });
   }
 
@@ -333,8 +304,23 @@ Shared via PulseTrade 📱''';
                 _currentFeedIndex = index;
                 _isChartExpanded = false;
                 _videoProgress = 0.0;
-                _currentVideoController = null;
                 _isSeeking = false;
+                _lastSeekedProgress = null;
+                _lastSeekTime = null;
+                // Clean up controllers for videos that are far from current (keep only current ± 1)
+                final controllersToRemove = <int>[];
+                _videoControllers.forEach((videoIndex, controller) {
+                  final distance = (videoIndex - index).abs();
+                  if (distance > 1) {
+                    // Mark controllers that are more than 1 video away for removal
+                    controllersToRemove.add(videoIndex);
+                    // Dispose will be handled by the video player widget
+                  }
+                });
+                // Remove from map (disposal is handled by video player widget)
+                for (final videoIndex in controllersToRemove) {
+                  _videoControllers.remove(videoIndex);
+                }
               });
             },
             itemBuilder: (context, index) {
@@ -349,23 +335,50 @@ Shared via PulseTrade 📱''';
                       videoUrl: stock.videoUrl,
                       isPlaying: _isPageActive && index == _currentFeedIndex,
                       onProgressUpdate: (progress) {
-                        // Don't update progress while user is seeking/dragging
+                        // Only update progress for the current video and when not seeking
                         if (index == _currentFeedIndex &&
                             mounted &&
                             !_isSeeking) {
-                          // Update immediately without deferring to avoid delays
-                          setState(() {
-                            _videoProgress = progress;
-                          });
+                          // Verify this progress update is from the current video's controller
+                          final currentController =
+                              _videoControllers[_currentFeedIndex];
+                          if (currentController != null &&
+                              currentController.value.isInitialized) {
+                            // If we recently seeked, ignore progress updates that are too different
+                            // This prevents old progress updates from overriding the seek position
+                            if (_lastSeekTime != null &&
+                                DateTime.now().difference(_lastSeekTime!) <
+                                    const Duration(milliseconds: 500)) {
+                              if (_lastSeekedProgress != null) {
+                                final progressDiff =
+                                    (progress - _lastSeekedProgress!).abs();
+                                // If progress is significantly different from seeked position, ignore it
+                                if (progressDiff > 0.1) {
+                                  return; // Ignore this update
+                                }
+                              }
+                            }
+                            // Update immediately without deferring to avoid delays
+                            setState(() {
+                              _videoProgress = progress;
+                            });
+                          }
                         }
                       },
                       onControllerReady: (controller) {
-                        // Track the current video controller for seeking
-                        if (index == _currentFeedIndex) {
-                          setState(() {
-                            _currentVideoController = controller;
+                        // Track video controller for this specific video index
+                        if (controller != null) {
+                          // Defer setState to avoid calling during widget tree finalization
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) {
+                              setState(() {
+                                _videoControllers[index] = controller;
+                              });
+                            }
                           });
                         }
+                        // Note: We don't handle controller == null here to avoid setState during disposal
+                        // Controllers are cleaned up when video URL changes or page changes
                       },
                     ),
                   ),
@@ -704,6 +717,9 @@ Shared via PulseTrade 📱''';
                           ),
                           color: AppColors.background,
                           child: VideoProgressBar(
+                            key: ValueKey(
+                              'progress_$_currentFeedIndex',
+                            ), // Unique key per video
                             progress: _videoProgress,
                             onDragStart: () {
                               setState(() {
@@ -725,29 +741,30 @@ Shared via PulseTrade 📱''';
                             },
                             onSeek: (progress) {
                               // Seek the current video to the specified position
-                              if (_currentVideoController != null &&
-                                  _currentVideoController!
-                                      .value
-                                      .isInitialized &&
-                                  _currentVideoController!
-                                          .value
-                                          .duration
-                                          .inMilliseconds >
+                              final controller =
+                                  _videoControllers[_currentFeedIndex];
+                              if (controller != null &&
+                                  controller.value.isInitialized &&
+                                  controller.value.duration.inMilliseconds >
                                       0) {
-                                final duration =
-                                    _currentVideoController!.value.duration;
+                                final duration = controller.value.duration;
                                 final position = duration * progress;
-                                _currentVideoController!.seekTo(position);
-                                // Update progress immediately after seeking
+                                controller.seekTo(position);
+                                // Track the seeked position and time
                                 setState(() {
                                   _videoProgress = progress;
+                                  _lastSeekedProgress = progress;
+                                  _lastSeekTime = DateTime.now();
                                 });
                                 Future.delayed(
-                                  const Duration(milliseconds: 200),
+                                  const Duration(milliseconds: 500),
                                   () {
                                     if (mounted) {
                                       setState(() {
                                         _isSeeking = false;
+                                        // Clear seek tracking after delay
+                                        _lastSeekTime = null;
+                                        _lastSeekedProgress = null;
                                       });
                                     }
                                   },
@@ -797,7 +814,29 @@ Shared via PulseTrade 📱''';
 
                     // Profile button
                     GestureDetector(
-                      onTap: () => context.push(ProfileScreen.routePath),
+                      onTap: () async {
+                        // Pause video while navigating away from home
+                        final controller = _videoControllers[_currentFeedIndex];
+                        controller?.pause();
+                        setState(() {
+                          _isPageActive = false;
+                        });
+
+                        await context.push(ProfileScreen.routePath);
+
+                        if (!mounted) return;
+
+                        // Resume video when coming back to home
+                        setState(() {
+                          _isPageActive = true;
+                        });
+                        final currentController =
+                            _videoControllers[_currentFeedIndex];
+                        if (currentController != null &&
+                            currentController.value.isInitialized) {
+                          currentController.play();
+                        }
+                      },
                       child: Container(
                         width: 48,
                         height: 48,

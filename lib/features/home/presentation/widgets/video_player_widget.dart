@@ -123,12 +123,11 @@ class _StockVideoPlayerState extends State<StockVideoPlayer> {
 
   @override
   void dispose() {
-    // Notify parent that controller is being disposed
-    if (widget.onControllerReady != null) {
-      widget.onControllerReady!(null);
-    }
+    // Don't notify parent during dispose to avoid setState during widget tree finalization
+    // The parent will clean up the controller map when video URL changes or page changes
     _controller?.removeListener(_videoListener);
     _controller?.dispose();
+    _controller = null;
     super.dispose();
   }
 
@@ -215,6 +214,17 @@ class VideoProgressBar extends StatefulWidget {
 class _VideoProgressBarState extends State<VideoProgressBar> {
   bool _isDragging = false;
   double _dragProgress = 0.0;
+
+  @override
+  void didUpdateWidget(VideoProgressBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If progress resets significantly (new video loaded) while not dragging, reset drag state
+    if (!_isDragging && oldWidget.progress > 0.1 && widget.progress < 0.1) {
+      // Video likely changed - reset drag state
+      _isDragging = false;
+      _dragProgress = 0.0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
