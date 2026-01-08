@@ -47,7 +47,7 @@ class _StockDescriptionState extends State<StockDescription> {
           widget.title,
           style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
         ),
-
+        const SizedBox(height: 3),
         // Description with "more" button
         RichText(
           text: TextSpan(
