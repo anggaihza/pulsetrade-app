@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
@@ -41,7 +42,7 @@ class InteractionSidebar extends StatelessWidget {
       children: [
         // Like button
         _InteractionButton(
-          icon: isLiked ? TablerIcons.heart_filled : TablerIcons.heart,
+          icon: TablerIcons.heart_filled,
           count: _formatCount(stats.likes),
           onTap: onLike,
           isActive: isLiked,
@@ -69,7 +70,7 @@ class InteractionSidebar extends StatelessWidget {
 
         // Share button
         _InteractionButton(
-          icon: TablerIcons.share_3,
+          iconAsset: 'assets/icons/share_filled.svg',
           count: _formatCount(stats.shares),
           onTap: onShare,
         ),
@@ -79,17 +80,22 @@ class InteractionSidebar extends StatelessWidget {
 }
 
 class _InteractionButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final String count;
   final VoidCallback? onTap;
   final bool isActive;
 
   const _InteractionButton({
-    required this.icon,
+    this.icon,
+    this.iconAsset,
     required this.count,
     this.onTap,
     this.isActive = false,
-  });
+  }) : assert(
+         icon != null || iconAsset != null,
+         'Either icon or iconAsset must be provided',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +103,22 @@ class _InteractionButton extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 32,
-            color: isActive ? AppColors.primary : AppColors.textPrimary,
-          ),
+          if (icon != null)
+            Icon(
+              icon,
+              size: 32,
+              color: isActive ? AppColors.primary : AppColors.textPrimary,
+            )
+          else if (iconAsset != null)
+            SvgPicture.asset(
+              iconAsset!,
+              width: 32,
+              height: 32,
+              colorFilter: ColorFilter.mode(
+                isActive ? AppColors.primary : AppColors.textPrimary,
+                BlendMode.srcIn,
+              ),
+            ),
           const SizedBox(height: 4),
           Text(
             count,
