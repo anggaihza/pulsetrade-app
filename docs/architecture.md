@@ -20,57 +20,169 @@ PulseTrade follows **Clean Architecture** principles with clear separation of co
 lib/
 ├── core/                          # Shared/Core functionality
 │   ├── config/                    # App configuration
-│   ├── error/                     # Error handling (Failure classes)
+│   │   └── environment.dart       # Environment config
+│   ├── error/                     # Error handling
+│   │   └── failure.dart           # Failure classes
 │   ├── localization/              # i18n setup
+│   │   └── localization.dart
+│   ├── navigation/                # Navigation utilities
 │   ├── network/                   # HTTP client, network info
+│   │   ├── dio_client.dart        # Dio HTTP client
+│   │   └── network_info.dart      # Network connectivity
 │   ├── presentation/              # Shared widgets
 │   │   └── widgets/
 │   │       ├── app_button.dart
+│   │       ├── app_card.dart
+│   │       ├── app_input.dart
 │   │       ├── app_text_field.dart
-│   │       └── google_button.dart
+│   │       ├── app_toast.dart
+│   │       ├── google_button.dart
+│   │       └── otp_input.dart
 │   ├── router/                    # Navigation (GoRouter)
+│   │   └── app_router.dart        # Route definitions
 │   ├── storage/                   # Local storage
 │   │   ├── cache/                 # Hive cache
+│   │   │   └── cache_client.dart
 │   │   ├── preferences/           # SharedPreferences
+│   │   │   └── preferences_storage.dart
 │   │   └── secure/                # Secure storage
+│   │       └── secure_storage.dart
 │   ├── theme/                     # 🎨 Design System
 │   │   ├── app_colors.dart        # Colors, spacing, radius
 │   │   ├── app_theme.dart         # Theme configuration
 │   │   └── typography.dart        # Text styles
 │   ├── usecase/                   # Base UseCase class
+│   │   └── usecase.dart
 │   └── utils/                     # Utilities
+│       ├── logger.dart
+│       ├── toast_utils.dart
+│       └── validators.dart
 │
-└── features/                      # Feature modules
-    ├── auth/                      # Authentication feature
-    │   ├── data/
-    │   │   ├── datasources/
-    │   │   │   ├── auth_local_data_source.dart
-    │   │   │   └── auth_remote_data_source.dart
-    │   │   ├── models/            # Data models (JSON)
-    │   │   │   └── user_model.dart
-    │   │   └── repositories/
-    │   │       └── auth_repository_impl.dart
-    │   ├── domain/
-    │   │   ├── entities/          # Business entities
-    │   │   │   └── user.dart
-    │   │   ├── repositories/      # Repository contracts
-    │   │   │   └── auth_repository.dart
-    │   │   └── usecases/          # Business logic
-    │   │       ├── login.dart
-    │   │       ├── logout.dart
-    │   │       └── register.dart
-    │   └── presentation/
-    │       ├── providers/         # Riverpod providers
-    │       │   └── auth_providers.dart
-    │       ├── views/             # Screens
-    │       │   ├── login_screen.dart
-    │       │   └── register_screen.dart
-    │       └── widgets/           # Feature-specific widgets
-    │           └── or_divider.dart
-    │
-    ├── home/                      # Home feature
-    ├── settings/                  # Settings feature
-    └── survey/                    # Survey feature
+├── features/                      # Feature modules
+│   ├── auth/                      # Authentication feature
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   │   ├── auth_local_data_source.dart
+│   │   │   │   └── auth_remote_data_source.dart
+│   │   │   ├── models/            # Data models (JSON)
+│   │   │   │   ├── user_model.dart
+│   │   │   │   └── user_model.g.dart
+│   │   │   └── repositories/
+│   │   │       └── auth_repository_impl.dart
+│   │   ├── domain/
+│   │   │   ├── entities/          # Business entities
+│   │   │   │   ├── user.dart
+│   │   │   │   └── verification_type.dart
+│   │   │   ├── repositories/      # Repository contracts
+│   │   │   │   └── auth_repository.dart
+│   │   │   └── usecases/          # Business logic
+│   │   │       ├── login.dart
+│   │   │       ├── logout.dart
+│   │   │       └── register.dart
+│   │   └── presentation/
+│   │       ├── providers/         # Riverpod providers
+│   │       │   └── auth_providers.dart
+│   │       ├── views/             # Screens
+│   │       │   ├── account_created_screen.dart
+│   │       │   ├── create_password_screen.dart
+│   │       │   ├── create_pin_screen.dart
+│   │       │   ├── login_screen.dart
+│   │       │   ├── otp_verification_screen.dart
+│   │       │   └── register_screen.dart
+│   │       └── widgets/           # Feature-specific widgets
+│   │           ├── or_divider.dart
+│   │           └── verification_type_bottom_sheet.dart
+│   │
+│   ├── home/                      # Home feed feature
+│   │   ├── domain/
+│   │   │   └── models/
+│   │   │       └── stock_data.dart
+│   │   └── presentation/
+│   │       ├── views/
+│   │       │   └── home_feed_screen.dart  # HomeScreen (TikTok-style feed)
+│   │       └── widgets/
+│   │           ├── bottom_navigation_bar.dart
+│   │           ├── comments_bottom_sheet.dart
+│   │           ├── interaction_sidebar.dart
+│   │           ├── news_bottom_sheet.dart
+│   │           ├── stock_chart_widget.dart
+│   │           ├── stock_description.dart
+│   │           ├── stock_info_card.dart
+│   │           ├── swipeable_feed_item.dart
+│   │           └── video_player_widget.dart
+│   │
+│   ├── profile/                   # User profile feature
+│   │   └── presentation/
+│   │       ├── views/
+│   │       │   ├── account_center_screen.dart
+│   │       │   └── profile_screen.dart
+│   │       └── widgets/
+│   │           └── trading_mode_modal.dart
+│   │
+│   ├── settings/                  # Settings feature
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   │   └── settings_local_data_source.dart
+│   │   │   └── repositories/
+│   │   │       └── settings_repository_impl.dart
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   │   └── app_settings.dart
+│   │   │   ├── repositories/
+│   │   │   │   └── settings_repository.dart
+│   │   │   └── usecases/
+│   │   │       ├── get_settings.dart
+│   │   │       ├── update_locale.dart
+│   │   │       └── update_theme.dart
+│   │   └── presentation/
+│   │       ├── providers/
+│   │       │   └── settings_providers.dart
+│   │       └── views/
+│   │           └── settings_screen.dart
+│   │
+│   ├── survey/                    # Survey feature
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   │   ├── survey_remote_data_source.dart
+│   │   │   │   └── survey_websocket_data_source.dart
+│   │   │   ├── models/
+│   │   │   └── repositories/
+│   │   │       └── survey_repository_impl.dart
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   │   └── survey_submission.dart
+│   │   │   ├── repositories/
+│   │   │   │   └── survey_repository.dart
+│   │   │   └── usecases/
+│   │   │       └── submit_survey.dart
+│   │   └── presentation/
+│   │       ├── providers/
+│   │       │   └── survey_providers.dart
+│   │       └── views/
+│   │           └── survey_form_screen.dart
+│   │
+│   └── trade/                     # Trading feature
+│       ├── domain/
+│       │   └── models/
+│       └── presentation/
+│           ├── views/
+│           │   ├── choose_bucket_screen.dart
+│           │   └── trade_screen.dart
+│           └── widgets/
+│               ├── bucket_donut_chart.dart
+│               ├── buy_sell_toggle.dart
+│               ├── order_type_tabs.dart
+│               ├── value_input_type_modal.dart
+│               └── value_slider.dart
+│
+└── l10n/                          # Localization
+    ├── arb/                       # ARB files
+    │   ├── app_en.arb
+    │   └── app_es.arb
+    └── gen/                       # Generated files
+        ├── app_localizations.dart
+        ├── app_localizations_en.dart
+        └── app_localizations_es.dart
 ```
 
 ## 🔄 Data Flow
@@ -98,7 +210,7 @@ User Interaction
 ### 1. **Presentation Layer** (`presentation/`)
 - **Responsibility**: UI rendering, user interactions, state management
 - **Components**:
-  - `views/`: Full screen widgets
+  - `views/`: Full screen widgets (Screens)
   - `widgets/`: Reusable UI components
   - `providers/`: Riverpod state management
 - **Dependencies**: Can depend on Domain layer
@@ -114,6 +226,7 @@ User Interaction
 - **Responsibility**: Business logic, independent of frameworks
 - **Components**:
   - `entities/`: Core business objects (pure Dart classes)
+  - `models/`: Domain models (for features without full Clean Architecture)
   - `repositories/`: Abstract repository interfaces
   - `usecases/`: Business logic operations
 - **Dependencies**: No dependencies on other layers (pure Dart)
@@ -202,7 +315,7 @@ Future<Either<Failure, User>> login(String email, String password) async {
 |------------|---------|
 | **Flutter** | UI framework |
 | **Riverpod** | State management & DI |
-| **GoRouter** | Navigation |
+| **GoRouter** | Navigation with route observers |
 | **Dio** | HTTP client |
 | **Hive** | Local database |
 | **SharedPreferences** | Simple key-value storage |
@@ -210,6 +323,11 @@ Future<Either<Failure, User>> login(String email, String password) async {
 | **fpdart** | Functional programming (Either type) |
 | **freezed** | Code generation (unions, copyWith) |
 | **json_serializable** | JSON serialization |
+| **video_player** | Video playback |
+| **fl_chart** | Charts and graphs |
+| **share_plus** | Share functionality |
+| **flutter_svg** | SVG rendering |
+| **flutter_tabler_icons** | Icon library |
 
 ## 📝 Naming Conventions
 
@@ -220,8 +338,8 @@ Future<Either<Failure, User>> login(String email, String password) async {
 ### Classes
 - **PascalCase**: `UserModel`, `AuthRepository`, `LoginScreen`
 - **Suffixes**:
-  - `Screen`: Full screen widgets (`LoginScreen`)
-  - `Widget`: Reusable widgets (`AppButton`)
+  - `Screen`: Full screen widgets (`LoginScreen`, `HomeScreen`)
+  - `Widget`: Reusable widgets (`AppButton`, `StockChartWidget`)
   - `Provider`: Riverpod providers (`authProvider`)
   - `Model`: Data models (`UserModel`)
   - `Repository`: Repository classes (`AuthRepository`)
@@ -243,6 +361,7 @@ Future<Either<Failure, User>> login(String email, String password) async {
    │   └── repositories/
    ├── domain/
    │   ├── entities/
+   │   ├── models/          # Optional: for simpler features
    │   ├── repositories/
    │   └── usecases/
    └── presentation/
@@ -253,6 +372,7 @@ Future<Either<Failure, User>> login(String email, String password) async {
 3. **Start with domain** (entities, repository interface, use cases)
 4. **Implement data** (models, data sources, repository)
 5. **Build presentation** (providers, views, widgets)
+6. **Add routes** in `core/router/app_router.dart`
 
 ## 🔍 Example: Auth Feature Flow
 
@@ -291,6 +411,33 @@ Future<UserModel> login(String email, String password) async {
 }
 ```
 
+## 🗺️ Navigation
+
+Navigation is handled by **GoRouter** with route observers for lifecycle management:
+
+- **Route Observer**: Tracks navigation events for video playback, analytics, etc.
+- **Route Guards**: Authentication redirects handled in router
+- **Route Paths**: Defined as static constants in each Screen class
+
+Example:
+```dart
+class HomeScreen extends StatefulWidget {
+  static const String routePath = '/home';
+  static const String routeName = 'home';
+  // ...
+}
+```
+
+## 🎨 Design System
+
+The app uses a centralized design system located in `core/theme/`:
+
+- **AppColors**: Color palette, spacing, radius values
+- **Typography**: Text styles with consistent sizing and weights
+- **AppTheme**: Theme configuration (light/dark mode support)
+
+All UI components should use these shared values instead of hardcoded colors/styles.
+
 ## 📚 Additional Resources
 
 - [Clean Architecture by Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
@@ -301,4 +448,3 @@ Future<UserModel> login(String email, String password) async {
 ---
 
 **Tip**: Always think "Which layer does this belong to?" before adding new code.
-
