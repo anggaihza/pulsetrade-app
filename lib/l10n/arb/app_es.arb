@@ -161,5 +161,6 @@
   "addToBucket": "Agregar a la cesta",
   "orderExecutionMessage": "Tu orden se ejecutará después de que el mercado abra en ",
   "reviewOrder": "Revisar orden",
-  "today": "hoy"
+  "today": "hoy",
+  "numberOfShares": "Número de Acciones"
 }

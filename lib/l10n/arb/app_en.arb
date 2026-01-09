@@ -161,5 +161,6 @@
   "addToBucket": "Add to Bucket",
   "orderExecutionMessage": "Your order will execute after the market opens in ",
   "reviewOrder": "Review order",
-  "today": "today"
+  "today": "today",
+  "numberOfShares": "Number of Shares"
 }

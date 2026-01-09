@@ -8,6 +8,7 @@ import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_tabs.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
 
 class _TradeStockData {
   final String ticker;
@@ -45,6 +46,7 @@ class _TradeScreenState extends State<TradeScreen> {
   double _value = 300000.0;
   final double _maxValue = 500000.0;
   final double _balance = 412032.0;
+  ValueInputType _valueInputType = ValueInputType.value;
 
   _TradeStockData? _stockData;
   bool _isLoading = true;
@@ -177,7 +179,16 @@ class _TradeScreenState extends State<TradeScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    ValueSlider(value: _value, maxValue: _maxValue),
+                    ValueSlider(
+                      value: _value,
+                      maxValue: _maxValue,
+                      inputType: _valueInputType,
+                      onInputTypeChanged: (type) {
+                        setState(() {
+                          _valueInputType = type;
+                        });
+                      },
+                    ),
                     const SizedBox(height: 16),
                     _buildSlider(),
                     const SizedBox(height: 16),

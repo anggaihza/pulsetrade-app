@@ -3,6 +3,7 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
 
 /// Reusable value display widget for trade orders
 ///
@@ -10,10 +11,18 @@ import 'package:pulsetrade_app/core/theme/typography.dart';
 /// - Value label with info icon
 /// - Large value display with currency
 class ValueSlider extends StatelessWidget {
-  const ValueSlider({super.key, required this.value, required this.maxValue});
+  const ValueSlider({
+    super.key,
+    required this.value,
+    required this.maxValue,
+    required this.inputType,
+    required this.onInputTypeChanged,
+  });
 
   final double value;
   final double maxValue;
+  final ValueInputType inputType;
+  final ValueChanged<ValueInputType> onInputTypeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +48,21 @@ class ValueSlider extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(
-                  TablerIcons.circle_caret_down,
-                  size: 16,
-                  color: AppColors.textPrimary,
+                GestureDetector(
+                  onTap: () async {
+                    final selectedType = await ValueInputTypeModal.show(
+                      context,
+                      currentType: inputType,
+                    );
+                    if (selectedType != null) {
+                      onInputTypeChanged(selectedType);
+                    }
+                  },
+                  child: const Icon(
+                    TablerIcons.circle_caret_down,
+                    size: 16,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),
