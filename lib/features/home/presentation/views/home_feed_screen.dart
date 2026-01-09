@@ -14,6 +14,7 @@ import 'package:pulsetrade_app/features/home/presentation/widgets/stock_chart_wi
 import 'package:pulsetrade_app/features/home/presentation/widgets/stock_description.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/video_player_widget.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/profile_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 
 /// Main home screen with TikTok-style video feed
 class HomeScreen extends StatefulWidget {
@@ -78,6 +79,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (stockIndex >= 0 && stockIndex < _newsItemsList.length) {
       showNewsSheet(context, _newsItemsList[stockIndex]);
     }
+  }
+
+  void _navigateToTradeScreen(StockData stock) {
+    context.push('${TradeScreen.routePath}?ticker=${stock.ticker}');
   }
 
   void _initializeMockData() {
@@ -413,174 +418,164 @@ Shared via PulseTrade 📱''';
               final stock = _stockFeed[index];
               final chartData = _chartDataList[index];
 
-              return Stack(
-                children: [
-                  // Video background
-                  Positioned.fill(
-                    child: StockVideoPlayer(
-                      videoUrl: stock.videoUrl,
-                      isPlaying: _isPageActive && index == _currentFeedIndex,
-                      onProgressUpdate: (progress) {
-                        // Only update progress for the current video and when not seeking
-                        if (index == _currentFeedIndex &&
-                            mounted &&
-                            !_isSeeking) {
-                          // Verify this progress update is from the current video's controller
-                          final currentController =
-                              _videoControllers[_currentFeedIndex];
-                          if (currentController != null &&
-                              currentController.value.isInitialized) {
-                            // If we recently seeked, ignore progress updates that are too different
-                            // This prevents old progress updates from overriding the seek position
-                            if (_lastSeekTime != null &&
-                                DateTime.now().difference(_lastSeekTime!) <
-                                    const Duration(milliseconds: 500)) {
-                              if (_lastSeekedProgress != null) {
-                                final progressDiff =
-                                    (progress - _lastSeekedProgress!).abs();
-                                // If progress is significantly different from seeked position, ignore it
-                                if (progressDiff > 0.1) {
-                                  return; // Ignore this update
+              return GestureDetector(
+                onHorizontalDragEnd: (details) {
+                  // Swipe left to navigate to trade screen
+                  if (details.primaryVelocity != null &&
+                      details.primaryVelocity! < -500) {
+                    _navigateToTradeScreen(stock);
+                  }
+                },
+                child: Stack(
+                  children: [
+                    // Video background
+                    Positioned.fill(
+                      child: StockVideoPlayer(
+                        videoUrl: stock.videoUrl,
+                        isPlaying: _isPageActive && index == _currentFeedIndex,
+                        onProgressUpdate: (progress) {
+                          // Only update progress for the current video and when not seeking
+                          if (index == _currentFeedIndex &&
+                              mounted &&
+                              !_isSeeking) {
+                            // Verify this progress update is from the current video's controller
+                            final currentController =
+                                _videoControllers[_currentFeedIndex];
+                            if (currentController != null &&
+                                currentController.value.isInitialized) {
+                              // If we recently seeked, ignore progress updates that are too different
+                              // This prevents old progress updates from overriding the seek position
+                              if (_lastSeekTime != null &&
+                                  DateTime.now().difference(_lastSeekTime!) <
+                                      const Duration(milliseconds: 500)) {
+                                if (_lastSeekedProgress != null) {
+                                  final progressDiff =
+                                      (progress - _lastSeekedProgress!).abs();
+                                  // If progress is significantly different from seeked position, ignore it
+                                  if (progressDiff > 0.1) {
+                                    return; // Ignore this update
+                                  }
                                 }
                               }
-                            }
-                            // Update immediately without deferring to avoid delays
-                            setState(() {
-                              _videoProgress = progress;
-                            });
-                          }
-                        }
-                      },
-                      onControllerReady: (controller) {
-                        // Track video controller for this specific video index
-                        if (controller != null) {
-                          // Defer setState to avoid calling during widget tree finalization
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) {
+                              // Update immediately without deferring to avoid delays
                               setState(() {
-                                _videoControllers[index] = controller;
+                                _videoProgress = progress;
                               });
                             }
-                          });
-                        }
-                        // Note: We don't handle controller == null here to avoid setState during disposal
-                        // Controllers are cleaned up when video URL changes or page changes
-                      },
+                          }
+                        },
+                        onControllerReady: (controller) {
+                          // Track video controller for this specific video index
+                          if (controller != null) {
+                            // Defer setState to avoid calling during widget tree finalization
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) {
+                                setState(() {
+                                  _videoControllers[index] = controller;
+                                });
+                              }
+                            });
+                          }
+                          // Note: We don't handle controller == null here to avoid setState during disposal
+                          // Controllers are cleaned up when video URL changes or page changes
+                        },
+                      ),
                     ),
-                  ),
 
-                  // Gradient overlay for better text readability (subtle, bottom only)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.transparent,
-                              AppColors.black.withValues(alpha: 0.4),
-                              AppColors.black.withValues(alpha: 0.7),
-                            ],
-                            stops: const [0.0, 0.6, 0.85, 1.0],
+                    // Gradient overlay for better text readability (subtle, bottom only)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.transparent,
+                                AppColors.black.withValues(alpha: 0.4),
+                                AppColors.black.withValues(alpha: 0.7),
+                              ],
+                              stops: const [0.0, 0.6, 0.85, 1.0],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // Content overlay
-                  SafeArea(
-                    child: Column(
-                      children: [
-                        // Spacer for floating header
-                        const SizedBox(height: 80),
+                    // Content overlay
+                    SafeArea(
+                      child: Column(
+                        children: [
+                          // Spacer for floating header
+                          const SizedBox(height: 80),
 
-                        // Main content area
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                // Left side - Combined stock info/chart and description
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Single unified container for both expanded and collapsed states
-                                      GestureDetector(
-                                        onTap: _toggleChart,
-                                        child: AnimatedContainer(
-                                          duration: const Duration(
-                                            milliseconds: 300,
-                                          ),
-                                          curve: Curves.easeInOut,
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: _isChartExpanded
-                                                ? AppColors.background
-                                                      .withValues(alpha: 0.9)
-                                                : AppColors.background
-                                                      .withValues(alpha: 0.5),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                          // Main content area
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  // Left side - Combined stock info/chart and description
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Single unified container for both expanded and collapsed states
+                                        GestureDetector(
+                                          onTap: _toggleChart,
+                                          child: AnimatedContainer(
+                                            duration: const Duration(
+                                              milliseconds: 300,
                                             ),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // Ticker row (with mini chart when collapsed) - Animated
-                                              AnimatedCrossFade(
-                                                duration: const Duration(
-                                                  milliseconds: 300,
-                                                ),
-                                                sizeCurve: Curves.easeInOut,
-                                                firstCurve: Curves.easeInOut,
-                                                secondCurve: Curves.easeInOut,
-                                                crossFadeState: _isChartExpanded
-                                                    ? CrossFadeState.showFirst
-                                                    : CrossFadeState.showSecond,
-                                                firstChild: Container(
-                                                  width: double.infinity,
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        bottom: 4,
-                                                      ),
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                        border: Border(
-                                                          bottom: BorderSide(
-                                                            color: AppColors
-                                                                .surface,
-                                                            width: 0.5,
+                                            curve: Curves.easeInOut,
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: _isChartExpanded
+                                                  ? AppColors.background
+                                                        .withValues(alpha: 0.9)
+                                                  : AppColors.background
+                                                        .withValues(alpha: 0.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Ticker row (with mini chart when collapsed) - Animated
+                                                AnimatedCrossFade(
+                                                  duration: const Duration(
+                                                    milliseconds: 300,
+                                                  ),
+                                                  sizeCurve: Curves.easeInOut,
+                                                  firstCurve: Curves.easeInOut,
+                                                  secondCurve: Curves.easeInOut,
+                                                  crossFadeState:
+                                                      _isChartExpanded
+                                                      ? CrossFadeState.showFirst
+                                                      : CrossFadeState
+                                                            .showSecond,
+                                                  firstChild: Container(
+                                                    width: double.infinity,
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          bottom: 4,
+                                                        ),
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                              color: AppColors
+                                                                  .surface,
+                                                              width: 0.5,
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                  child: Text(
-                                                    stock.ticker,
-                                                    style:
-                                                        AppTextStyles.headlineLarge(
-                                                          color: AppColors
-                                                              .textPrimary,
-                                                        ).copyWith(
-                                                          fontSize: 24,
-                                                        ),
-                                                  ),
-                                                ),
-                                                secondChild: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    // Ticker text (no border)
-                                                    Text(
+                                                    child: Text(
                                                       stock.ticker,
                                                       style:
                                                           AppTextStyles.headlineLarge(
@@ -590,298 +585,321 @@ Shared via PulseTrade 📱''';
                                                             fontSize: 24,
                                                           ),
                                                     ),
-
-                                                    // Mini chart with border container
-                                                    Container(
-                                                      width: 118,
-                                                      height: 50,
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                          color:
-                                                              AppColors.surface,
-                                                          width: 0.5,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              8,
+                                                  ),
+                                                  secondChild: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      // Ticker text (no border)
+                                                      Text(
+                                                        stock.ticker,
+                                                        style:
+                                                            AppTextStyles.headlineLarge(
+                                                              color: AppColors
+                                                                  .textPrimary,
+                                                            ).copyWith(
+                                                              fontSize: 24,
                                                             ),
                                                       ),
-                                                      clipBehavior:
-                                                          Clip.hardEdge,
-                                                      alignment: Alignment
-                                                          .bottomCenter,
-                                                      child: SizedBox(
-                                                        width: 200,
-                                                        height: 84.925,
-                                                        child: StockChartWidget(
-                                                          chartData: chartData,
-                                                          isExpanded: false,
-                                                          newsEvents:
-                                                              _newsEventsList[index],
-                                                          onNewsEventTap: (event) {
-                                                            _handleNewsEventTap(
-                                                              event,
-                                                              index,
-                                                            );
-                                                          },
+
+                                                      // Mini chart with border container
+                                                      Container(
+                                                        width: 118,
+                                                        height: 50,
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                            color: AppColors
+                                                                .surface,
+                                                            width: 0.5,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8,
+                                                              ),
+                                                        ),
+                                                        clipBehavior:
+                                                            Clip.hardEdge,
+                                                        alignment: Alignment
+                                                            .bottomCenter,
+                                                        child: SizedBox(
+                                                          width: 200,
+                                                          height: 84.925,
+                                                          child: StockChartWidget(
+                                                            chartData:
+                                                                chartData,
+                                                            isExpanded: false,
+                                                            newsEvents:
+                                                                _newsEventsList[index],
+                                                            onNewsEventTap:
+                                                                (event) {
+                                                                  _handleNewsEventTap(
+                                                                    event,
+                                                                    index,
+                                                                  );
+                                                                },
+                                                          ),
                                                         ),
                                                       ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                // Chart (only when expanded) - Animated
+                                                AnimatedSize(
+                                                  duration: const Duration(
+                                                    milliseconds: 300,
+                                                  ),
+                                                  curve: Curves.easeInOut,
+                                                  child: _isChartExpanded
+                                                      ? Column(
+                                                          children: [
+                                                            const SizedBox(
+                                                              height: 8,
+                                                            ),
+                                                            SizedBox(
+                                                              height: 164.5,
+                                                              child: StockChartWidget(
+                                                                chartData:
+                                                                    chartData,
+                                                                isExpanded:
+                                                                    true,
+                                                                newsEvents:
+                                                                    _newsEventsList[index],
+                                                                onNewsEventTap:
+                                                                    (event) {
+                                                                      _handleNewsEventTap(
+                                                                        event,
+                                                                        index,
+                                                                      );
+                                                                    },
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      : const SizedBox.shrink(),
+                                                ),
+
+                                                const SizedBox(height: 8),
+
+                                                // Price and change (always visible, full width)
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      stock.price
+                                                          .toStringAsFixed(2),
+                                                      style:
+                                                          AppTextStyles.labelLarge(
+                                                            color: AppColors
+                                                                .textPrimary,
+                                                          ).copyWith(
+                                                            fontSize: 14,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      '${stock.change >= 0 ? '+' : ''}${stock.change.toStringAsFixed(2)}',
+                                                      style:
+                                                          AppTextStyles.labelSmall(
+                                                            color:
+                                                                stock.isPositive
+                                                                ? AppColors
+                                                                      .success
+                                                                : AppColors
+                                                                      .error,
+                                                          ).copyWith(
+                                                            fontSize: 10,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
-                                              ),
+                                                const SizedBox(height: 10),
 
-                                              // Chart (only when expanded) - Animated
-                                              AnimatedSize(
-                                                duration: const Duration(
-                                                  milliseconds: 300,
-                                                ),
-                                                curve: Curves.easeInOut,
-                                                child: _isChartExpanded
-                                                    ? Column(
+                                                // Sentiment bar (always visible, full width)
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      height: 4,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            AppColors.surface,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              2,
+                                                            ),
+                                                      ),
+                                                      child: Row(
                                                         children: [
-                                                          const SizedBox(
-                                                            height: 8,
+                                                          Expanded(
+                                                            flex:
+                                                                (_currentStock
+                                                                            .sentimentScore *
+                                                                        100)
+                                                                    .round(),
+                                                            child: Container(
+                                                              decoration: BoxDecoration(
+                                                                color: AppColors
+                                                                    .success,
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      1,
+                                                                    ),
+                                                              ),
+                                                            ),
                                                           ),
-                                                          SizedBox(
-                                                            height: 164.5,
-                                                            child: StockChartWidget(
-                                                              chartData:
-                                                                  chartData,
-                                                              isExpanded: true,
-                                                              newsEvents:
-                                                                  _newsEventsList[index],
-                                                              onNewsEventTap:
-                                                                  (event) {
-                                                                    _handleNewsEventTap(
-                                                                      event,
-                                                                      index,
-                                                                    );
-                                                                  },
+                                                          Expanded(
+                                                            flex:
+                                                                ((1 -
+                                                                            _currentStock.sentimentScore) *
+                                                                        100)
+                                                                    .round(),
+                                                            child: Container(
+                                                              decoration: BoxDecoration(
+                                                                color: AppColors
+                                                                    .error,
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      1,
+                                                                    ),
+                                                              ),
                                                             ),
                                                           ),
                                                         ],
-                                                      )
-                                                    : const SizedBox.shrink(),
-                                              ),
-
-                                              const SizedBox(height: 8),
-
-                                              // Price and change (always visible, full width)
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    stock.price.toStringAsFixed(
-                                                      2,
+                                                      ),
                                                     ),
-                                                    style:
-                                                        AppTextStyles.labelLarge(
-                                                          color: AppColors
-                                                              .textPrimary,
-                                                        ).copyWith(
-                                                          fontSize: 14,
-                                                        ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    '${stock.change >= 0 ? '+' : ''}${stock.change.toStringAsFixed(2)}',
-                                                    style:
-                                                        AppTextStyles.labelSmall(
-                                                          color:
-                                                              stock.isPositive
-                                                              ? AppColors
-                                                                    .success
-                                                              : AppColors.error,
-                                                        ).copyWith(
-                                                          fontSize: 10,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 10),
-
-                                              // Sentiment bar (always visible, full width)
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Container(
-                                                    height: 4,
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.surface,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            2,
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      stock.sentiment,
+                                                      style:
+                                                          AppTextStyles.bodySmall(
+                                                            color: AppColors
+                                                                .textLabel,
                                                           ),
                                                     ),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          flex:
-                                                              (_currentStock
-                                                                          .sentimentScore *
-                                                                      100)
-                                                                  .round(),
-                                                          child: Container(
-                                                            decoration: BoxDecoration(
-                                                              color: AppColors
-                                                                  .success,
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    1,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          flex:
-                                                              ((1 -
-                                                                          _currentStock
-                                                                              .sentimentScore) *
-                                                                      100)
-                                                                  .round(),
-                                                          child: Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                                  color:
-                                                                      AppColors
-                                                                          .error,
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        1,
-                                                                      ),
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    stock.sentiment,
-                                                    style:
-                                                        AppTextStyles.bodySmall(
-                                                          color: AppColors
-                                                              .textLabel,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 16),
+                                        const SizedBox(height: 16),
 
-                                      // Description
-                                      StockDescription(
-                                        title: stock.newsTitle,
-                                        description: stock.newsDescription,
-                                        date: stock.date,
-                                        onMoreToggle: _onDescriptionMoreToggle,
-                                      ),
-                                    ],
+                                        // Description
+                                        StockDescription(
+                                          title: stock.newsTitle,
+                                          description: stock.newsDescription,
+                                          date: stock.date,
+                                          onMoreToggle:
+                                              _onDescriptionMoreToggle,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
+                                  const SizedBox(width: 16),
 
-                                // Right side - Interaction buttons
-                                InteractionSidebar(
-                                  stats: stock.stats,
-                                  isLiked: _isLiked,
-                                  isBookmarked: _isBookmarked,
-                                  onLike: () {
-                                    setState(() {
-                                      _isLiked = !_isLiked;
-                                    });
-                                  },
-                                  onComment: _showComments,
-                                  onBookmark: () {
-                                    setState(() {
-                                      _isBookmarked = !_isBookmarked;
-                                    });
-                                  },
-                                  onShare: () {
-                                    _handleShare(stock);
-                                  },
-                                ),
-                              ],
+                                  // Right side - Interaction buttons
+                                  InteractionSidebar(
+                                    stats: stock.stats,
+                                    isLiked: _isLiked,
+                                    isBookmarked: _isBookmarked,
+                                    onLike: () {
+                                      setState(() {
+                                        _isLiked = !_isLiked;
+                                      });
+                                    },
+                                    onComment: _showComments,
+                                    onBookmark: () {
+                                      setState(() {
+                                        _isBookmarked = !_isBookmarked;
+                                      });
+                                    },
+                                    onShare: () {
+                                      _handleShare(stock);
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
-                        // Video progress bar
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          color: AppColors.background,
-                          child: VideoProgressBar(
-                            key: ValueKey(
-                              'progress_$_currentFeedIndex',
-                            ), // Unique key per video
-                            progress: _videoProgress,
-                            onDragStart: () {
-                              setState(() {
-                                _isSeeking = true;
-                              });
-                            },
-                            onDragEnd: () {
-                              // Use a small delay to ensure seek completes before allowing updates
-                              Future.delayed(
-                                const Duration(milliseconds: 100),
-                                () {
-                                  if (mounted) {
-                                    setState(() {
-                                      _isSeeking = false;
-                                    });
-                                  }
-                                },
-                              );
-                            },
-                            onSeek: (progress) {
-                              // Seek the current video to the specified position
-                              final controller =
-                                  _videoControllers[_currentFeedIndex];
-                              if (controller != null &&
-                                  controller.value.isInitialized &&
-                                  controller.value.duration.inMilliseconds >
-                                      0) {
-                                final duration = controller.value.duration;
-                                final position = duration * progress;
-                                controller.seekTo(position);
-                                // Track the seeked position and time
+                          // Video progress bar
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            color: AppColors.background,
+                            child: VideoProgressBar(
+                              key: ValueKey(
+                                'progress_$_currentFeedIndex',
+                              ), // Unique key per video
+                              progress: _videoProgress,
+                              onDragStart: () {
                                 setState(() {
-                                  _videoProgress = progress;
-                                  _lastSeekedProgress = progress;
-                                  _lastSeekTime = DateTime.now();
+                                  _isSeeking = true;
                                 });
+                              },
+                              onDragEnd: () {
+                                // Use a small delay to ensure seek completes before allowing updates
                                 Future.delayed(
-                                  const Duration(milliseconds: 500),
+                                  const Duration(milliseconds: 100),
                                   () {
                                     if (mounted) {
                                       setState(() {
                                         _isSeeking = false;
-                                        // Clear seek tracking after delay
-                                        _lastSeekTime = null;
-                                        _lastSeekedProgress = null;
                                       });
                                     }
                                   },
                                 );
-                              } else {
-                                setState(() {
-                                  _isSeeking = false;
-                                });
-                              }
-                            },
+                              },
+                              onSeek: (progress) {
+                                // Seek the current video to the specified position
+                                final controller =
+                                    _videoControllers[_currentFeedIndex];
+                                if (controller != null &&
+                                    controller.value.isInitialized &&
+                                    controller.value.duration.inMilliseconds >
+                                        0) {
+                                  final duration = controller.value.duration;
+                                  final position = duration * progress;
+                                  controller.seekTo(position);
+                                  // Track the seeked position and time
+                                  setState(() {
+                                    _videoProgress = progress;
+                                    _lastSeekedProgress = progress;
+                                    _lastSeekTime = DateTime.now();
+                                  });
+                                  Future.delayed(
+                                    const Duration(milliseconds: 500),
+                                    () {
+                                      if (mounted) {
+                                        setState(() {
+                                          _isSeeking = false;
+                                          // Clear seek tracking after delay
+                                          _lastSeekTime = null;
+                                          _lastSeekedProgress = null;
+                                        });
+                                      }
+                                    },
+                                  );
+                                } else {
+                                  setState(() {
+                                    _isSeeking = false;
+                                  });
+                                }
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),

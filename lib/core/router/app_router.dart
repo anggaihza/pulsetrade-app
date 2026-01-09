@@ -12,6 +12,7 @@ import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.
 import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/account_center_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/profile_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
 import 'package:riverpod/riverpod.dart';
@@ -91,6 +92,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AccountCenterScreen.routePath,
         name: AccountCenterScreen.routeName,
         builder: (context, state) => const AccountCenterScreen(),
+      ),
+      GoRoute(
+        path: TradeScreen.routePath,
+        name: TradeScreen.routeName,
+        builder: (context, state) {
+          final ticker = state.uri.queryParameters['ticker'];
+          return TradeScreen(ticker: ticker);
+        },
       ),
       GoRoute(
         path: '/${SurveyFormScreen.routeName}',

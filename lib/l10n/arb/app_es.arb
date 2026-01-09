@@ -148,5 +148,18 @@
   "verifications": "Verificaciones",
   "security": "Seguridad",
   "logOut": "Cerrar sesión",
-  "loggingOut": "Cerrando sesión..."
+  "loggingOut": "Cerrando sesión...",
+  "marketOrder": "Orden de mercado",
+  "limit": "Límite",
+  "stop": "Stop",
+  "stopLimit": "Stop Límite",
+  "sell": "Vender",
+  "value": "Valor",
+  "shares": "Acciones",
+  "balance": "Saldo",
+  "marketOrderExplanation": "Las órdenes de mercado se ejecutan al mejor precio\nactualmente disponible en el mercado",
+  "addToBucket": "Agregar a la cesta",
+  "orderExecutionMessage": "Tu orden se ejecutará después de que el mercado abra en ",
+  "reviewOrder": "Revisar orden",
+  "today": "hoy"
 }

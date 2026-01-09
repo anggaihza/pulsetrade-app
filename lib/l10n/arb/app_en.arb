@@ -148,5 +148,18 @@
   "verifications": "Verifications",
   "security": "Security",
   "logOut": "Log out",
-  "loggingOut": "Logging out..."
+  "loggingOut": "Logging out...",
+  "marketOrder": "Market order",
+  "limit": "Limit",
+  "stop": "Stop",
+  "stopLimit": "Stop Limit",
+  "sell": "Sell",
+  "value": "Value",
+  "shares": "Shares",
+  "balance": "Balance",
+  "marketOrderExplanation": "Market order are executed at the best currently\navailable marked prices",
+  "addToBucket": "Add to Bucket",
+  "orderExecutionMessage": "Your order will execute after the market opens in ",
+  "reviewOrder": "Review order",
+  "today": "today"
 }
