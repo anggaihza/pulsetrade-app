@@ -9,6 +9,7 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_ta
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
+import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
 
 class _TradeStockData {
   final String ticker;
@@ -361,31 +362,36 @@ class _TradeScreenState extends State<TradeScreen> {
 
   Widget _buildAddToBucket() {
     final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                TablerIcons.chart_donut_filled,
-                size: 20,
-                color: AppColors.textPrimary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                l10n.addToBucket,
-                style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-              ),
-            ],
-          ),
-          const Icon(
-            TablerIcons.chevron_right,
-            size: 24,
-            color: AppColors.textPrimary,
-          ),
-        ],
+    return GestureDetector(
+      onTap: () {
+        context.push(ChooseBucketScreen.routePath);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  TablerIcons.chart_donut_filled,
+                  size: 20,
+                  color: AppColors.textPrimary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.addToBucket,
+                  style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
+                ),
+              ],
+            ),
+            const Icon(
+              TablerIcons.chevron_right,
+              size: 24,
+              color: AppColors.textPrimary,
+            ),
+          ],
+        ),
       ),
     );
   }

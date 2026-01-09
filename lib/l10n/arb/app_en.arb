@@ -162,5 +162,11 @@
   "orderExecutionMessage": "Your order will execute after the market opens in ",
   "reviewOrder": "Review order",
   "today": "today",
-  "numberOfShares": "Number of Shares"
+  "numberOfShares": "Number of Shares",
+  "chooseBucket": "Choose Bucket",
+  "financialBucket": "Financial Bucket",
+  "technologyBucket": "Technology Bucket",
+  "tourismBucket": "Tourism Bucket",
+  "public": "Public",
+  "private": "Private"
 }

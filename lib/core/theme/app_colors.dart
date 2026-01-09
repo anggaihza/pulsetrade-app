@@ -9,24 +9,40 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF); // Foundation/White/White
   static const Color whiteDark = Color(0xFFDBDBDB); // Foundation/White/Dark
   static const Color whiteNormal = Color(0xFFE7E7E7); // Foundation/White/Normal
-  static const Color whiteActive = Color(0xFFAEAEAE); // Foundation/White/Normal :active
+  static const Color whiteActive = Color(
+    0xFFAEAEAE,
+  ); // Foundation/White/Normal :active
 
   // Foundation/Black
   static const Color black = Color(0xFF121212); // var(--black)
-  static const Color blackField = Color(0xFF2C2C2C); // Black (for fields/surfaces)
+  static const Color blackField = Color(
+    0xFF2C2C2C,
+  ); // Black (for fields/surfaces)
 
   // Foundation/Primary
-  static const Color primaryNormal = Color(0xFF2979FF); // Foundation/Primary/Normal
-  static const Color primaryLight = Color(0xFFEAF2FF); // Foundation/Primary/Light
+  static const Color primaryNormal = Color(
+    0xFF2979FF,
+  ); // Foundation/Primary/Normal
+  static const Color primaryLight = Color(
+    0xFFEAF2FF,
+  ); // Foundation/Primary/Light
 
   // Foundation/Success
-  static const Color successNormal = Color(0xFF1BC865); // Foundation/Success/Normal
+  static const Color successNormal = Color(
+    0xFF1BC865,
+  ); // Foundation/Success/Normal
+  static const Color successDarker = Color(
+    0xFF094623,
+  ); // Foundation/Success/Darker
 
   // Foundation/Error
   static const Color errorNormal = Color(0xFFFF4D4D); // Foundation/Error/Normal
+  static const Color errorDarker = Color(0xFF591B1B); // Foundation/Error/Darker
 
   // Foundation/Warning
-  static const Color warningNormal = Color(0xFFFFC107); // Foundation/Warning/Normal
+  static const Color warningNormal = Color(
+    0xFFFFC107,
+  ); // Foundation/Warning/Normal
 
   // Semantic color aliases for better readability
   static const Color background = black;

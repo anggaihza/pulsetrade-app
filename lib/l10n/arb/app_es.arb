@@ -162,5 +162,11 @@
   "orderExecutionMessage": "Tu orden se ejecutará después de que el mercado abra en ",
   "reviewOrder": "Revisar orden",
   "today": "hoy",
-  "numberOfShares": "Número de Acciones"
+  "numberOfShares": "Número de Acciones",
+  "chooseBucket": "Elegir Cesta",
+  "financialBucket": "Cesta Financiera",
+  "technologyBucket": "Cesta Tecnológica",
+  "tourismBucket": "Cesta de Turismo",
+  "public": "Público",
+  "private": "Privado"
 }
