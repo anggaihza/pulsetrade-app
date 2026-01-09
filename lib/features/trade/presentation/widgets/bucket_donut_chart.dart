@@ -1,33 +1,41 @@
-import 'dart:math' as math;
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-/// Donut chart widget for bucket visualization
-/// Shows a donut chart with multiple segments and a center avatar
 class BucketDonutChart extends StatelessWidget {
   final double size;
   final Color avatarColor;
+  final String? imageAsset;
 
   const BucketDonutChart({
     super.key,
     required this.size,
     required this.avatarColor,
+    this.imageAsset,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Avatar size is 48px, positioned at 26.5px from left and 26px from top
     const avatarSize = 48.0;
-    const avatarLeft = 26.5;
-    const avatarTop = 26.0;
+    final avatarLeft = (size - avatarSize) / 2;
+    final avatarTop = (size - avatarSize) / 2;
+
+    final outerRadius = size / 2;
+    final ringThickness = outerRadius * 0.2;
+    final centerSpaceRadius = outerRadius - ringThickness;
 
     return SizedBox(
       width: size,
       height: size,
       child: Stack(
         children: [
-          // Custom painted donut chart
-          CustomPaint(size: Size(size, size), painter: _DonutChartPainter()),
-          // Center avatar circle - positioned exactly as in Figma
+          PieChart(
+            PieChartData(
+              sections: _createSections(outerRadius, ringThickness),
+              sectionsSpace: 0,
+              centerSpaceRadius: centerSpaceRadius,
+              startDegreeOffset: -90,
+            ),
+          ),
           Positioned(
             left: avatarLeft,
             top: avatarTop,
@@ -37,11 +45,26 @@ class BucketDonutChart extends StatelessWidget {
               decoration: BoxDecoration(
                 color: avatarColor,
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 2,
+                ),
               ),
-              child: Icon(
-                Icons.person_outline,
-                size: 24,
-                color: Colors.white.withValues(alpha: 0.7),
+              child: ClipOval(
+                child: imageAsset != null
+                    ? Image.asset(
+                        imageAsset!,
+                        width: avatarSize,
+                        height: avatarSize,
+                        fit: BoxFit.cover,
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.person,
+                          size: avatarSize * 0.6,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                      ),
               ),
             ),
           ),
@@ -49,81 +72,27 @@ class BucketDonutChart extends StatelessWidget {
       ),
     );
   }
-}
 
-/// Custom painter for donut chart with 4 segments
-class _DonutChartPainter extends CustomPainter {
-  // Colors matching Figma design exactly
-  static const _colors = [
-    Color(0xFF8B5CF6), // Purple (more vibrant)
-    Color(0xFFFF6B35), // Orange (more vibrant)
-    Color(0xFF3B82F6), // Light Blue (more vibrant)
-    Color(0xFFEF4444), // Red (more vibrant)
-  ];
+  List<PieChartSectionData> _createSections(
+    double outerRadius,
+    double thickness,
+  ) {
+    const colors = [
+      Color(0xFF8B5CF6),
+      Color(0xFFFF6B35),
+      Color(0xFF06B6D4),
+      Color(0xFF10B981),
+    ];
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final outerRadius = size.width / 2; // 50px for 100px size
-
-    // Based on Figma design: very thin ring with visible gap to avatar
-    // Avatar is 48px (radius 24px), positioned at 26.5px from left
-    // For a thin ring matching Figma exactly, use ~3px thickness
-    // Inner radius: 50 - 3 = 47px (creates 3px thick ring)
-    // Gap to avatar: 47 - 24 = 23px (visible gap matching Figma)
-    // The gap appears larger because avatar is slightly off-center (26.5px vs 26px would be centered)
-    final ringThickness = 10.0; // Very thin ring matching Figma
-    final innerRadius = outerRadius - ringThickness; // 47px
-
-    // Each segment is 25% (90 degrees)
-    const segmentAngle = math.pi * 2 / 4; // 90 degrees in radians
-    double startAngle = -math.pi / 2; // Start from top (-90 degrees)
-
-    for (int i = 0; i < 4; i++) {
-      // Draw donut segment using Path
-      final path = Path();
-
-      // Start from inner arc point
-      final innerStartX = center.dx + innerRadius * math.cos(startAngle);
-      final innerStartY = center.dy + innerRadius * math.sin(startAngle);
-      path.moveTo(innerStartX, innerStartY);
-
-      // Draw inner arc (clockwise)
-      path.arcTo(
-        Rect.fromCircle(center: center, radius: innerRadius),
-        startAngle,
-        segmentAngle,
-        false,
-      );
-
-      // Draw line to outer arc
-      final outerEndX =
-          center.dx + outerRadius * math.cos(startAngle + segmentAngle);
-      final outerEndY =
-          center.dy + outerRadius * math.sin(startAngle + segmentAngle);
-      path.lineTo(outerEndX, outerEndY);
-
-      // Draw outer arc (counter-clockwise back)
-      path.arcTo(
-        Rect.fromCircle(center: center, radius: outerRadius),
-        startAngle + segmentAngle,
-        -segmentAngle,
-        false,
-      );
-
-      // Close path
-      path.close();
-
-      final segmentPaint = Paint()
-        ..color = _colors[i]
-        ..style = PaintingStyle.fill;
-
-      canvas.drawPath(path, segmentPaint);
-
-      startAngle += segmentAngle;
-    }
+    return List.generate(
+      4,
+      (index) => PieChartSectionData(
+        value: 25,
+        color: colors[index],
+        radius: thickness,
+        showTitle: false,
+        borderSide: BorderSide.none,
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

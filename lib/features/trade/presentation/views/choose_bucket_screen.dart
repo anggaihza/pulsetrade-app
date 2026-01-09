@@ -30,7 +30,9 @@ class ChooseBucketScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           l10n.chooseBucket,
-          style: AppTextStyles.titleSmall(color: AppColors.textPrimary).copyWith(fontSize: 20),
+          style: AppTextStyles.titleSmall(
+            color: AppColors.textPrimary,
+          ).copyWith(fontSize: 20),
         ),
         elevation: 0,
       ),
@@ -52,6 +54,7 @@ class ChooseBucketScreen extends StatelessWidget {
                       bookmarksCount: 12,
                       checkmarksCount: 24,
                       avatarColor: const Color(0xFFFFC2B8),
+                      imageAsset: 'assets/images/financial-bucket.png',
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -63,6 +66,7 @@ class ChooseBucketScreen extends StatelessWidget {
                       isPositive: false,
                       isPublic: false,
                       avatarColor: const Color(0xFFDAD0FC),
+                      imageAsset: 'assets/images/tech-bucket.png',
                     ),
                   ),
                 ],
@@ -81,6 +85,7 @@ class ChooseBucketScreen extends StatelessWidget {
                       bookmarksCount: 12,
                       checkmarksCount: 24,
                       avatarColor: const Color(0xFFFFC2B8),
+                      imageAsset: 'assets/images/financial-bucket.png',
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -92,6 +97,7 @@ class ChooseBucketScreen extends StatelessWidget {
                       isPositive: false,
                       isPublic: false,
                       avatarColor: const Color(0xFFFFD4B8),
+                      imageAsset: 'assets/images/tourism-bucket.png',
                     ),
                   ),
                 ],
@@ -113,6 +119,7 @@ class _BucketCard extends StatelessWidget {
   final int? bookmarksCount;
   final int? checkmarksCount;
   final Color avatarColor;
+  final String? imageAsset;
 
   const _BucketCard({
     required this.name,
@@ -123,6 +130,7 @@ class _BucketCard extends StatelessWidget {
     this.bookmarksCount,
     this.checkmarksCount,
     required this.avatarColor,
+    this.imageAsset,
   });
 
   @override
@@ -155,20 +163,25 @@ class _BucketCard extends StatelessWidget {
             BucketDonutChart(
               size: 100,
               avatarColor: avatarColor,
+              imageAsset: imageAsset,
             ),
             const SizedBox(height: 8),
             // Price change badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: isPositive ? AppColors.successDarker : AppColors.errorDarker,
+                color: isPositive
+                    ? AppColors.successDarker
+                    : AppColors.errorDarker,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    isPositive ? TablerIcons.arrow_up : TablerIcons.arrow_down,
+                    isPositive
+                        ? TablerIcons.caret_up_filled
+                        : TablerIcons.caret_down_filled,
                     size: 8,
                     color: isPositive ? AppColors.success : AppColors.error,
                   ),
@@ -183,29 +196,31 @@ class _BucketCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            // Bucket name (split into two lines)
             Align(
               alignment: Alignment.centerLeft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
                 children: [
                   Text(
-                    name.split(' ')[0], // First word (e.g., "Financial")
-                    style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
+                    name.split(' ')[0],
+                    style: AppTextStyles.labelLarge(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   Text(
-                    name.split(' ').skip(1).join(' '), // Rest (e.g., "Bucket")
-                    style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
+                    name.split(' ').skip(1).join(' '),
+                    style: AppTextStyles.labelLarge(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
-            // Status and stats row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Public/Private indicator
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -217,27 +232,32 @@ class _BucketCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       isPublic ? l10n.public : l10n.private,
-                      style: AppTextStyles.bodySmall(color: AppColors.textLabel),
+                      style: AppTextStyles.bodySmall(
+                        color: AppColors.textLabel,
+                      ).copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-                // Stats (only show if public)
-                if (isPublic && bookmarksCount != null && checkmarksCount != null)
+                if (isPublic &&
+                    bookmarksCount != null &&
+                    checkmarksCount != null)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            TablerIcons.bookmarks,
+                          const Icon(
+                            TablerIcons.bookmarks_filled,
                             size: 14,
                             color: AppColors.textLabel,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             bookmarksCount.toString(),
-                            style: AppTextStyles.bodySmall(color: AppColors.textLabel),
+                            style: AppTextStyles.bodySmall(
+                              color: AppColors.textLabel,
+                            ),
                           ),
                         ],
                       ),
@@ -245,15 +265,17 @@ class _BucketCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            TablerIcons.check,
+                          const Icon(
+                            TablerIcons.copy_check_filled,
                             size: 14,
                             color: AppColors.textLabel,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             checkmarksCount.toString(),
-                            style: AppTextStyles.bodySmall(color: AppColors.textLabel),
+                            style: AppTextStyles.bodySmall(
+                              color: AppColors.textLabel,
+                            ),
                           ),
                         ],
                       ),
@@ -267,4 +289,3 @@ class _BucketCard extends StatelessWidget {
     );
   }
 }
-
