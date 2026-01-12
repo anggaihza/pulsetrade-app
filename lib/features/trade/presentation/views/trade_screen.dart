@@ -219,12 +219,12 @@ class _TradeScreenState extends State<TradeScreen> {
                     ],
                     const SizedBox(height: AppSpacing.md),
                     _buildAddToBucket(),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildOrderFooter(),
                   ],
                 ),
               ),
             ),
-            _buildOrderFooter(),
           ],
         ),
       ),
@@ -1019,7 +1019,8 @@ class _TradeScreenState extends State<TradeScreen> {
   Widget _buildOrderFooter() {
     final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.screenPadding),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.screenPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
