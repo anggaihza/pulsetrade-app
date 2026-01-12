@@ -9,6 +9,7 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_ta
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
 
 class _TradeStockData {
@@ -52,6 +53,7 @@ class _TradeScreenState extends State<TradeScreen> {
   // Limit order specific state
   int _numberOfShares = 21123;
   double _limitPrice = 24321.0;
+  ExpirationType _expirationType = ExpirationType.never;
 
   _TradeStockData? _stockData;
   bool _isLoading = true;
@@ -401,10 +403,12 @@ class _TradeScreenState extends State<TradeScreen> {
   Widget _buildAddToBucket() {
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         context.push(ChooseBucketScreen.routePath);
       },
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -652,40 +656,60 @@ class _TradeScreenState extends State<TradeScreen> {
   }
 
   Widget _buildExpirationSelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                TablerIcons.clock,
-                size: 24,
-                color: AppColors.textPrimary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Expiration',
-                style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                'Never',
-                style: AppTextStyles.labelMedium(color: AppColors.primary),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                TablerIcons.chevron_right,
-                size: 24,
-                color: AppColors.textPrimary,
-              ),
-            ],
-          ),
-        ],
+    final l10n = AppLocalizations.of(context);
+    final expirationText = _expirationType == ExpirationType.never
+        ? l10n.never
+        : 'End of Day'; // TODO: Use l10n.endOfDay after regenerating localization
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        final result = await ExpirationBottomSheet.show(
+          context,
+          currentType: _expirationType,
+        );
+        if (result != null) {
+          setState(() {
+            _expirationType = result;
+          });
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  TablerIcons.clock,
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.expiration,
+                  style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  expirationText,
+                  style: AppTextStyles.labelMedium(color: AppColors.primary),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  TablerIcons.chevron_right,
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
