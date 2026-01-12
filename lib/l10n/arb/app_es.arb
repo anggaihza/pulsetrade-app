@@ -168,5 +168,9 @@
   "technologyBucket": "Cesta Tecnológica",
   "tourismBucket": "Cesta de Turismo",
   "public": "Público",
-  "private": "Privado"
+  "private": "Privado",
+  "price": "Precio",
+  "expiration": "Expiración",
+  "never": "Nunca",
+  "limitExplanation": "Establece el precio máximo que estás dispuesto a pagar por acción"
 }

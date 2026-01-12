@@ -168,5 +168,9 @@
   "technologyBucket": "Technology Bucket",
   "tourismBucket": "Tourism Bucket",
   "public": "Public",
-  "private": "Private"
+  "private": "Private",
+  "price": "Price",
+  "expiration": "Expiration",
+  "never": "Never",
+  "limitExplanation": "Set the maximum price you are willing to pay per share"
 }
