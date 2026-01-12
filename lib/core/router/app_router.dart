@@ -12,9 +12,13 @@ import 'package:pulsetrade_app/features/auth/presentation/views/register_screen.
 import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/account_center_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/profile_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/views/trade_lite_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/providers/trading_mode_provider.dart';
+import 'package:pulsetrade_app/features/profile/presentation/widgets/trading_mode_modal.dart';
 import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
 import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
 import 'package:riverpod/riverpod.dart';
@@ -100,7 +104,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: TradeScreen.routeName,
         builder: (context, state) {
           final ticker = state.uri.queryParameters['ticker'];
-          return TradeScreen(ticker: ticker);
+          // Check trading mode and route to appropriate screen
+          final container = ProviderScope.containerOf(context);
+          final tradingMode = container.read(tradingModeProvider);
+
+          if (tradingMode == TradingMode.lite) {
+            return TradeLiteScreen(ticker: ticker);
+          } else {
+            return TradeScreen(ticker: ticker);
+          }
+        },
+      ),
+      GoRoute(
+        path: TradeLiteScreen.routePath,
+        name: TradeLiteScreen.routeName,
+        builder: (context, state) {
+          final ticker = state.uri.queryParameters['ticker'];
+          return TradeLiteScreen(ticker: ticker);
         },
       ),
       GoRoute(

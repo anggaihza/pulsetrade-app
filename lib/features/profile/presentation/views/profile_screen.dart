@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
@@ -6,21 +7,21 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/account_center_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/widgets/trading_mode_modal.dart';
+import 'package:pulsetrade_app/features/trade/presentation/providers/trading_mode_provider.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   static const String routePath = '/profile';
   static const String routeName = 'profile';
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isRealMode = true; // true = Real, false = Demo
-  TradingMode _tradingMode = TradingMode.lite;
 
   @override
   Widget build(BuildContext context) {
@@ -223,18 +224,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _ProfileMenuItem(
                       iconAsset: 'assets/icons/blocks.svg',
                       title: strings.tradingMode,
-                      badge: _tradingMode == TradingMode.lite
+                      badge: ref.watch(tradingModeProvider) == TradingMode.lite
                           ? strings.lite
                           : strings.advanced,
                       onTap: () async {
+                        final currentMode = ref.read(tradingModeProvider);
                         final selected = await TradingModeModal.show(
                           context,
-                          currentMode: _tradingMode,
+                          currentMode: currentMode,
                         );
                         if (selected != null) {
-                          setState(() {
-                            _tradingMode = selected;
-                          });
+                          await ref.read(tradingModeProvider.notifier).setTradingMode(selected);
                         }
                       },
                     ),
