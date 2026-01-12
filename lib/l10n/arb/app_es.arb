@@ -184,6 +184,5 @@
   "total": "Total",
   "free": "Gratis",
   "sendBuyOrder": "Enviar orden de compra",
-  "sendSellOrder": "Enviar orden de venta",
-  "buy": "Comprar"
+  "sendSellOrder": "Enviar orden de venta"
 }

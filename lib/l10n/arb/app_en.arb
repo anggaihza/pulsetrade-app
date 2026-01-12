@@ -184,6 +184,5 @@
   "total": "Total",
   "free": "Free",
   "sendBuyOrder": "Send buy order",
-  "sendSellOrder": "Send sell order",
-  "buy": "Buy"
+  "sendSellOrder": "Send sell order"
 }
