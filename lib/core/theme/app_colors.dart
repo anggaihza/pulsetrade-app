@@ -86,4 +86,6 @@ class AppRadius {
   static const double button = 12.0;
   static const double field = 12.0;
   static const double card = 12.0;
+  static const double pill = 9999.0; // Fully rounded (pill shape)
+  static const double small = 8.0; // Small radius for containers
 }

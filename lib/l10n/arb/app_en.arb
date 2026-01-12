@@ -173,5 +173,6 @@
   "expiration": "Expiration",
   "never": "Never",
   "endOfDay": "End of Day",
-  "limitExplanation": "Set the maximum price you are willing to pay per share"
+  "limitExplanation": "Set the maximum price you are willing to pay per share",
+  "stopLimitExplanation": "Then, set the maximum price you are willing to pay per share"
 }

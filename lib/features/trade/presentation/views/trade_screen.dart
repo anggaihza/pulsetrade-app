@@ -157,11 +157,13 @@ class _TradeScreenState extends State<TradeScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenPadding,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.sm),
                     _buildStockInfo(
                       ticker: stockData.ticker,
                       companyName: stockData.companyName,
@@ -170,7 +172,7 @@ class _TradeScreenState extends State<TradeScreen> {
                       changePercentage: stockData.changePercentage,
                       isPositive: stockData.isPositive,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.md),
                     OrderTypeTabs(
                       selectedType: _selectedOrderType,
                       onTypeSelected: (type) {
@@ -179,7 +181,7 @@ class _TradeScreenState extends State<TradeScreen> {
                         });
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.md),
                     BuySellToggle(
                       isBuy: _isBuy,
                       onToggle: (isBuy) {
@@ -188,7 +190,7 @@ class _TradeScreenState extends State<TradeScreen> {
                         });
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.md),
                     // Conditionally render Market Order or Limit view
                     if (_selectedOrderType == OrderType.marketOrder) ...[
                       ValueSlider(
@@ -201,11 +203,11 @@ class _TradeScreenState extends State<TradeScreen> {
                           });
                         },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
                       _buildSlider(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
                       _buildSharesAndBalance(shares: shares),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
                       _buildMarketOrderExplanation(),
                     ] else if (_selectedOrderType == OrderType.limit) ...[
                       _buildLimitView(stockData: stockData),
@@ -214,9 +216,9 @@ class _TradeScreenState extends State<TradeScreen> {
                     ] else if (_selectedOrderType == OrderType.stopLimit) ...[
                       _buildStopLimitView(stockData: stockData),
                     ],
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.md),
                     _buildAddToBucket(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
               ),
@@ -237,7 +239,7 @@ class _TradeScreenState extends State<TradeScreen> {
     required bool isPositive,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
         children: [
           Container(
@@ -248,7 +250,7 @@ class _TradeScreenState extends State<TradeScreen> {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md - AppSpacing.xs),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +259,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   ticker,
                   style: AppTextStyles.titleSmall(color: AppColors.textPrimary),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xs / 2),
                 Text(
                   companyName,
                   style: AppTextStyles.bodySmall(color: AppColors.textLabel),
@@ -282,7 +284,7 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: isPositive ? AppColors.success : AppColors.error,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   Text(
                     '${isPositive ? '+' : ''}${changePercentage.toStringAsFixed(2)}% ${AppLocalizations.of(context).today}',
                     style: AppTextStyles.bodyMedium(
@@ -366,7 +368,7 @@ class _TradeScreenState extends State<TradeScreen> {
               '${l10n.shares} : ',
               style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.xs),
             Text(
               _formatNumber(shares),
               style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
@@ -380,7 +382,7 @@ class _TradeScreenState extends State<TradeScreen> {
               '${l10n.balance} : ',
               style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.xs),
             Text(
               '\$${_formatNumber(_balance.toInt())}',
               style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
@@ -394,7 +396,10 @@ class _TradeScreenState extends State<TradeScreen> {
   Widget _buildMarketOrderExplanation() {
     final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
@@ -427,7 +432,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   size: 20,
                   color: AppColors.textPrimary,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 Text(
                   l10n.addToBucket,
                   style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
@@ -454,12 +459,12 @@ class _TradeScreenState extends State<TradeScreen> {
       children: [
         // Number of Shares section
         Container(
-          padding: const EdgeInsets.only(bottom: 32),
+          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
           decoration: BoxDecoration(
             border: const Border(
               bottom: BorderSide(color: AppColors.primary, width: 2),
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,7 +477,7 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   GestureDetector(
                     onTap: () async {
                       // Show value input type modal
@@ -492,7 +497,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.xl),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -503,9 +508,9 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: AppColors.textPrimary,
                     ).copyWith(fontSize: 32),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                     child: Text(
                       l10n.shares,
                       style: AppTextStyles.bodyMedium(
@@ -560,13 +565,13 @@ class _TradeScreenState extends State<TradeScreen> {
         const SizedBox(height: 16),
         // Limit explanation
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Text(
-            'Set the maximum price you are willing to pay per share',
+            l10n.limitExplanation,
             style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             textAlign: TextAlign.center,
           ),
@@ -582,16 +587,17 @@ class _TradeScreenState extends State<TradeScreen> {
   }
 
   Widget _buildPriceInput() {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              'Price',
+              l10n.price,
               style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: AppSpacing.lg),
             Text(
               _formatNumber(_limitPrice.toInt()),
               style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
@@ -603,7 +609,7 @@ class _TradeScreenState extends State<TradeScreen> {
           width: 48,
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(9999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -614,7 +620,7 @@ class _TradeScreenState extends State<TradeScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(9999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -636,7 +642,7 @@ class _TradeScreenState extends State<TradeScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(9999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -671,12 +677,12 @@ class _TradeScreenState extends State<TradeScreen> {
       children: [
         // Number of Shares section (same as Limit)
         Container(
-          padding: const EdgeInsets.only(bottom: 32),
+          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
           decoration: BoxDecoration(
             border: const Border(
               bottom: BorderSide(color: AppColors.primary, width: 2),
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -689,7 +695,7 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   GestureDetector(
                     onTap: () async {
                       final result = await ValueInputTypeModal.show(
@@ -708,7 +714,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.xl),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -719,9 +725,9 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: AppColors.textPrimary,
                     ).copyWith(fontSize: 32),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                     child: Text(
                       l10n.shares,
                       style: AppTextStyles.bodyMedium(
@@ -776,13 +782,13 @@ class _TradeScreenState extends State<TradeScreen> {
         const SizedBox(height: 16),
         // Explanation
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Text(
-            'Set the maximum price you are willing to pay per share',
+            l10n.limitExplanation,
             style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             textAlign: TextAlign.center,
           ),
@@ -806,12 +812,12 @@ class _TradeScreenState extends State<TradeScreen> {
       children: [
         // Number of Shares section (same as Limit)
         Container(
-          padding: const EdgeInsets.only(bottom: 32),
+          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
           decoration: BoxDecoration(
             border: const Border(
               bottom: BorderSide(color: AppColors.primary, width: 2),
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -824,7 +830,7 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   GestureDetector(
                     onTap: () async {
                       final result = await ValueInputTypeModal.show(
@@ -843,7 +849,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.xl),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -854,9 +860,9 @@ class _TradeScreenState extends State<TradeScreen> {
                       color: AppColors.textPrimary,
                     ).copyWith(fontSize: 32),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.xs),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                     child: Text(
                       l10n.shares,
                       style: AppTextStyles.bodyMedium(
@@ -911,13 +917,13 @@ class _TradeScreenState extends State<TradeScreen> {
         const SizedBox(height: 16),
         // First explanation
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Text(
-            'Set the maximum price you are willing to pay per share',
+            l10n.limitExplanation,
             style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             textAlign: TextAlign.center,
           ),
@@ -928,13 +934,13 @@ class _TradeScreenState extends State<TradeScreen> {
         const SizedBox(height: 16),
         // Second explanation
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           child: Text(
-            'Then, set the maximum price you are willing to pay per share',
+            'Then, set the maximum price you are willing to pay per share', // TODO: Use l10n.stopLimitExplanation after regenerating localization
             style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             textAlign: TextAlign.center,
           ),
@@ -950,16 +956,17 @@ class _TradeScreenState extends State<TradeScreen> {
   }
 
   Widget _buildStopPriceInput() {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              'Stop',
+              l10n.stop,
               style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: AppSpacing.lg),
             Text(
               _formatNumber(_stopPrice.toInt()),
               style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
@@ -971,7 +978,7 @@ class _TradeScreenState extends State<TradeScreen> {
           width: 48,
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(9999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -982,7 +989,7 @@ class _TradeScreenState extends State<TradeScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(9999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -1004,7 +1011,7 @@ class _TradeScreenState extends State<TradeScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(9999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -1028,16 +1035,17 @@ class _TradeScreenState extends State<TradeScreen> {
   }
 
   Widget _buildLimitPriceInput() {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              'Limit',
+              l10n.limit,
               style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: AppSpacing.lg),
             Text(
               _formatNumber(_limitPrice.toInt()),
               style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
@@ -1049,7 +1057,7 @@ class _TradeScreenState extends State<TradeScreen> {
           width: 48,
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(9999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1060,7 +1068,7 @@ class _TradeScreenState extends State<TradeScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(9999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -1082,7 +1090,7 @@ class _TradeScreenState extends State<TradeScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(9999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -1112,7 +1120,7 @@ class _TradeScreenState extends State<TradeScreen> {
     final l10n = AppLocalizations.of(context);
     final expirationText = _expirationType == ExpirationType.never
         ? l10n.never
-        : 'End of Day'; // TODO: Use l10n.endOfDay after regenerating localization
+        : l10n.endOfDay;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -1140,7 +1148,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   size: 24,
                   color: AppColors.textPrimary,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 Text(
                   l10n.expiration,
                   style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
@@ -1153,7 +1161,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   expirationText,
                   style: AppTextStyles.labelMedium(color: AppColors.primary),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 const Icon(
                   TablerIcons.chevron_right,
                   size: 24,
@@ -1170,7 +1178,7 @@ class _TradeScreenState extends State<TradeScreen> {
   Widget _buildOrderFooter() {
     final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+      padding: const EdgeInsets.all(AppSpacing.screenPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1191,7 +1199,7 @@ class _TradeScreenState extends State<TradeScreen> {
             ),
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md - AppSpacing.xs),
           AppButton(
             label: l10n.reviewOrder,
             onPressed: () {
@@ -1256,7 +1264,7 @@ class _FullWidthSliderTrackShape extends SliderTrackShape {
     final visualTrackWidth = parentBox.size.width;
 
     final inactivePaint = Paint()
-      ..color = sliderTheme.inactiveTrackColor ?? Colors.grey
+      ..color = sliderTheme.inactiveTrackColor ?? AppColors.textLabel
       ..style = PaintingStyle.fill;
 
     context.canvas.drawRect(
@@ -1265,7 +1273,7 @@ class _FullWidthSliderTrackShape extends SliderTrackShape {
     );
 
     final activePaint = Paint()
-      ..color = sliderTheme.activeTrackColor ?? Colors.blue
+      ..color = sliderTheme.activeTrackColor ?? AppColors.primary
       ..style = PaintingStyle.fill;
 
     final activeWidth = (thumbCenter.dx - visualTrackLeft).clamp(

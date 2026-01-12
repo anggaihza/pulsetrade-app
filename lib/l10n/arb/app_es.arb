@@ -173,5 +173,6 @@
   "expiration": "Expiración",
   "never": "Nunca",
   "endOfDay": "Fin del Día",
-  "limitExplanation": "Establece el precio máximo que estás dispuesto a pagar por acción"
+  "limitExplanation": "Establece el precio máximo que estás dispuesto a pagar por acción",
+  "stopLimitExplanation": "Luego, establece el precio máximo que estás dispuesto a pagar por acción"
 }
