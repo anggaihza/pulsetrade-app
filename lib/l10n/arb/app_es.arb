@@ -174,5 +174,16 @@
   "never": "Nunca",
   "endOfDay": "Fin del Día",
   "limitExplanation": "Establece el precio máximo que estás dispuesto a pagar por acción",
-  "stopLimitExplanation": "Luego, establece el precio máximo que estás dispuesto a pagar por acción"
+  "stopLimitExplanation": "Luego, establece el precio máximo que estás dispuesto a pagar por acción",
+  "orderType": "Tipo de orden",
+  "sharesValue": "Valor de acciones",
+  "limitPrice": "Precio límite",
+  "stopPrice": "Precio de parada",
+  "commission": "Comisión",
+  "tax": "Impuesto",
+  "total": "Total",
+  "free": "Gratis",
+  "sendBuyOrder": "Enviar orden de compra",
+  "sendSellOrder": "Enviar orden de venta",
+  "buy": "Comprar"
 }

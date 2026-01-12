@@ -174,5 +174,16 @@
   "never": "Never",
   "endOfDay": "End of Day",
   "limitExplanation": "Set the maximum price you are willing to pay per share",
-  "stopLimitExplanation": "Then, set the maximum price you are willing to pay per share"
+  "stopLimitExplanation": "Then, set the maximum price you are willing to pay per share",
+  "orderType": "Order type",
+  "sharesValue": "Shares value",
+  "limitPrice": "Limit price",
+  "stopPrice": "Stop price",
+  "commission": "Commission",
+  "tax": "Tax",
+  "total": "Total",
+  "free": "Free",
+  "sendBuyOrder": "Send buy order",
+  "sendSellOrder": "Send sell order",
+  "buy": "Buy"
 }

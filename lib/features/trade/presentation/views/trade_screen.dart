@@ -11,6 +11,7 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 
 class _TradeStockData {
   final String ticker;
@@ -1016,6 +1017,64 @@ class _TradeScreenState extends State<TradeScreen> {
     );
   }
 
+  void _navigateToConfirmOrder() {
+    if (_stockData == null) return;
+
+    final stockData = _stockData!;
+    double sharesValue = 0.0;
+    int numberOfShares = 0;
+    double total = 0.0;
+
+    // Calculate values based on order type
+    if (_selectedOrderType == OrderType.marketOrder) {
+      numberOfShares = (_value / stockData.price).floor();
+      sharesValue = _value;
+      total = _value;
+    } else {
+      numberOfShares = _numberOfShares;
+      if (_selectedOrderType == OrderType.limit) {
+        sharesValue = numberOfShares * _limitPrice;
+        total = sharesValue;
+      } else if (_selectedOrderType == OrderType.stop) {
+        sharesValue = numberOfShares * _stopPrice;
+        total = sharesValue;
+      } else if (_selectedOrderType == OrderType.stopLimit) {
+        sharesValue = numberOfShares * _limitPrice;
+        total = sharesValue;
+      }
+    }
+
+    // Add commission and tax (mock values)
+    const commission = 0.0; // Free
+    final tax = total * 0.001; // 0.1% tax
+    total += tax;
+
+    final orderData = OrderConfirmationData(
+      ticker: stockData.ticker,
+      companyName: stockData.companyName,
+      orderType: _selectedOrderType,
+      isBuy: _isBuy,
+      numberOfShares: numberOfShares,
+      sharesValue: sharesValue,
+      limitPrice:
+          _selectedOrderType == OrderType.limit ||
+              _selectedOrderType == OrderType.stopLimit
+          ? _limitPrice
+          : null,
+      stopPrice:
+          _selectedOrderType == OrderType.stop ||
+              _selectedOrderType == OrderType.stopLimit
+          ? _stopPrice
+          : null,
+      expirationType: _expirationType,
+      commission: commission,
+      tax: tax,
+      total: total,
+    );
+
+    context.push(ConfirmOrderScreen.routePath, extra: orderData);
+  }
+
   Widget _buildOrderFooter() {
     final l10n = AppLocalizations.of(context);
     return Container(
@@ -1045,7 +1104,7 @@ class _TradeScreenState extends State<TradeScreen> {
           AppButton(
             label: l10n.reviewOrder,
             onPressed: () {
-              // TODO: Navigate to review order screen
+              _navigateToConfirmOrder();
             },
           ),
         ],
