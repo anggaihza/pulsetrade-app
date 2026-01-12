@@ -55,6 +55,9 @@ class _TradeScreenState extends State<TradeScreen> {
   double _limitPrice = 24321.0;
   ExpirationType _expirationType = ExpirationType.never;
 
+  // Stop Limit order specific state
+  double _stopPrice = 24321.0;
+
   _TradeStockData? _stockData;
   bool _isLoading = true;
 
@@ -206,6 +209,8 @@ class _TradeScreenState extends State<TradeScreen> {
                       _buildMarketOrderExplanation(),
                     ] else if (_selectedOrderType == OrderType.limit) ...[
                       _buildLimitView(stockData: stockData),
+                    ] else if (_selectedOrderType == OrderType.stopLimit) ...[
+                      _buildStopLimitView(stockData: stockData),
                     ],
                     const SizedBox(height: 16),
                     _buildAddToBucket(),
@@ -624,6 +629,317 @@ class _TradeScreenState extends State<TradeScreen> {
                 ),
               ),
               // Down button (gray background, extends upward)
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    TablerIcons.caret_down,
+                    size: 24,
+                    color: AppColors.textLabel,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _limitPrice = (_limitPrice - 1).clamp(
+                        0.0,
+                        double.infinity,
+                      );
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStopLimitView({required _TradeStockData stockData}) {
+    final l10n = AppLocalizations.of(context);
+    final stopLimitValue = _numberOfShares * _limitPrice;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Number of Shares section (same as Limit)
+        Container(
+          padding: const EdgeInsets.only(bottom: 32),
+          decoration: BoxDecoration(
+            border: const Border(
+              bottom: BorderSide(color: AppColors.primary, width: 2),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    l10n.numberOfShares,
+                    style: AppTextStyles.labelMedium(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await ValueInputTypeModal.show(
+                        context,
+                        currentType: ValueInputType.numberOfShares,
+                      );
+                      if (result != null) {
+                        // Handle type selection if needed
+                      }
+                    },
+                    child: const Icon(
+                      TablerIcons.circle_caret_down,
+                      size: 16,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    _formatNumber(_numberOfShares),
+                    style: AppTextStyles.titleSmall(
+                      color: AppColors.textPrimary,
+                    ).copyWith(fontSize: 32),
+                  ),
+                  const SizedBox(width: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      l10n.shares,
+                      style: AppTextStyles.bodyMedium(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Slider for shares
+        _buildSharesSlider(),
+        const SizedBox(height: 16),
+        // Value and Balance
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '${l10n.value}: ',
+                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+                ),
+                Text(
+                  '\$${_formatNumber(stopLimitValue.toInt())}',
+                  style: AppTextStyles.labelMedium(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  '${l10n.balance}: ',
+                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+                ),
+                Text(
+                  _formatNumber(_balance.toInt()),
+                  style: AppTextStyles.labelMedium(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        // First explanation
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'Set the maximum price you are willing to pay per share',
+            style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Stop price input
+        _buildStopPriceInput(),
+        const SizedBox(height: 16),
+        // Second explanation
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'Then, set the maximum price you are willing to pay per share',
+            style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Limit price input
+        _buildLimitPriceInput(),
+        const SizedBox(height: 16),
+        // Expiration
+        _buildExpirationSelector(),
+      ],
+    );
+  }
+
+  Widget _buildStopPriceInput() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Stop',
+              style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
+            ),
+            const SizedBox(width: 24),
+            Text(
+              _formatNumber(_stopPrice.toInt()),
+              style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
+            ),
+          ],
+        ),
+        // Stacked buttons in pill-shaped container
+        Container(
+          width: 48,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(9999),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Up button (light blue background)
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    TablerIcons.caret_up,
+                    size: 24,
+                    color: AppColors.primary,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _stopPrice = _stopPrice + 1;
+                    });
+                  },
+                ),
+              ),
+              // Down button (gray background)
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    TablerIcons.caret_down,
+                    size: 24,
+                    color: AppColors.textLabel,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _stopPrice = (_stopPrice - 1).clamp(0.0, double.infinity);
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLimitPriceInput() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Limit',
+              style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
+            ),
+            const SizedBox(width: 24),
+            Text(
+              _formatNumber(_limitPrice.toInt()),
+              style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
+            ),
+          ],
+        ),
+        // Stacked buttons in pill-shaped container
+        Container(
+          width: 48,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(9999),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Up button (light blue background)
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    TablerIcons.caret_up,
+                    size: 24,
+                    color: AppColors.primary,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _limitPrice = _limitPrice + 1;
+                    });
+                  },
+                ),
+              ),
+              // Down button (gray background)
               Container(
                 width: 48,
                 height: 48,
