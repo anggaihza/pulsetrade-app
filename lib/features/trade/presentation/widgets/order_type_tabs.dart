@@ -4,15 +4,10 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 
 /// Order type enum
-enum OrderType {
-  marketOrder,
-  limit,
-  stop,
-  stopLimit,
-}
+enum OrderType { marketOrder, limit, stop, stopLimit }
 
 /// Reusable order type tabs widget
-/// 
+///
 /// Displays horizontal tabs for selecting order type:
 /// - Market order
 /// - Limit
@@ -33,37 +28,32 @@ class OrderTypeTabs extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Container(
       height: 42,
-      child: Row(
-        children: [
-          Expanded(
-            child: _OrderTypeTab(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _OrderTypeTab(
               label: l10n.marketOrder,
               isSelected: selectedType == OrderType.marketOrder,
               onTap: () => onTypeSelected(OrderType.marketOrder),
             ),
-          ),
-          Expanded(
-            child: _OrderTypeTab(
+            _OrderTypeTab(
               label: l10n.limit,
               isSelected: selectedType == OrderType.limit,
               onTap: () => onTypeSelected(OrderType.limit),
             ),
-          ),
-          Expanded(
-            child: _OrderTypeTab(
+            _OrderTypeTab(
               label: l10n.stop,
               isSelected: selectedType == OrderType.stop,
               onTap: () => onTypeSelected(OrderType.stop),
             ),
-          ),
-          Expanded(
-            child: _OrderTypeTab(
+            _OrderTypeTab(
               label: l10n.stopLimit,
               isSelected: selectedType == OrderType.stopLimit,
               onTap: () => onTypeSelected(OrderType.stopLimit),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -86,6 +76,7 @@ class _OrderTypeTab extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 42,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -98,16 +89,13 @@ class _OrderTypeTab extends StatelessWidget {
           child: Text(
             label,
             style: isSelected
-                ? AppTextStyles.labelLarge(
-                    color: AppColors.textPrimary,
-                  )
-                : AppTextStyles.bodyLarge(
-                    color: AppColors.textLabel,
-                  ),
+                ? AppTextStyles.labelLarge(color: AppColors.textPrimary)
+                : AppTextStyles.bodyLarge(color: AppColors.textLabel),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
     );
   }
 }
-
