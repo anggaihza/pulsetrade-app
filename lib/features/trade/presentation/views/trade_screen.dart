@@ -196,6 +196,7 @@ class _TradeScreenState extends State<TradeScreen> {
                       ValueSlider(
                         value: _value,
                         maxValue: _maxValue,
+                        numberOfShares: shares,
                         inputType: _valueInputType,
                         onInputTypeChanged: (type) {
                           setState(() {
@@ -457,71 +458,17 @@ class _TradeScreenState extends State<TradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Number of Shares section
-        Container(
-          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-          decoration: BoxDecoration(
-            border: const Border(
-              bottom: BorderSide(color: AppColors.primary, width: 2),
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.small),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    l10n.numberOfShares,
-                    style: AppTextStyles.labelMedium(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  GestureDetector(
-                    onTap: () async {
-                      // Show value input type modal
-                      final result = await ValueInputTypeModal.show(
-                        context,
-                        currentType: ValueInputType.numberOfShares,
-                      );
-                      if (result != null) {
-                        // Handle type selection if needed
-                      }
-                    },
-                    child: const Icon(
-                      TablerIcons.circle_caret_down,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatNumber(_numberOfShares),
-                    style: AppTextStyles.titleSmall(
-                      color: AppColors.textPrimary,
-                    ).copyWith(fontSize: 32),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    child: Text(
-                      l10n.shares,
-                      style: AppTextStyles.bodyMedium(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        // Value/Shares section
+        ValueSlider(
+          value: limitValue,
+          maxValue: _maxValue,
+          numberOfShares: _numberOfShares,
+          inputType: _valueInputType,
+          onInputTypeChanged: (type) {
+            setState(() {
+              _valueInputType = type;
+            });
+          },
         ),
         const SizedBox(height: 16),
         // Slider for shares
@@ -675,70 +622,17 @@ class _TradeScreenState extends State<TradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Number of Shares section (same as Limit)
-        Container(
-          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-          decoration: BoxDecoration(
-            border: const Border(
-              bottom: BorderSide(color: AppColors.primary, width: 2),
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.small),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    l10n.numberOfShares,
-                    style: AppTextStyles.labelMedium(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await ValueInputTypeModal.show(
-                        context,
-                        currentType: ValueInputType.numberOfShares,
-                      );
-                      if (result != null) {
-                        // Handle type selection if needed
-                      }
-                    },
-                    child: const Icon(
-                      TablerIcons.circle_caret_down,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatNumber(_numberOfShares),
-                    style: AppTextStyles.titleSmall(
-                      color: AppColors.textPrimary,
-                    ).copyWith(fontSize: 32),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    child: Text(
-                      l10n.shares,
-                      style: AppTextStyles.bodyMedium(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        // Value/Shares section
+        ValueSlider(
+          value: stopValue,
+          maxValue: _maxValue,
+          numberOfShares: _numberOfShares,
+          inputType: _valueInputType,
+          onInputTypeChanged: (type) {
+            setState(() {
+              _valueInputType = type;
+            });
+          },
         ),
         const SizedBox(height: 16),
         // Slider for shares
@@ -810,70 +704,17 @@ class _TradeScreenState extends State<TradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Number of Shares section (same as Limit)
-        Container(
-          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-          decoration: BoxDecoration(
-            border: const Border(
-              bottom: BorderSide(color: AppColors.primary, width: 2),
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.small),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    l10n.numberOfShares,
-                    style: AppTextStyles.labelMedium(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await ValueInputTypeModal.show(
-                        context,
-                        currentType: ValueInputType.numberOfShares,
-                      );
-                      if (result != null) {
-                        // Handle type selection if needed
-                      }
-                    },
-                    child: const Icon(
-                      TablerIcons.circle_caret_down,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatNumber(_numberOfShares),
-                    style: AppTextStyles.titleSmall(
-                      color: AppColors.textPrimary,
-                    ).copyWith(fontSize: 32),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    child: Text(
-                      l10n.shares,
-                      style: AppTextStyles.bodyMedium(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        // Value/Shares section
+        ValueSlider(
+          value: stopLimitValue,
+          maxValue: _maxValue,
+          numberOfShares: _numberOfShares,
+          inputType: _valueInputType,
+          onInputTypeChanged: (type) {
+            setState(() {
+              _valueInputType = type;
+            });
+          },
         ),
         const SizedBox(height: 16),
         // Slider for shares

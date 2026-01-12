@@ -8,19 +8,21 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_t
 /// Reusable value display widget for trade orders
 ///
 /// Displays trade value with:
-/// - Value label with info icon
-/// - Large value display with currency
+/// - Value label with info icon (dynamic: "Value" or "Number of Shares")
+/// - Large value display with currency or shares count
 class ValueSlider extends StatelessWidget {
   const ValueSlider({
     super.key,
     required this.value,
     required this.maxValue,
+    required this.numberOfShares,
     required this.inputType,
     required this.onInputTypeChanged,
   });
 
   final double value;
   final double maxValue;
+  final int numberOfShares;
   final ValueInputType inputType;
   final ValueChanged<ValueInputType> onInputTypeChanged;
 
@@ -38,11 +40,13 @@ class ValueSlider extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 32),
         child: Column(
           children: [
-            // Value label with info icon
+            // Dynamic label with info icon
             Row(
               children: [
                 Text(
-                  l10n.value,
+                  inputType == ValueInputType.value
+                      ? l10n.value
+                      : l10n.numberOfShares,
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -67,29 +71,52 @@ class ValueSlider extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-            // Large value display
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '\$${_formatValue(value)}',
-                  style: AppTextStyles.headlineLarge(
-                    color: AppColors.textPrimary,
-                  ).copyWith(fontSize: 32),
-                ),
-                const SizedBox(width: 4),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    'USD',
-                    style: AppTextStyles.bodyMedium(
-                      color: AppColors.textPrimary,
-                    ),
+            // Large value display (dynamic based on input type)
+            inputType == ValueInputType.value
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '\$${_formatValue(value)}',
+                        style: AppTextStyles.headlineLarge(
+                          color: AppColors.textPrimary,
+                        ).copyWith(fontSize: 32),
+                      ),
+                      const SizedBox(width: 4),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          'USD',
+                          style: AppTextStyles.bodyMedium(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _formatValue(numberOfShares.toDouble()),
+                        style: AppTextStyles.headlineLarge(
+                          color: AppColors.textPrimary,
+                        ).copyWith(fontSize: 32),
+                      ),
+                      const SizedBox(width: 4),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          l10n.shares,
+                          style: AppTextStyles.bodyMedium(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
