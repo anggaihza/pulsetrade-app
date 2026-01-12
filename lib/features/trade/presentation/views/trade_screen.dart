@@ -209,6 +209,8 @@ class _TradeScreenState extends State<TradeScreen> {
                       _buildMarketOrderExplanation(),
                     ] else if (_selectedOrderType == OrderType.limit) ...[
                       _buildLimitView(stockData: stockData),
+                    ] else if (_selectedOrderType == OrderType.stop) ...[
+                      _buildStopView(stockData: stockData),
                     ] else if (_selectedOrderType == OrderType.stopLimit) ...[
                       _buildStopLimitView(stockData: stockData),
                     ],
@@ -656,6 +658,141 @@ class _TradeScreenState extends State<TradeScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildStopView({required _TradeStockData stockData}) {
+    final l10n = AppLocalizations.of(context);
+    final stopValue = _numberOfShares * _stopPrice;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Number of Shares section (same as Limit)
+        Container(
+          padding: const EdgeInsets.only(bottom: 32),
+          decoration: BoxDecoration(
+            border: const Border(
+              bottom: BorderSide(color: AppColors.primary, width: 2),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    l10n.numberOfShares,
+                    style: AppTextStyles.labelMedium(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await ValueInputTypeModal.show(
+                        context,
+                        currentType: ValueInputType.numberOfShares,
+                      );
+                      if (result != null) {
+                        // Handle type selection if needed
+                      }
+                    },
+                    child: const Icon(
+                      TablerIcons.circle_caret_down,
+                      size: 16,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    _formatNumber(_numberOfShares),
+                    style: AppTextStyles.titleSmall(
+                      color: AppColors.textPrimary,
+                    ).copyWith(fontSize: 32),
+                  ),
+                  const SizedBox(width: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      l10n.shares,
+                      style: AppTextStyles.bodyMedium(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Slider for shares
+        _buildSharesSlider(),
+        const SizedBox(height: 16),
+        // Value and Balance
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '${l10n.value}: ',
+                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+                ),
+                Text(
+                  '\$${_formatNumber(stopValue.toInt())}',
+                  style: AppTextStyles.labelMedium(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  '${l10n.balance}: ',
+                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+                ),
+                Text(
+                  _formatNumber(_balance.toInt()),
+                  style: AppTextStyles.labelMedium(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        // Explanation
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'Set the maximum price you are willing to pay per share',
+            style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Stop price input
+        _buildStopPriceInput(),
+        const SizedBox(height: 16),
+        // Expiration
+        _buildExpirationSelector(),
       ],
     );
   }
