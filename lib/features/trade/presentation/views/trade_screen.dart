@@ -208,7 +208,11 @@ class _TradeScreenState extends State<TradeScreen> {
                       const SizedBox(height: AppSpacing.md),
                       _buildSlider(),
                       const SizedBox(height: AppSpacing.md),
-                      _buildSharesAndBalance(shares: shares),
+                      _buildSharesAndBalance(
+                        shares: shares,
+                        value: _value,
+                        inputType: _valueInputType,
+                      ),
                       const SizedBox(height: AppSpacing.md),
                       _buildMarketOrderExplanation(),
                     ] else if (_selectedOrderType == OrderType.limit) ...[
@@ -359,7 +363,11 @@ class _TradeScreenState extends State<TradeScreen> {
     );
   }
 
-  Widget _buildSharesAndBalance({required int shares}) {
+  Widget _buildSharesAndBalance({
+    required int shares,
+    required double value,
+    required ValueInputType inputType,
+  }) {
     final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,12 +375,16 @@ class _TradeScreenState extends State<TradeScreen> {
         Row(
           children: [
             Text(
-              '${l10n.shares} : ',
+              inputType == ValueInputType.value
+                  ? '${l10n.shares} : '
+                  : '${l10n.value} : ',
               style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              _formatNumber(shares),
+              inputType == ValueInputType.value
+                  ? _formatNumber(shares)
+                  : '\$${_formatValue(value)}',
               style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
             ),
           ],
@@ -482,11 +494,15 @@ class _TradeScreenState extends State<TradeScreen> {
             Row(
               children: [
                 Text(
-                  '${l10n.value}: ',
+                  _valueInputType == ValueInputType.value
+                      ? '${l10n.shares}: '
+                      : '${l10n.value}: ',
                   style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
                 ),
                 Text(
-                  '\$${_formatNumber(limitValue.toInt())}',
+                  _valueInputType == ValueInputType.value
+                      ? _formatNumber(_numberOfShares)
+                      : '\$${_formatNumber(limitValue.toInt())}',
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -501,7 +517,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
                 ),
                 Text(
-                  _formatNumber(_balance.toInt()),
+                  '\$${_formatNumber(_balance.toInt())}',
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -646,11 +662,15 @@ class _TradeScreenState extends State<TradeScreen> {
             Row(
               children: [
                 Text(
-                  '${l10n.value}: ',
+                  _valueInputType == ValueInputType.value
+                      ? '${l10n.shares}: '
+                      : '${l10n.value}: ',
                   style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
                 ),
                 Text(
-                  '\$${_formatNumber(stopValue.toInt())}',
+                  _valueInputType == ValueInputType.value
+                      ? _formatNumber(_numberOfShares)
+                      : '\$${_formatNumber(stopValue.toInt())}',
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -665,7 +685,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
                 ),
                 Text(
-                  _formatNumber(_balance.toInt()),
+                  '\$${_formatNumber(_balance.toInt())}',
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -728,11 +748,15 @@ class _TradeScreenState extends State<TradeScreen> {
             Row(
               children: [
                 Text(
-                  '${l10n.value}: ',
+                  _valueInputType == ValueInputType.value
+                      ? '${l10n.shares}: '
+                      : '${l10n.value}: ',
                   style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
                 ),
                 Text(
-                  '\$${_formatNumber(stopLimitValue.toInt())}',
+                  _valueInputType == ValueInputType.value
+                      ? _formatNumber(_numberOfShares)
+                      : '\$${_formatNumber(stopLimitValue.toInt())}',
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -747,7 +771,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
                 ),
                 Text(
-                  _formatNumber(_balance.toInt()),
+                  '\$${_formatNumber(_balance.toInt())}',
                   style: AppTextStyles.labelMedium(
                     color: AppColors.textPrimary,
                   ),
@@ -1116,6 +1140,14 @@ class _TradeScreenState extends State<TradeScreen> {
     final parts = price.toStringAsFixed(1).split('.');
     final integerPart = int.parse(parts[0]);
     return '${integerPart.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.${parts[1]}';
+  }
+
+  String _formatValue(double value) {
+    final integerValue = value.toInt();
+    return integerValue.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
   }
 
   String _formatNumber(int number) {

@@ -175,7 +175,11 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
                     const SizedBox(height: AppSpacing.md),
                     _buildSlider(),
                     const SizedBox(height: AppSpacing.md),
-                    _buildSharesAndBalance(shares: shares),
+                    _buildSharesAndBalance(
+                      shares: shares,
+                      value: _value,
+                      inputType: _valueInputType,
+                    ),
                     const SizedBox(height: AppSpacing.md),
                     _buildMarketOrderExplanation(),
                     const SizedBox(height: AppSpacing.md),
@@ -388,7 +392,11 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
     );
   }
 
-  Widget _buildSharesAndBalance({required int shares}) {
+  Widget _buildSharesAndBalance({
+    required int shares,
+    required double value,
+    required ValueInputType inputType,
+  }) {
     final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,12 +404,16 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
         Row(
           children: [
             Text(
-              '${l10n.shares} : ',
+              inputType == ValueInputType.value
+                  ? '${l10n.shares} : '
+                  : '${l10n.value} : ',
               style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              _formatNumber(shares),
+              inputType == ValueInputType.value
+                  ? _formatNumber(shares)
+                  : '\$${_formatValue(value)}',
               style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
             ),
           ],
