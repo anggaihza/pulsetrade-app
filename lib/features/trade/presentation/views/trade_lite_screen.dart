@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
+import 'package:pulsetrade_app/core/presentation/widgets/explanation_card.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
@@ -443,22 +444,7 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
 
   Widget _buildMarketOrderExplanation() {
     final l10n = AppLocalizations.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        l10n.marketOrderExplanation,
-        style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-        textAlign: TextAlign.center,
-      ),
-    );
+    return ExplanationCard(text: l10n.marketOrderExplanation);
   }
 
   Widget _buildOrderFooter() {
