@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_slider.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/explanation_card.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
-import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/features/trade/domain/constants/trade_constants.dart';
 import 'package:pulsetrade_app/features/trade/domain/entities/expiration_type.dart';
@@ -18,12 +16,14 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_ta
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
-import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/stock_info_card.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/shares_balance_display.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_footer.dart';
-import 'package:pulsetrade_app/features/trade/presentation/widgets/price_input_stepper.dart';
-import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/trade_loading_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/trade_error_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/trade_app_bar.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/add_to_bucket_button.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_view_builder.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 
 class TradeScreen extends ConsumerStatefulWidget {
@@ -60,49 +60,8 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
 
     return stockDataAsync.when(
       data: (stockData) => _buildTradeScreen(context, stockData),
-      loading: () => _buildLoadingScreen(context),
-      error: (error, stack) => _buildErrorScreen(context, error),
-    );
-  }
-
-  Widget _buildLoadingScreen(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        elevation: 0,
-      ),
-      body: const Center(child: CircularProgressIndicator()),
-    );
-  }
-
-  Widget _buildErrorScreen(BuildContext context, Object error) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        elevation: 0,
-      ),
-      body: Center(
-        child: Text(
-          'Error loading stock data: $error',
-          style: AppTextStyles.bodyLarge(color: AppColors.error),
-        ),
-      ),
+      loading: () => const TradeLoadingScreen(),
+      error: (error, stack) => TradeErrorScreen(error: error),
     );
   }
 
@@ -111,17 +70,7 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        elevation: 0,
-      ),
+      appBar: const TradeAppBar(),
       body: SafeArea(
         child: Column(
           children: [
@@ -178,15 +127,48 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       _buildMarketOrderExplanation(),
-                    ] else if (_selectedOrderType == OrderType.limit) ...[
-                      _buildLimitView(stockData: stockData),
-                    ] else if (_selectedOrderType == OrderType.stop) ...[
-                      _buildStopView(stockData: stockData),
-                    ] else if (_selectedOrderType == OrderType.stopLimit) ...[
-                      _buildStopLimitView(stockData: stockData),
+                    ] else if (_selectedOrderType == OrderType.limit ||
+                        _selectedOrderType == OrderType.stop ||
+                        _selectedOrderType == OrderType.stopLimit) ...[
+                      OrderTypeViewBuilder(
+                        orderType: _selectedOrderType,
+                        stockData: stockData,
+                        value: _value,
+                        maxValue: _maxValue,
+                        balance: _balance,
+                        valueInputType: _valueInputType,
+                        limitPrice: _limitPrice,
+                        stopPrice: _stopPrice,
+                        expirationType: _expirationType,
+                        onValueChanged: (newValue) {
+                          setState(() {
+                            _value = newValue;
+                          });
+                        },
+                        onInputTypeChanged: (type) {
+                          setState(() {
+                            _valueInputType = type;
+                          });
+                        },
+                        onLimitPriceChanged: (newPrice) {
+                          setState(() {
+                            _limitPrice = newPrice;
+                          });
+                        },
+                        onStopPriceChanged: (newPrice) {
+                          setState(() {
+                            _stopPrice = newPrice;
+                          });
+                        },
+                        onExpirationChanged: (type) {
+                          setState(() {
+                            _expirationType = type;
+                          });
+                        },
+                      ),
                     ],
                     const SizedBox(height: AppSpacing.md),
-                    _buildAddToBucket(),
+                    const AddToBucketButton(),
                     const SizedBox(height: AppSpacing.md),
                     OrderFooter(
                       executionTime: TradeConstants.defaultExecutionTime,
@@ -218,311 +200,6 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
   Widget _buildMarketOrderExplanation() {
     final l10n = AppLocalizations.of(context);
     return ExplanationCard(text: l10n.marketOrderExplanation);
-  }
-
-  Widget _buildAddToBucket() {
-    final l10n = AppLocalizations.of(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        context.push(ChooseBucketScreen.routePath);
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  TablerIcons.chart_donut_filled,
-                  size: 20,
-                  color: AppColors.textPrimary,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  l10n.addToBucket,
-                  style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-                ),
-              ],
-            ),
-            const Icon(
-              TablerIcons.chevron_right,
-              size: 24,
-              color: AppColors.textPrimary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLimitView({required StockData stockData}) {
-    final l10n = AppLocalizations.of(context);
-    final shares = (_value / stockData.price).floor();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Value/Shares section
-        ValueSlider(
-          value: _value,
-          maxValue: _maxValue,
-          numberOfShares: shares,
-          inputType: _valueInputType,
-          onInputTypeChanged: (type) {
-            setState(() {
-              _valueInputType = type;
-            });
-          },
-        ),
-        const SizedBox(height: AppSpacing.md),
-        // Slider for value
-        _buildSlider(),
-        const SizedBox(height: AppSpacing.md),
-        // Value and Balance
-        SharesBalanceDisplay(
-          shares: shares,
-          value: _value,
-          inputType: _valueInputType,
-          balance: _balance,
-        ),
-        const SizedBox(height: 16),
-        // Limit explanation
-        ExplanationCard(
-          text: l10n.limitExplanation,
-          padding: const EdgeInsets.all(AppSpacing.sm),
-        ),
-        const SizedBox(height: 16),
-        // Price input
-        PriceInputStepper(
-          label: l10n.price,
-          value: _limitPrice,
-          onIncrement: () {
-            setState(() {
-              _limitPrice = _limitPrice + 1;
-            });
-          },
-          onDecrement: () {
-            setState(() {
-              _limitPrice = (_limitPrice - 1).clamp(0.0, double.infinity);
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        // Expiration
-        _buildExpirationSelector(),
-      ],
-    );
-  }
-
-  Widget _buildStopView({required StockData stockData}) {
-    final l10n = AppLocalizations.of(context);
-    final shares = (_value / stockData.price).floor();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Value/Shares section
-        ValueSlider(
-          value: _value,
-          maxValue: _maxValue,
-          numberOfShares: shares,
-          inputType: _valueInputType,
-          onInputTypeChanged: (type) {
-            setState(() {
-              _valueInputType = type;
-            });
-          },
-        ),
-        const SizedBox(height: AppSpacing.md),
-        // Slider for value
-        _buildSlider(),
-        const SizedBox(height: AppSpacing.md),
-        // Value and Balance
-        SharesBalanceDisplay(
-          shares: shares,
-          value: _value,
-          inputType: _valueInputType,
-          balance: _balance,
-        ),
-        const SizedBox(height: 16),
-        // Explanation
-        ExplanationCard(
-          text: l10n.limitExplanation,
-          padding: const EdgeInsets.all(AppSpacing.sm),
-        ),
-        const SizedBox(height: 16),
-        // Stop price input
-        PriceInputStepper(
-          label: l10n.stop,
-          value: _stopPrice,
-          onIncrement: () {
-            setState(() {
-              _stopPrice = _stopPrice + 1;
-            });
-          },
-          onDecrement: () {
-            setState(() {
-              _stopPrice = (_stopPrice - 1).clamp(0.0, double.infinity);
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        // Expiration
-        _buildExpirationSelector(),
-      ],
-    );
-  }
-
-  Widget _buildStopLimitView({required StockData stockData}) {
-    final l10n = AppLocalizations.of(context);
-    final shares = (_value / stockData.price).floor();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Value/Shares section
-        ValueSlider(
-          value: _value,
-          maxValue: _maxValue,
-          numberOfShares: shares,
-          inputType: _valueInputType,
-          onInputTypeChanged: (type) {
-            setState(() {
-              _valueInputType = type;
-            });
-          },
-        ),
-        const SizedBox(height: AppSpacing.md),
-        // Slider for value
-        _buildSlider(),
-        const SizedBox(height: AppSpacing.md),
-        // Value and Balance
-        SharesBalanceDisplay(
-          shares: shares,
-          value: _value,
-          inputType: _valueInputType,
-          balance: _balance,
-        ),
-        const SizedBox(height: 16),
-        // First explanation
-        Container(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.small),
-          ),
-          child: Text(
-            l10n.limitExplanation,
-            style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Stop price input
-        PriceInputStepper(
-          label: l10n.stop,
-          value: _stopPrice,
-          onIncrement: () {
-            setState(() {
-              _stopPrice = _stopPrice + 1;
-            });
-          },
-          onDecrement: () {
-            setState(() {
-              _stopPrice = (_stopPrice - 1).clamp(0.0, double.infinity);
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        // Second explanation
-        const ExplanationCard(
-          text:
-              'Then, set the maximum price you are willing to pay per share', // TODO: Use l10n.stopLimitExplanation after regenerating localization
-          padding: EdgeInsets.all(AppSpacing.sm),
-        ),
-        const SizedBox(height: 16),
-        // Limit price input
-        PriceInputStepper(
-          label: l10n.limit,
-          value: _limitPrice,
-          onIncrement: () {
-            setState(() {
-              _limitPrice = _limitPrice + 1;
-            });
-          },
-          onDecrement: () {
-            setState(() {
-              _limitPrice = (_limitPrice - 1).clamp(0.0, double.infinity);
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        // Expiration
-        _buildExpirationSelector(),
-      ],
-    );
-  }
-
-  Widget _buildExpirationSelector() {
-    final l10n = AppLocalizations.of(context);
-    final expirationText = _expirationType == ExpirationType.never
-        ? l10n.never
-        : l10n.endOfDay;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () async {
-        final result = await ExpirationBottomSheet.show(
-          context,
-          currentType: _expirationType,
-        );
-        if (result != null) {
-          setState(() {
-            _expirationType = result;
-          });
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  TablerIcons.clock,
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  l10n.expiration,
-                  style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  expirationText,
-                  style: AppTextStyles.labelMedium(color: AppColors.primary),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                const Icon(
-                  TablerIcons.chevron_right,
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _navigateToConfirmOrder(StockData stockData) {

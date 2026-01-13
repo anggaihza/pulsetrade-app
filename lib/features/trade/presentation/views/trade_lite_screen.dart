@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_slider.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/explanation_card.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
-import 'package:pulsetrade_app/core/theme/typography.dart';
-import 'package:pulsetrade_app/core/utils/formatters.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/features/trade/domain/constants/trade_constants.dart';
 import 'package:pulsetrade_app/features/trade/domain/entities/expiration_type.dart';
@@ -16,11 +13,15 @@ import 'package:pulsetrade_app/features/trade/domain/models/stock_data.dart';
 import 'package:pulsetrade_app/features/trade/domain/services/order_calculation_service.dart';
 import 'package:pulsetrade_app/features/trade/presentation/providers/stock_data_provider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
-import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/stock_info_card.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/shares_balance_display.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_footer.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/trade_loading_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/trade_error_screen.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/trade_app_bar.dart';
+import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 
 class TradeLiteScreen extends ConsumerStatefulWidget {
   const TradeLiteScreen({super.key, this.ticker});
@@ -48,49 +49,8 @@ class _TradeLiteScreenState extends ConsumerState<TradeLiteScreen> {
 
     return stockDataAsync.when(
       data: (stockData) => _buildTradeLiteScreen(context, stockData),
-      loading: () => _buildLoadingScreen(context),
-      error: (error, stack) => _buildErrorScreen(context, error),
-    );
-  }
-
-  Widget _buildLoadingScreen(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        elevation: 0,
-      ),
-      body: const Center(child: CircularProgressIndicator()),
-    );
-  }
-
-  Widget _buildErrorScreen(BuildContext context, Object error) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        elevation: 0,
-      ),
-      body: Center(
-        child: Text(
-          'Error loading stock data: $error',
-          style: AppTextStyles.bodyLarge(color: AppColors.error),
-        ),
-      ),
+      loading: () => const TradeLoadingScreen(),
+      error: (error, stack) => TradeErrorScreen(error: error),
     );
   }
 
@@ -99,17 +59,7 @@ class _TradeLiteScreenState extends ConsumerState<TradeLiteScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(
-            TablerIcons.arrow_narrow_left,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        elevation: 0,
-      ),
+      appBar: const TradeAppBar(),
       body: SafeArea(
         child: Column(
           children: [
@@ -133,7 +83,17 @@ class _TradeLiteScreenState extends ConsumerState<TradeLiteScreen> {
                       },
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _buildValueSection(stockData),
+                    ValueSlider(
+                      value: _value,
+                      maxValue: _maxValue,
+                      numberOfShares: shares,
+                      inputType: _valueInputType,
+                      onInputTypeChanged: (type) {
+                        setState(() {
+                          _valueInputType = type;
+                        });
+                      },
+                    ),
                     const SizedBox(height: AppSpacing.md),
                     _buildSlider(),
                     const SizedBox(height: AppSpacing.md),
@@ -160,104 +120,6 @@ class _TradeLiteScreenState extends ConsumerState<TradeLiteScreen> {
                 isFloating: true,
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildValueSection(StockData stockData) {
-    final l10n = AppLocalizations.of(context);
-    final shares = (_value / stockData.price).floor();
-
-    return Container(
-      decoration: BoxDecoration(
-        border: const Border(
-          bottom: BorderSide(color: AppColors.primary, width: 2),
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 32),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? l10n.value
-                      : l10n.numberOfShares,
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                GestureDetector(
-                  onTap: () async {
-                    final selectedType = await ValueInputTypeModal.show(
-                      context,
-                      currentType: _valueInputType,
-                    );
-                    if (selectedType != null) {
-                      setState(() {
-                        _valueInputType = selectedType;
-                      });
-                    }
-                  },
-                  child: const Icon(
-                    TablerIcons.circle_caret_down,
-                    size: 16,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            _valueInputType == ValueInputType.value
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '\$${Formatters.formatValue(_value)}',
-                        style: AppTextStyles.headlineLarge(
-                          color: AppColors.textPrimary,
-                        ).copyWith(fontSize: 32),
-                      ),
-                      const SizedBox(width: 4),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          'USD',
-                          style: AppTextStyles.bodyMedium(
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        Formatters.formatValue(shares.toDouble()),
-                        style: AppTextStyles.headlineLarge(
-                          color: AppColors.textPrimary,
-                        ).copyWith(fontSize: 32),
-                      ),
-                      const SizedBox(width: 4),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          l10n.shares,
-                          style: AppTextStyles.bodyMedium(
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
           ],
         ),
       ),
