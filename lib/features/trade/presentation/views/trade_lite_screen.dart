@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_slider.dart';
@@ -7,10 +8,13 @@ import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/formatters.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
+import 'package:pulsetrade_app/features/trade/domain/constants/trade_constants.dart';
 import 'package:pulsetrade_app/features/trade/domain/entities/expiration_type.dart';
 import 'package:pulsetrade_app/features/trade/domain/entities/order_type.dart';
 import 'package:pulsetrade_app/features/trade/domain/models/order_confirmation_data.dart';
 import 'package:pulsetrade_app/features/trade/domain/models/stock_data.dart';
+import 'package:pulsetrade_app/features/trade/domain/services/order_calculation_service.dart';
+import 'package:pulsetrade_app/features/trade/presentation/providers/stock_data_provider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
@@ -18,7 +22,7 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/stock_info_ca
 import 'package:pulsetrade_app/features/trade/presentation/widgets/shares_balance_display.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_footer.dart';
 
-class TradeLiteScreen extends StatefulWidget {
+class TradeLiteScreen extends ConsumerStatefulWidget {
   const TradeLiteScreen({super.key, this.ticker});
 
   static const String routePath = '/trade-lite';
@@ -27,94 +31,70 @@ class TradeLiteScreen extends StatefulWidget {
   final String? ticker;
 
   @override
-  State<TradeLiteScreen> createState() => _TradeLiteScreenState();
+  ConsumerState<TradeLiteScreen> createState() => _TradeLiteScreenState();
 }
 
-class _TradeLiteScreenState extends State<TradeLiteScreen> {
+class _TradeLiteScreenState extends ConsumerState<TradeLiteScreen> {
   bool _isBuy = true;
-  double _value = 300000.0;
-  final double _maxValue = 500000.0;
-  final double _balance = 412032.0;
+  double _value = TradeConstants.defaultValue;
+  final double _maxValue = TradeConstants.defaultMaxValue;
+  final double _balance = TradeConstants.defaultBalance;
   ValueInputType _valueInputType = ValueInputType.value;
-
-  StockData? _stockData;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchStockData();
-  }
-
-  Future<void> _fetchStockData() async {
-    final ticker = widget.ticker ?? 'TSLA';
-
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-
-    final stockDataMap = {
-      'TSLA': StockData(
-        ticker: 'TSLA',
-        companyName: 'Tesla, Inc.',
-        price: 177.12,
-        change: -1.28,
-        changePercentage: -1.28,
-        isPositive: false,
-      ),
-      'NVDA': StockData(
-        ticker: 'NVDA',
-        companyName: 'NVIDIA Corporation',
-        price: 485.22,
-        change: 12.56,
-        changePercentage: 2.66,
-        isPositive: true,
-      ),
-      'MSFT': StockData(
-        ticker: 'MSFT',
-        companyName: 'Microsoft Corporation',
-        price: 378.90,
-        change: -0.45,
-        changePercentage: -0.12,
-        isPositive: false,
-      ),
-      'ANTM': StockData(
-        ticker: 'ANTM',
-        companyName: 'PT Aneka Tambang Tbk',
-        price: 2990.0,
-        change: 80.0,
-        changePercentage: 2.75,
-        isPositive: true,
-      ),
-    };
-
-    if (mounted) {
-      setState(() {
-        _stockData = stockDataMap[ticker] ?? stockDataMap['TSLA']!;
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading || _stockData == null) {
-      return Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: AppColors.background,
-          leading: IconButton(
-            icon: const Icon(
-              TablerIcons.arrow_narrow_left,
-              color: AppColors.textPrimary,
-            ),
-            onPressed: () => context.pop(),
-          ),
-          elevation: 0,
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
+    final ticker = widget.ticker ?? 'TSLA';
+    final stockDataAsync = ref.watch(stockDataProvider(ticker));
 
-    final stockData = _stockData!;
+    return stockDataAsync.when(
+      data: (stockData) => _buildTradeLiteScreen(context, stockData),
+      loading: () => _buildLoadingScreen(context),
+      error: (error, stack) => _buildErrorScreen(context, error),
+    );
+  }
+
+  Widget _buildLoadingScreen(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        leading: IconButton(
+          icon: const Icon(
+            TablerIcons.arrow_narrow_left,
+            color: AppColors.textPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
+        elevation: 0,
+      ),
+      body: const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildErrorScreen(BuildContext context, Object error) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        leading: IconButton(
+          icon: const Icon(
+            TablerIcons.arrow_narrow_left,
+            color: AppColors.textPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
+        elevation: 0,
+      ),
+      body: Center(
+        child: Text(
+          'Error loading stock data: $error',
+          style: AppTextStyles.bodyLarge(color: AppColors.error),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTradeLiteScreen(BuildContext context, StockData stockData) {
     final shares = (_value / stockData.price).floor();
 
     return Scaffold(
@@ -153,7 +133,7 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
                       },
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _buildValueSection(),
+                    _buildValueSection(stockData),
                     const SizedBox(height: AppSpacing.md),
                     _buildSlider(),
                     const SizedBox(height: AppSpacing.md),
@@ -175,8 +155,8 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
                 horizontal: AppSpacing.screenPadding,
               ),
               child: OrderFooter(
-                executionTime: '10h 11 min',
-                onReviewOrder: _navigateToConfirmOrder,
+                executionTime: TradeConstants.defaultExecutionTime,
+                onReviewOrder: () => _navigateToConfirmOrder(stockData),
                 isFloating: true,
               ),
             ),
@@ -186,9 +166,8 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
     );
   }
 
-  Widget _buildValueSection() {
+  Widget _buildValueSection(StockData stockData) {
     final l10n = AppLocalizations.of(context);
-    final stockData = _stockData!;
     final shares = (_value / stockData.price).floor();
 
     return Container(
@@ -303,28 +282,27 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
     return ExplanationCard(text: l10n.marketOrderExplanation);
   }
 
-  void _navigateToConfirmOrder() {
-    if (_stockData == null) return;
-
-    final stockData = _stockData!;
-    final shares = (_value / stockData.price).floor();
-    final sharesValue = _value;
-    final tax = sharesValue * 0.001;
-    final total = sharesValue + tax;
+  void _navigateToConfirmOrder(StockData stockData) {
+    // Use order calculation service
+    final calculation = OrderCalculationService.calculateOrderTotal(
+      orderType: OrderType.marketOrder,
+      value: _value,
+      price: stockData.price,
+    );
 
     final orderData = OrderConfirmationData(
       ticker: stockData.ticker,
       companyName: stockData.companyName,
       orderType: OrderType.marketOrder,
       isBuy: _isBuy,
-      numberOfShares: shares,
-      sharesValue: sharesValue,
+      numberOfShares: calculation['numberOfShares'] as int,
+      sharesValue: calculation['sharesValue'] as double,
       limitPrice: null,
       stopPrice: null,
       expirationType: ExpirationType.never,
-      commission: 0.0,
-      tax: tax,
-      total: total,
+      commission: calculation['commission'] as double,
+      tax: calculation['tax'] as double,
+      total: calculation['total'] as double,
     );
 
     context.push(ConfirmOrderScreen.routePath, extra: orderData);
