@@ -20,8 +20,6 @@ import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_s
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/providers/trading_mode_provider.dart';
 import 'package:pulsetrade_app/features/profile/presentation/widgets/trading_mode_modal.dart';
-import 'package:pulsetrade_app/features/settings/presentation/views/settings_screen.dart';
-import 'package:pulsetrade_app/features/survey/presentation/views/survey_form_screen.dart';
 import 'package:riverpod/riverpod.dart';
 
 /// Global route observer for tracking navigation events
@@ -136,16 +134,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final orderData = state.extra as OrderConfirmationData;
           return ConfirmOrderScreen(orderData: orderData);
         },
-      ),
-      GoRoute(
-        path: '/${SurveyFormScreen.routeName}',
-        name: SurveyFormScreen.routeName,
-        builder: (context, state) => const SurveyFormScreen(),
-      ),
-      GoRoute(
-        path: '/${SettingsScreen.routeName}',
-        name: SettingsScreen.routeName,
-        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: LoginScreen.routePath,
