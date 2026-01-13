@@ -5,7 +5,6 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_slider.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/explanation_card.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
-import 'package:pulsetrade_app/core/utils/formatters.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/features/trade/domain/entities/expiration_type.dart';
 import 'package:pulsetrade_app/features/trade/domain/entities/order_type.dart';
@@ -19,6 +18,7 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_bo
 import 'package:pulsetrade_app/features/trade/presentation/widgets/stock_info_card.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/shares_balance_display.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_footer.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/price_input_stepper.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 
@@ -64,7 +64,7 @@ class _TradeScreenState extends State<TradeScreen> {
     await Future<void>.delayed(const Duration(milliseconds: 300));
 
     final stockDataMap = {
-      'TSLA': StockData(
+      'TSLA': const StockData(
         ticker: 'TSLA',
         companyName: 'Tesla, Inc.',
         price: 177.12,
@@ -72,7 +72,7 @@ class _TradeScreenState extends State<TradeScreen> {
         changePercentage: -1.28,
         isPositive: false,
       ),
-      'NVDA': StockData(
+      'NVDA': const StockData(
         ticker: 'NVDA',
         companyName: 'NVIDIA Corporation',
         price: 485.22,
@@ -80,7 +80,7 @@ class _TradeScreenState extends State<TradeScreen> {
         changePercentage: 2.66,
         isPositive: true,
       ),
-      'MSFT': StockData(
+      'MSFT': const StockData(
         ticker: 'MSFT',
         companyName: 'Microsoft Corporation',
         price: 378.90,
@@ -88,7 +88,7 @@ class _TradeScreenState extends State<TradeScreen> {
         changePercentage: -0.12,
         isPositive: false,
       ),
-      'ANTM': StockData(
+      'ANTM': const StockData(
         ticker: 'ANTM',
         companyName: 'PT Aneka Tambang Tbk',
         price: 2990.0,
@@ -317,92 +317,23 @@ class _TradeScreenState extends State<TradeScreen> {
         ),
         const SizedBox(height: 16),
         // Price input
-        _buildPriceInput(),
+        PriceInputStepper(
+          label: l10n.price,
+          value: _limitPrice,
+          onIncrement: () {
+            setState(() {
+              _limitPrice = _limitPrice + 1;
+            });
+          },
+          onDecrement: () {
+            setState(() {
+              _limitPrice = (_limitPrice - 1).clamp(0.0, double.infinity);
+            });
+          },
+        ),
         const SizedBox(height: 16),
         // Expiration
         _buildExpirationSelector(),
-      ],
-    );
-  }
-
-  Widget _buildPriceInput() {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              l10n.price,
-              style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            Text(
-              Formatters.formatNumber(_limitPrice.toInt()),
-              style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-        // Stacked buttons in pill-shaped container
-        Container(
-          width: 48,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Up button (light blue background)
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    TablerIcons.caret_up,
-                    size: 24,
-                    color: AppColors.primary,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _limitPrice = _limitPrice + 1;
-                    });
-                  },
-                ),
-              ),
-              // Down button (gray background, extends upward)
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    TablerIcons.caret_down,
-                    size: 24,
-                    color: AppColors.textLabel,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _limitPrice = (_limitPrice - 1).clamp(
-                        0.0,
-                        double.infinity,
-                      );
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -445,7 +376,20 @@ class _TradeScreenState extends State<TradeScreen> {
         ),
         const SizedBox(height: 16),
         // Stop price input
-        _buildStopPriceInput(),
+        PriceInputStepper(
+          label: l10n.stop,
+          value: _stopPrice,
+          onIncrement: () {
+            setState(() {
+              _stopPrice = _stopPrice + 1;
+            });
+          },
+          onDecrement: () {
+            setState(() {
+              _stopPrice = (_stopPrice - 1).clamp(0.0, double.infinity);
+            });
+          },
+        ),
         const SizedBox(height: 16),
         // Expiration
         _buildExpirationSelector(),
@@ -499,181 +443,46 @@ class _TradeScreenState extends State<TradeScreen> {
         ),
         const SizedBox(height: 16),
         // Stop price input
-        _buildStopPriceInput(),
+        PriceInputStepper(
+          label: l10n.stop,
+          value: _stopPrice,
+          onIncrement: () {
+            setState(() {
+              _stopPrice = _stopPrice + 1;
+            });
+          },
+          onDecrement: () {
+            setState(() {
+              _stopPrice = (_stopPrice - 1).clamp(0.0, double.infinity);
+            });
+          },
+        ),
         const SizedBox(height: 16),
         // Second explanation
-        ExplanationCard(
+        const ExplanationCard(
           text:
               'Then, set the maximum price you are willing to pay per share', // TODO: Use l10n.stopLimitExplanation after regenerating localization
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: EdgeInsets.all(AppSpacing.sm),
         ),
         const SizedBox(height: 16),
         // Limit price input
-        _buildLimitPriceInput(),
+        PriceInputStepper(
+          label: l10n.limit,
+          value: _limitPrice,
+          onIncrement: () {
+            setState(() {
+              _limitPrice = _limitPrice + 1;
+            });
+          },
+          onDecrement: () {
+            setState(() {
+              _limitPrice = (_limitPrice - 1).clamp(0.0, double.infinity);
+            });
+          },
+        ),
         const SizedBox(height: 16),
         // Expiration
         _buildExpirationSelector(),
-      ],
-    );
-  }
-
-  Widget _buildStopPriceInput() {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              l10n.stop,
-              style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            Text(
-              Formatters.formatNumber(_stopPrice.toInt()),
-              style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-        // Stacked buttons in pill-shaped container
-        Container(
-          width: 48,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Up button (light blue background)
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    TablerIcons.caret_up,
-                    size: 24,
-                    color: AppColors.primary,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _stopPrice = _stopPrice + 1;
-                    });
-                  },
-                ),
-              ),
-              // Down button (gray background)
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    TablerIcons.caret_down,
-                    size: 24,
-                    color: AppColors.textLabel,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _stopPrice = (_stopPrice - 1).clamp(0.0, double.infinity);
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLimitPriceInput() {
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              l10n.limit,
-              style: AppTextStyles.bodyLarge(color: AppColors.textPrimary),
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            Text(
-              Formatters.formatNumber(_limitPrice.toInt()),
-              style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-        // Stacked buttons in pill-shaped container
-        Container(
-          width: 48,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Up button (light blue background)
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    TablerIcons.caret_up,
-                    size: 24,
-                    color: AppColors.primary,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _limitPrice = _limitPrice + 1;
-                    });
-                  },
-                ),
-              ),
-              // Down button (gray background)
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    TablerIcons.caret_down,
-                    size: 24,
-                    color: AppColors.textLabel,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _limitPrice = (_limitPrice - 1).clamp(
-                        0.0,
-                        double.infinity,
-                      );
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
