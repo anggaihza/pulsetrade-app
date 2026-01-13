@@ -366,7 +366,7 @@ class _TradeScreenState extends State<TradeScreen> {
 
   Widget _buildMarketOrderExplanation() {
     final l10n = AppLocalizations.of(context);
-    return ExplanationCard(text: l10n.marketOrderExplanation, fullWidth: false);
+    return ExplanationCard(text: l10n.marketOrderExplanation);
   }
 
   Widget _buildAddToBucket() {
