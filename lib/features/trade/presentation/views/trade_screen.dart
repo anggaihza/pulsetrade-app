@@ -1,38 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_slider.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/explanation_card.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/core/utils/formatters.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
+import 'package:pulsetrade_app/features/trade/domain/entities/expiration_type.dart';
+import 'package:pulsetrade_app/features/trade/domain/entities/order_type.dart';
+import 'package:pulsetrade_app/features/trade/domain/models/order_confirmation_data.dart';
+import 'package:pulsetrade_app/features/trade/domain/models/stock_data.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_tabs.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_slider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_bottom_sheet.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/stock_info_card.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/shares_balance_display.dart';
+import 'package:pulsetrade_app/features/trade/presentation/widgets/order_footer.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
-
-class _TradeStockData {
-  final String ticker;
-  final String companyName;
-  final double price;
-  final double change;
-  final double changePercentage;
-  final bool isPositive;
-
-  _TradeStockData({
-    required this.ticker,
-    required this.companyName,
-    required this.price,
-    required this.change,
-    required this.changePercentage,
-    required this.isPositive,
-  });
-}
 
 class TradeScreen extends StatefulWidget {
   const TradeScreen({super.key, this.ticker});
@@ -61,7 +49,7 @@ class _TradeScreenState extends State<TradeScreen> {
   // Stop Limit order specific state
   double _stopPrice = 24321.0;
 
-  _TradeStockData? _stockData;
+  StockData? _stockData;
   bool _isLoading = true;
 
   @override
@@ -76,7 +64,7 @@ class _TradeScreenState extends State<TradeScreen> {
     await Future<void>.delayed(const Duration(milliseconds: 300));
 
     final stockDataMap = {
-      'TSLA': _TradeStockData(
+      'TSLA': StockData(
         ticker: 'TSLA',
         companyName: 'Tesla, Inc.',
         price: 177.12,
@@ -84,7 +72,7 @@ class _TradeScreenState extends State<TradeScreen> {
         changePercentage: -1.28,
         isPositive: false,
       ),
-      'NVDA': _TradeStockData(
+      'NVDA': StockData(
         ticker: 'NVDA',
         companyName: 'NVIDIA Corporation',
         price: 485.22,
@@ -92,7 +80,7 @@ class _TradeScreenState extends State<TradeScreen> {
         changePercentage: 2.66,
         isPositive: true,
       ),
-      'MSFT': _TradeStockData(
+      'MSFT': StockData(
         ticker: 'MSFT',
         companyName: 'Microsoft Corporation',
         price: 378.90,
@@ -100,7 +88,7 @@ class _TradeScreenState extends State<TradeScreen> {
         changePercentage: -0.12,
         isPositive: false,
       ),
-      'ANTM': _TradeStockData(
+      'ANTM': StockData(
         ticker: 'ANTM',
         companyName: 'PT Aneka Tambang Tbk',
         price: 2990.0,
@@ -167,14 +155,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: AppSpacing.sm),
-                    _buildStockInfo(
-                      ticker: stockData.ticker,
-                      companyName: stockData.companyName,
-                      price: stockData.price,
-                      change: stockData.change,
-                      changePercentage: stockData.changePercentage,
-                      isPositive: stockData.isPositive,
-                    ),
+                    StockInfoCard(stockData: stockData),
                     const SizedBox(height: AppSpacing.md),
                     OrderTypeTabs(
                       selectedType: _selectedOrderType,
@@ -210,10 +191,11 @@ class _TradeScreenState extends State<TradeScreen> {
                       const SizedBox(height: AppSpacing.md),
                       _buildSlider(),
                       const SizedBox(height: AppSpacing.md),
-                      _buildSharesAndBalance(
+                      SharesBalanceDisplay(
                         shares: shares,
                         value: _value,
                         inputType: _valueInputType,
+                        balance: _balance,
                       ),
                       const SizedBox(height: AppSpacing.md),
                       _buildMarketOrderExplanation(),
@@ -227,83 +209,16 @@ class _TradeScreenState extends State<TradeScreen> {
                     const SizedBox(height: AppSpacing.md),
                     _buildAddToBucket(),
                     const SizedBox(height: AppSpacing.md),
-                    _buildOrderFooter(),
+                    OrderFooter(
+                      executionTime: '10h 11 min',
+                      onReviewOrder: _navigateToConfirmOrder,
+                    ),
                   ],
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStockInfo({
-    required String ticker,
-    required String companyName,
-    required double price,
-    required double change,
-    required double changePercentage,
-    required bool isPositive,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: AppColors.whiteNormal,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md - AppSpacing.xs),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ticker,
-                  style: AppTextStyles.titleSmall(color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: AppSpacing.xs / 2),
-                Text(
-                  companyName,
-                  style: AppTextStyles.bodySmall(color: AppColors.textLabel),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '\$${Formatters.formatPrice(price)}',
-                style: AppTextStyles.titleSmall(color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${isPositive ? '+' : ''}${change.toStringAsFixed(1)}',
-                    style: AppTextStyles.bodyMedium(
-                      color: isPositive ? AppColors.success : AppColors.error,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    '${isPositive ? '+' : ''}${changePercentage.toStringAsFixed(2)}% ${AppLocalizations.of(context).today}',
-                    style: AppTextStyles.bodyMedium(
-                      color: isPositive ? AppColors.success : AppColors.error,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -318,50 +233,6 @@ class _TradeScreenState extends State<TradeScreen> {
           _value = newValue;
         });
       },
-    );
-  }
-
-  Widget _buildSharesAndBalance({
-    required int shares,
-    required double value,
-    required ValueInputType inputType,
-  }) {
-    final l10n = AppLocalizations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              inputType == ValueInputType.value
-                  ? '${l10n.shares} : '
-                  : '${l10n.value} : ',
-              style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              inputType == ValueInputType.value
-                  ? Formatters.formatNumber(shares)
-                  : '\$${Formatters.formatValue(value)}',
-              style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Text(
-              '${l10n.balance} : ',
-              style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              '\$${Formatters.formatNumber(_balance.toInt())}',
-              style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -408,7 +279,7 @@ class _TradeScreenState extends State<TradeScreen> {
     );
   }
 
-  Widget _buildLimitView({required _TradeStockData stockData}) {
+  Widget _buildLimitView({required StockData stockData}) {
     final l10n = AppLocalizations.of(context);
     final shares = (_value / stockData.price).floor();
 
@@ -432,10 +303,11 @@ class _TradeScreenState extends State<TradeScreen> {
         _buildSlider(),
         const SizedBox(height: AppSpacing.md),
         // Value and Balance
-        _buildSharesAndBalance(
+        SharesBalanceDisplay(
           shares: shares,
           value: _value,
           inputType: _valueInputType,
+          balance: _balance,
         ),
         const SizedBox(height: 16),
         // Limit explanation
@@ -535,7 +407,7 @@ class _TradeScreenState extends State<TradeScreen> {
     );
   }
 
-  Widget _buildStopView({required _TradeStockData stockData}) {
+  Widget _buildStopView({required StockData stockData}) {
     final l10n = AppLocalizations.of(context);
     final shares = (_value / stockData.price).floor();
 
@@ -559,10 +431,11 @@ class _TradeScreenState extends State<TradeScreen> {
         _buildSlider(),
         const SizedBox(height: AppSpacing.md),
         // Value and Balance
-        _buildSharesAndBalance(
+        SharesBalanceDisplay(
           shares: shares,
           value: _value,
           inputType: _valueInputType,
+          balance: _balance,
         ),
         const SizedBox(height: 16),
         // Explanation
@@ -580,7 +453,7 @@ class _TradeScreenState extends State<TradeScreen> {
     );
   }
 
-  Widget _buildStopLimitView({required _TradeStockData stockData}) {
+  Widget _buildStopLimitView({required StockData stockData}) {
     final l10n = AppLocalizations.of(context);
     final shares = (_value / stockData.price).floor();
 
@@ -604,10 +477,11 @@ class _TradeScreenState extends State<TradeScreen> {
         _buildSlider(),
         const SizedBox(height: AppSpacing.md),
         // Value and Balance
-        _buildSharesAndBalance(
+        SharesBalanceDisplay(
           shares: shares,
           value: _value,
           inputType: _valueInputType,
+          balance: _balance,
         ),
         const SizedBox(height: 16),
         // First explanation
@@ -918,42 +792,5 @@ class _TradeScreenState extends State<TradeScreen> {
     );
 
     context.push(ConfirmOrderScreen.routePath, extra: orderData);
-  }
-
-  Widget _buildOrderFooter() {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.screenPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text.rich(
-            TextSpan(
-              text: l10n.orderExecutionMessage,
-              style: AppTextStyles.bodySmall(
-                color: AppColors.textLabel,
-              ).copyWith(fontSize: 10),
-              children: [
-                TextSpan(
-                  text: '10h 11 min',
-                  style: AppTextStyles.bodySmall(
-                    color: AppColors.primary,
-                  ).copyWith(fontSize: 10),
-                ),
-              ],
-            ),
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(height: AppSpacing.md - AppSpacing.xs),
-          AppButton(
-            label: l10n.reviewOrder,
-            onPressed: () {
-              _navigateToConfirmOrder();
-            },
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -13,6 +13,7 @@ import 'package:pulsetrade_app/features/home/presentation/views/home_feed_screen
 import 'package:pulsetrade_app/features/profile/presentation/views/account_center_screen.dart';
 import 'package:pulsetrade_app/features/profile/presentation/views/profile_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pulsetrade_app/features/trade/domain/models/order_confirmation_data.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_lite_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';

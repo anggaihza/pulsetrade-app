@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
-
-/// Order type enum
-enum OrderType { marketOrder, limit, stop, stopLimit }
+import 'package:pulsetrade_app/features/trade/domain/entities/order_type.dart';
 
 /// Reusable order type tabs widget
 ///
@@ -26,7 +24,7 @@ class OrderTypeTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Container(
+    return SizedBox(
       height: 42,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

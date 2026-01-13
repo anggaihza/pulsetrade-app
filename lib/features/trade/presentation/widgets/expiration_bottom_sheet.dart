@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
-
-enum ExpirationType { never, endOfDay }
+import 'package:pulsetrade_app/features/trade/domain/entities/expiration_type.dart';
 
 class ExpirationBottomSheet extends StatefulWidget {
   final ExpirationType currentType;
