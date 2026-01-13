@@ -52,7 +52,6 @@ class _TradeScreenState extends State<TradeScreen> {
   ValueInputType _valueInputType = ValueInputType.value;
 
   // Limit order specific state
-  int _numberOfShares = 21123;
   double _limitPrice = 24321.0;
   ExpirationType _expirationType = ExpirationType.never;
 
@@ -334,35 +333,6 @@ class _TradeScreenState extends State<TradeScreen> {
     );
   }
 
-  Widget _buildSharesSlider() {
-    const maxShares = 50000;
-    return SizedBox(
-      width: double.infinity,
-      child: SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-          trackHeight: 0.5,
-          activeTrackColor: AppColors.primary,
-          inactiveTrackColor: AppColors.textPrimary,
-          thumbColor: Colors.transparent,
-          overlayColor: Colors.transparent,
-          trackShape: const _FullWidthSliderTrackShape(),
-          thumbShape: const _CustomSliderThumb(enabledThumbRadius: 8.0),
-          overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
-        ),
-        child: Slider(
-          value: _numberOfShares.toDouble(),
-          min: 0,
-          max: maxShares.toDouble(),
-          onChanged: (newValue) {
-            setState(() {
-              _numberOfShares = newValue.toInt();
-            });
-          },
-        ),
-      ),
-    );
-  }
-
   Widget _buildSharesAndBalance({
     required int shares,
     required double value,
@@ -466,16 +436,16 @@ class _TradeScreenState extends State<TradeScreen> {
 
   Widget _buildLimitView({required _TradeStockData stockData}) {
     final l10n = AppLocalizations.of(context);
-    final limitValue = _numberOfShares * _limitPrice;
+    final shares = (_value / stockData.price).floor();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Value/Shares section
         ValueSlider(
-          value: limitValue,
+          value: _value,
           maxValue: _maxValue,
-          numberOfShares: _numberOfShares,
+          numberOfShares: shares,
           inputType: _valueInputType,
           onInputTypeChanged: (type) {
             setState(() {
@@ -483,48 +453,15 @@ class _TradeScreenState extends State<TradeScreen> {
             });
           },
         ),
-        const SizedBox(height: 16),
-        // Slider for shares
-        _buildSharesSlider(),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
+        // Slider for value
+        _buildSlider(),
+        const SizedBox(height: AppSpacing.md),
         // Value and Balance
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? '${l10n.shares}: '
-                      : '${l10n.value}: ',
-                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-                ),
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? _formatNumber(_numberOfShares)
-                      : '\$${_formatNumber(limitValue.toInt())}',
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  '${l10n.balance}: ',
-                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-                ),
-                Text(
-                  '\$${_formatNumber(_balance.toInt())}',
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ],
+        _buildSharesAndBalance(
+          shares: shares,
+          value: _value,
+          inputType: _valueInputType,
         ),
         const SizedBox(height: 16),
         // Limit explanation
@@ -634,16 +571,16 @@ class _TradeScreenState extends State<TradeScreen> {
 
   Widget _buildStopView({required _TradeStockData stockData}) {
     final l10n = AppLocalizations.of(context);
-    final stopValue = _numberOfShares * _stopPrice;
+    final shares = (_value / stockData.price).floor();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Value/Shares section
         ValueSlider(
-          value: stopValue,
+          value: _value,
           maxValue: _maxValue,
-          numberOfShares: _numberOfShares,
+          numberOfShares: shares,
           inputType: _valueInputType,
           onInputTypeChanged: (type) {
             setState(() {
@@ -651,48 +588,15 @@ class _TradeScreenState extends State<TradeScreen> {
             });
           },
         ),
-        const SizedBox(height: 16),
-        // Slider for shares
-        _buildSharesSlider(),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
+        // Slider for value
+        _buildSlider(),
+        const SizedBox(height: AppSpacing.md),
         // Value and Balance
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? '${l10n.shares}: '
-                      : '${l10n.value}: ',
-                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-                ),
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? _formatNumber(_numberOfShares)
-                      : '\$${_formatNumber(stopValue.toInt())}',
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  '${l10n.balance}: ',
-                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-                ),
-                Text(
-                  '\$${_formatNumber(_balance.toInt())}',
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ],
+        _buildSharesAndBalance(
+          shares: shares,
+          value: _value,
+          inputType: _valueInputType,
         ),
         const SizedBox(height: 16),
         // Explanation
@@ -720,16 +624,16 @@ class _TradeScreenState extends State<TradeScreen> {
 
   Widget _buildStopLimitView({required _TradeStockData stockData}) {
     final l10n = AppLocalizations.of(context);
-    final stopLimitValue = _numberOfShares * _limitPrice;
+    final shares = (_value / stockData.price).floor();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Value/Shares section
         ValueSlider(
-          value: stopLimitValue,
+          value: _value,
           maxValue: _maxValue,
-          numberOfShares: _numberOfShares,
+          numberOfShares: shares,
           inputType: _valueInputType,
           onInputTypeChanged: (type) {
             setState(() {
@@ -737,48 +641,15 @@ class _TradeScreenState extends State<TradeScreen> {
             });
           },
         ),
-        const SizedBox(height: 16),
-        // Slider for shares
-        _buildSharesSlider(),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
+        // Slider for value
+        _buildSlider(),
+        const SizedBox(height: AppSpacing.md),
         // Value and Balance
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? '${l10n.shares}: '
-                      : '${l10n.value}: ',
-                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-                ),
-                Text(
-                  _valueInputType == ValueInputType.value
-                      ? _formatNumber(_numberOfShares)
-                      : '\$${_formatNumber(stopLimitValue.toInt())}',
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  '${l10n.balance}: ',
-                  style: AppTextStyles.bodyMedium(color: AppColors.textLabel),
-                ),
-                Text(
-                  '\$${_formatNumber(_balance.toInt())}',
-                  style: AppTextStyles.labelMedium(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ],
+        _buildSharesAndBalance(
+          shares: shares,
+          value: _value,
+          inputType: _valueInputType,
         ),
         const SizedBox(height: 16),
         // First explanation
@@ -1050,22 +921,21 @@ class _TradeScreenState extends State<TradeScreen> {
     double total = 0.0;
 
     // Calculate values based on order type
+    // All order types now use _value as primary input
+    numberOfShares = (_value / stockData.price).floor();
+
     if (_selectedOrderType == OrderType.marketOrder) {
-      numberOfShares = (_value / stockData.price).floor();
       sharesValue = _value;
       total = _value;
-    } else {
-      numberOfShares = _numberOfShares;
-      if (_selectedOrderType == OrderType.limit) {
-        sharesValue = numberOfShares * _limitPrice;
-        total = sharesValue;
-      } else if (_selectedOrderType == OrderType.stop) {
-        sharesValue = numberOfShares * _stopPrice;
-        total = sharesValue;
-      } else if (_selectedOrderType == OrderType.stopLimit) {
-        sharesValue = numberOfShares * _limitPrice;
-        total = sharesValue;
-      }
+    } else if (_selectedOrderType == OrderType.limit) {
+      sharesValue = numberOfShares * _limitPrice;
+      total = sharesValue;
+    } else if (_selectedOrderType == OrderType.stop) {
+      sharesValue = numberOfShares * _stopPrice;
+      total = sharesValue;
+    } else if (_selectedOrderType == OrderType.stopLimit) {
+      sharesValue = numberOfShares * _limitPrice;
+      total = sharesValue;
     }
 
     // Add commission and tax (mock values)
