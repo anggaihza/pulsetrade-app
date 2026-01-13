@@ -182,11 +182,16 @@ class _TradeLiteScreenState extends State<TradeLiteScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _buildMarketOrderExplanation(),
-                    const SizedBox(height: AppSpacing.md),
-                    _buildOrderFooter(),
                   ],
                 ),
               ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screenPadding,
+              ),
+              child: _buildOrderFooter(),
             ),
           ],
         ),
