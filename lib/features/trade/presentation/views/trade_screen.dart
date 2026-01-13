@@ -6,6 +6,7 @@ import 'package:pulsetrade_app/core/presentation/widgets/app_slider.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/explanation_card.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/core/utils/formatters.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_tabs.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
@@ -278,7 +279,7 @@ class _TradeScreenState extends State<TradeScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '\$${_formatPrice(price)}',
+                '\$${Formatters.formatPrice(price)}',
                 style: AppTextStyles.titleSmall(color: AppColors.textPrimary),
               ),
               const SizedBox(height: 2),
@@ -340,8 +341,8 @@ class _TradeScreenState extends State<TradeScreen> {
             const SizedBox(width: AppSpacing.xs),
             Text(
               inputType == ValueInputType.value
-                  ? _formatNumber(shares)
-                  : '\$${_formatValue(value)}',
+                  ? Formatters.formatNumber(shares)
+                  : '\$${Formatters.formatValue(value)}',
               style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
             ),
           ],
@@ -355,7 +356,7 @@ class _TradeScreenState extends State<TradeScreen> {
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              '\$${_formatNumber(_balance.toInt())}',
+              '\$${Formatters.formatNumber(_balance.toInt())}',
               style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
             ),
           ],
@@ -465,7 +466,7 @@ class _TradeScreenState extends State<TradeScreen> {
             ),
             const SizedBox(width: AppSpacing.lg),
             Text(
-              _formatNumber(_limitPrice.toInt()),
+              Formatters.formatNumber(_limitPrice.toInt()),
               style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
             ),
           ],
@@ -655,7 +656,7 @@ class _TradeScreenState extends State<TradeScreen> {
             ),
             const SizedBox(width: AppSpacing.lg),
             Text(
-              _formatNumber(_stopPrice.toInt()),
+              Formatters.formatNumber(_stopPrice.toInt()),
               style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
             ),
           ],
@@ -734,7 +735,7 @@ class _TradeScreenState extends State<TradeScreen> {
             ),
             const SizedBox(width: AppSpacing.lg),
             Text(
-              _formatNumber(_limitPrice.toInt()),
+              Formatters.formatNumber(_limitPrice.toInt()),
               style: AppTextStyles.labelLarge(color: AppColors.textPrimary),
             ),
           ],
@@ -953,27 +954,6 @@ class _TradeScreenState extends State<TradeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  String _formatPrice(double price) {
-    final parts = price.toStringAsFixed(1).split('.');
-    final integerPart = int.parse(parts[0]);
-    return '${integerPart.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.${parts[1]}';
-  }
-
-  String _formatValue(double value) {
-    final integerValue = value.toInt();
-    return integerValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
-  String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
     );
   }
 }

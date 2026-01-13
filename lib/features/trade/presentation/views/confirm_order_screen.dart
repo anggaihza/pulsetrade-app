@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/presentation/widgets/app_button.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
+import 'package:pulsetrade_app/core/utils/formatters.dart';
 import 'package:pulsetrade_app/l10n/gen/app_localizations.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_tabs.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_bottom_sheet.dart';
@@ -135,22 +136,23 @@ class ConfirmOrderScreen extends StatelessWidget {
         _buildDetailRow(label: l10n.orderType, value: _getOrderTypeLabel(l10n)),
         _buildDetailRow(
           label: l10n.numberOfShares,
-          value: _formatNumber(orderData.numberOfShares),
+          value: Formatters.formatNumber(orderData.numberOfShares),
         ),
         Container(height: 0.5, color: AppColors.surface),
         _buildDetailRow(
           label: l10n.sharesValue,
-          value: '~${_formatPrice(orderData.sharesValue)}',
+          value:
+              '~${Formatters.formatPriceWithCurrency(orderData.sharesValue)}',
         ),
         if (orderData.limitPrice != null)
           _buildDetailRow(
             label: l10n.limitPrice,
-            value: _formatPrice(orderData.limitPrice!),
+            value: Formatters.formatPriceWithCurrency(orderData.limitPrice!),
           ),
         if (orderData.stopPrice != null)
           _buildDetailRow(
             label: l10n.stopPrice,
-            value: _formatPrice(orderData.stopPrice!),
+            value: Formatters.formatPriceWithCurrency(orderData.stopPrice!),
           ),
         _buildDetailRow(
           label: l10n.expiration,
@@ -160,15 +162,15 @@ class ConfirmOrderScreen extends StatelessWidget {
           label: l10n.commission,
           value: orderData.commission == 0
               ? l10n.free
-              : _formatPrice(orderData.commission),
+              : Formatters.formatPriceWithCurrency(orderData.commission),
         ),
         _buildDetailRow(
           label: l10n.tax,
-          value: '~${_formatPrice(orderData.tax)}',
+          value: '~${Formatters.formatPriceWithCurrency(orderData.tax)}',
         ),
         _buildDetailRow(
           label: l10n.total,
-          value: '~${_formatPrice(orderData.total)}',
+          value: '~${Formatters.formatPriceWithCurrency(orderData.total)}',
           isTotal: true,
         ),
       ],
@@ -220,26 +222,5 @@ class ConfirmOrderScreen extends StatelessWidget {
       case ExpirationType.endOfDay:
         return l10n.endOfDay;
     }
-  }
-
-  String _formatPrice(double price) {
-    if (price < 1) {
-      return price.toStringAsFixed(4);
-    }
-    final parts = price.toStringAsFixed(2).split('.');
-    final integerPart = int.parse(parts[0]);
-    return '\$${integerPart.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.${parts[1]}';
-  }
-
-  String _formatNumber(int number) {
-    // For very small numbers, show as decimal
-    if (number < 1) {
-      return number.toStringAsFixed(2);
-    }
-    // For larger numbers, format with commas
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
   }
 }
