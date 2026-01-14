@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pulsetrade_app/core/theme/app_colors.dart';
 import 'package:pulsetrade_app/core/theme/typography.dart';
 import 'package:pulsetrade_app/features/wallet/presentation/providers/wallet_providers.dart';
 import 'package:pulsetrade_app/features/wallet/presentation/widgets/wallet_balance_card.dart';
 import 'package:pulsetrade_app/features/wallet/presentation/widgets/wallet_tab_bar.dart';
+import 'package:pulsetrade_app/features/wallet/presentation/views/deposit_screen.dart';
 
 class WalletScreen extends ConsumerWidget {
   const WalletScreen({super.key});
@@ -48,7 +50,9 @@ class WalletScreen extends ConsumerWidget {
                 interestText: '5.2% IR',
                 totalBalance: r'$2,120.55',
                 currency: 'USD',
-                onDeposit: () {},
+                onDeposit: () {
+                  context.go(DepositScreen.routePath);
+                },
                 onWithdraw: () {},
                 onEyeTap: () {},
                 onMenuTap: () {},
