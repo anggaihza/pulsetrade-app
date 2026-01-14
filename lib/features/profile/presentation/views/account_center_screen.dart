@@ -39,9 +39,7 @@ class AccountCenterScreen extends ConsumerWidget {
         ),
         title: Text(
           strings.accountCenter,
-          style: AppTextStyles.headlineLarge(
-            color: AppColors.textPrimary,
-          ).copyWith(fontSize: 20),
+          style: AppTextStyles.titleMedium(color: AppColors.textPrimary),
         ),
         centerTitle: true,
         elevation: 0,

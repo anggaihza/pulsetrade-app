@@ -30,6 +30,16 @@ class AppTextStyles {
   );
 
   // Title Styles
+  // title-medium: Font(family: "Montserrat", style: SemiBold, size: 20, lineHeight: 26)
+  static TextStyle titleMedium({Color? color}) => GoogleFonts.montserrat(
+    fontSize: 20, // ✅ 20px
+    fontWeight: FontWeight.w700,
+    height: 26 / 20, // lineHeight: 26 (clean & readable)
+    letterSpacing: 0,
+    color: color ?? AppColors.textPrimary,
+  );
+
+  // Title Styles
   // title-small: Font(family: "Montserrat", style: Bold, size: 16, lineHeight: 22)
   static TextStyle titleSmall({Color? color}) => GoogleFonts.montserrat(
     fontSize: 16,

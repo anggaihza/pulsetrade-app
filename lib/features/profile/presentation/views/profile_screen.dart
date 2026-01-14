@@ -40,9 +40,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         title: Text(
           strings.profile,
-          style: AppTextStyles.headlineLarge(
-            color: AppColors.textPrimary,
-          ).copyWith(fontSize: 20),
+          style: AppTextStyles.titleMedium(color: AppColors.textPrimary),
         ),
         centerTitle: true,
         elevation: 0,
@@ -234,7 +232,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           currentMode: currentMode,
                         );
                         if (selected != null) {
-                          await ref.read(tradingModeProvider.notifier).setTradingMode(selected);
+                          await ref
+                              .read(tradingModeProvider.notifier)
+                              .setTradingMode(selected);
                         }
                       },
                     ),
