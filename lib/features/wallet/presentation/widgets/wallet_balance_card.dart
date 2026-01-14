@@ -51,7 +51,7 @@ class WalletBalanceCard extends StatelessWidget {
                 height: 28,
                 child: Center(
                   child: Icon(
-                    Icons.more_vert,
+                    TablerIcons.dots_vertical,
                     size: 18,
                     color: AppColors.textPrimary,
                   ),
@@ -177,7 +177,7 @@ class _PrimaryButton extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           label,
