@@ -14,8 +14,10 @@ import 'package:pulsetrade_app/features/home/presentation/providers/video_contro
 import 'package:pulsetrade_app/features/home/presentation/widgets/bottom_navigation_bar.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/comments_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/feed_item_widget.dart';
+import 'package:pulsetrade_app/features/home/presentation/widgets/gesture_hint_overlay.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/home_feed_header.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/news_bottom_sheet.dart';
+import 'package:pulsetrade_app/features/home/presentation/providers/gesture_hint_provider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 
 /// Main home screen with TikTok-style video feed
@@ -146,6 +148,8 @@ Shared via PulseTrade 📱''';
   }
 
   Widget _buildFeedContent(BuildContext context, List<StockData> feedItems) {
+    final gestureHintShownAsync = ref.watch(gestureHintShownProvider);
+
     return Stack(
       children: [
         // PageView with swipeable content
@@ -225,6 +229,22 @@ Shared via PulseTrade 📱''';
               _isPageActive = isActive;
             });
           },
+        ),
+
+        // Gesture hint overlay (shown only on first entry)
+        gestureHintShownAsync.when(
+          data: (hasShown) {
+            if (hasShown) {
+              return const SizedBox.shrink();
+            }
+            return GestureHintOverlay(
+              onDismiss: () {
+                ref.read(gestureHintNotifierProvider).markAsShown();
+              },
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
         ),
       ],
     );
