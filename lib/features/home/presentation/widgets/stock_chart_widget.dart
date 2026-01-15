@@ -130,224 +130,318 @@ class _StockChartWidgetState extends State<StockChartWidget> {
       children: [
         // Chart area (takes remaining space, leaving room for Y-axis)
         Expanded(
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 7, left: 3),
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: (maxY - minY) / 5,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: AppColors.surface,
-                          strokeWidth: 0.5,
-                          dashArray: const [5, 5], // Dashed line
-                        );
-                      },
-                    ),
-                    titlesData: FlTitlesData(
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          interval: (widget.chartData.length / 10)
-                              .ceilToDouble(),
-                          getTitlesWidget: (value, meta) {
-                            final index = value.toInt();
-                            if (index < 0 || index >= widget.chartData.length) {
-                              return const SizedBox.shrink();
-                            }
-                            final date = widget.chartData[index].date;
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                '${date.day}',
-                                style: AppTextStyles.labelSmall(
-                                  color: AppColors.textLabel,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          },
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final chartWidth = constraints.maxWidth;
+              final chartHeight =
+                  constraints.maxHeight - 30; // Minus bottom axis
+
+              return Stack(
+                children: [
+                  // Draw grid lines behind the chart
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 7, left: 3),
+                      child: CustomPaint(
+                        painter: _ChartGridPainter(
+                          horizontalInterval: (maxY - minY) / 5,
+                          minY: minY - padding,
+                          maxY: maxY + padding,
+                          chartWidth:
+                              chartWidth - 3, // Account for left padding
+                          chartHeight:
+                              chartHeight - 7, // Account for top padding
                         ),
                       ),
                     ),
-                    borderData: FlBorderData(show: false),
-                    minY: minY - padding,
-                    maxY: maxY + padding,
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      touchCallback:
-                          (
-                            FlTouchEvent event,
-                            LineTouchResponse? touchResponse,
-                          ) {
-                            if (touchResponse == null ||
-                                touchResponse.lineBarSpots == null) {
-                              setState(() {});
-                              return;
-                            }
-                            setState(() {
-                              // Touch detected - could be used for future interactions
-                            });
-                          },
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipColor: (touchedSpot) => AppColors.warning,
-                        getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                          return touchedBarSpots.map((barSpot) {
-                            return LineTooltipItem(
-                              '\$${barSpot.y.toStringAsFixed(2)}',
-                              AppTextStyles.labelSmall(
-                                color: AppColors.background,
-                              ).copyWith(fontSize: 10),
-                            );
-                          }).toList();
-                        },
-                      ),
-                      getTouchedSpotIndicator:
-                          (LineChartBarData barData, List<int> spotIndexes) {
-                            return spotIndexes.map((spotIndex) {
-                              return TouchedSpotIndicatorData(
-                                FlLine(
-                                  color: AppColors.textLabel,
-                                  strokeWidth: 1,
-                                  dashArray: const [5, 5],
-                                ),
-                                FlDotData(
-                                  getDotPainter:
-                                      (spot, percent, barData, index) {
-                                        return FlDotCirclePainter(
-                                          radius: 6,
-                                          color: AppColors.warning,
-                                          strokeWidth: 2,
-                                          strokeColor: AppColors.textPrimary,
-                                        );
-                                      },
-                                ),
-                              );
-                            }).toList();
-                          },
-                    ),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: spots,
-                        isCurved: false, // Sharp line like stocks feature
-                        color: AppColors.primary,
-                        barWidth: 2,
-                        isStrokeCapRound: true,
-                        dotData: newsEventDotData,
-                        belowBarData: BarAreaData(
-                          show: true,
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.primary.withValues(
-                                alpha: 0.6,
-                              ), // Increased from 0.3 for better visibility
-                              AppColors.primary.withValues(alpha: 0.0),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
+                  ),
+                  // Chart on top
+                  Padding(
+                    padding: const EdgeInsets.only(top: 7, left: 3),
+                    child: LineChart(
+                      LineChartData(
+                        gridData: const FlGridData(
+                          show: false,
+                        ), // Disable grid - we draw it behind
+                        titlesData: FlTitlesData(
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          leftTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 30,
+                              interval: (widget.chartData.length / 10)
+                                  .ceilToDouble(),
+                              getTitlesWidget: (value, meta) {
+                                final index = value.toInt();
+                                if (index < 0 ||
+                                    index >= widget.chartData.length) {
+                                  return const SizedBox.shrink();
+                                }
+                                final date = widget.chartData[index].date;
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    '${date.day}',
+                                    style: AppTextStyles.labelSmall(
+                                      color: AppColors.textLabel,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Overlay custom vertical dashed lines and icons for news event markers
-              if (widget.newsEvents != null && widget.newsEvents!.isNotEmpty)
-                ...widget.newsEvents!.map((event) {
-                  if (event.chartIndex < 0 ||
-                      event.chartIndex >= widget.chartData.length) {
-                    return const SizedBox.shrink();
-                  }
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Get the exact spot from the chart data
-                      final spot = spots[event.chartIndex];
-
-                      // Chart drawing area (excluding axes)
-                      // No right axis reserved space now, Bottom axis: 30px
-                      final chartWidth = constraints.maxWidth;
-                      final chartHeight = constraints.maxHeight - 30;
-
-                      // Calculate X position (same as vertical line)
-                      final xPercent = spot.x / (widget.chartData.length - 1);
-                      final xPosition = xPercent * chartWidth;
-
-                      // Calculate Y position based on the actual value at this point
-                      // This matches exactly where the chart line is (center of circle)
-                      final yRange = (maxY + padding) - (minY - padding);
-                      final normalizedY = (spot.y - (minY - padding)) / yRange;
-                      final yPosition =
-                          (1 - normalizedY) *
-                          chartHeight; // Flip Y axis (0 is top)
-
-                      // Circle is 20px (10px radius) - smaller circle with less gap
-                      final circleCenterY = yPosition;
-                      final circleBottomY =
-                          circleCenterY + 10; // Bottom edge of circle
-                      final chartBottomY = chartHeight; // Bottom of chart area
-                      final lineHeight =
-                          chartBottomY -
-                          circleBottomY; // Height of line from circle bottom to chart bottom
-
-                      return Stack(
-                        children: [
-                          // Custom vertical dashed line from bottom of chart to bottom of circle
-                          if (lineHeight > 0)
-                            Positioned(
-                              left:
-                                  xPosition -
-                                  0.75, // Center the 1.5px line (0.75px on each side)
-                              top: circleBottomY,
-                              child: CustomPaint(
-                                size: Size(1.5, lineHeight),
-                                painter: _DashedLinePainter(
-                                  color: AppColors.warning,
-                                  strokeWidth: 1.5,
-                                ),
-                              ),
-                            ),
-                          // Tappable news marker (circle and icon) - larger tap area for better UX
-                          Positioned(
-                            left: xPosition - 15, // Larger tap area (30px)
-                            top: yPosition - 15,
-                            child: GestureDetector(
-                              onTap: () {
-                                widget.onNewsEventTap?.call(event);
+                        borderData: FlBorderData(show: false),
+                        minY: minY - padding,
+                        maxY: maxY + padding,
+                        lineTouchData: LineTouchData(
+                          enabled: true,
+                          touchCallback:
+                              (
+                                FlTouchEvent event,
+                                LineTouchResponse? touchResponse,
+                              ) {
+                                if (touchResponse == null ||
+                                    touchResponse.lineBarSpots == null) {
+                                  setState(() {});
+                                  return;
+                                }
+                                setState(() {
+                                  // Touch detected - could be used for future interactions
+                                });
                               },
-                              child: SizedBox(
-                                width: 30,
-                                height: 30,
-                                child: Center(
-                                  child: Icon(
-                                    TablerIcons.world, // Globe icon
-                                    size: 14, // Smaller icon to reduce gap
-                                    color: AppColors.warning, // Yellow icon
-                                  ),
-                                ),
+                          touchTooltipData: LineTouchTooltipData(
+                            getTooltipColor: (touchedSpot) => AppColors.warning,
+                            getTooltipItems:
+                                (List<LineBarSpot> touchedBarSpots) {
+                                  return touchedBarSpots.map((barSpot) {
+                                    return LineTooltipItem(
+                                      '\$${barSpot.y.toStringAsFixed(2)}',
+                                      AppTextStyles.labelSmall(
+                                        color: AppColors.background,
+                                      ).copyWith(fontSize: 10),
+                                    );
+                                  }).toList();
+                                },
+                          ),
+                          getTouchedSpotIndicator:
+                              (
+                                LineChartBarData barData,
+                                List<int> spotIndexes,
+                              ) {
+                                return spotIndexes.map((spotIndex) {
+                                  return TouchedSpotIndicatorData(
+                                    FlLine(
+                                      color: AppColors.textLabel,
+                                      strokeWidth: 1,
+                                      dashArray: const [5, 5],
+                                    ),
+                                    FlDotData(
+                                      getDotPainter:
+                                          (spot, percent, barData, index) {
+                                            return FlDotCirclePainter(
+                                              radius: 6,
+                                              color: AppColors.warning,
+                                              strokeWidth: 2,
+                                              strokeColor:
+                                                  AppColors.textPrimary,
+                                            );
+                                          },
+                                    ),
+                                  );
+                                }).toList();
+                              },
+                        ),
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: spots,
+                            isCurved: false, // Sharp line like stocks feature
+                            color: AppColors.primary,
+                            barWidth: 2,
+                            isStrokeCapRound: true,
+                            dotData: newsEventDotData,
+                            belowBarData: BarAreaData(
+                              show: true,
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppColors.primary.withValues(
+                                    alpha: 0.6,
+                                  ), // Increased from 0.3 for better visibility
+                                  AppColors.primary.withValues(alpha: 0.0),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  // Draw dashed border box (top, left, right dashed; bottom solid)
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 7, left: 3),
+                      child: CustomPaint(
+                        painter: _ChartBorderPainter(
+                          chartWidth: chartWidth - 3,
+                          chartHeight: chartHeight - 7,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 7, left: 3),
+                      child: CustomPaint(
+                        painter: _ChartBorderPainter(
+                          chartWidth: chartWidth - 3,
+                          chartHeight: chartHeight - 7,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Draw dashed border box (top, left, right dashed; bottom solid)
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 7, left: 3),
+                      child: CustomPaint(
+                        painter: _ChartBorderPainter(
+                          chartWidth: chartWidth - 3,
+                          chartHeight: chartHeight - 7,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Overlay custom vertical dashed lines and icons for news event markers
+                  if (widget.newsEvents != null &&
+                      widget.newsEvents!.isNotEmpty)
+                    ...widget.newsEvents!.map((event) {
+                      if (event.chartIndex < 0 ||
+                          event.chartIndex >= widget.chartData.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Get the exact spot from the chart data
+                          final spot = spots[event.chartIndex];
+
+                          // Chart drawing area (excluding axes and padding)
+                          // Account for padding: top: 7, left: 3
+                          final chartWidth =
+                              constraints.maxWidth -
+                              3; // Account for left padding
+                          final chartHeight =
+                              constraints.maxHeight -
+                              30 -
+                              7; // Account for bottom axis and top padding
+
+                          // Calculate X position (same as vertical line)
+                          // Add left padding offset
+                          final xPercent =
+                              spot.x / (widget.chartData.length - 1);
+                          final xPosition =
+                              3 + (xPercent * chartWidth); // Add left padding
+
+                          // Calculate Y position based on the actual value at this point
+                          // This matches exactly where the chart line is (center of circle)
+                          // Add top padding offset
+                          final yRange = (maxY + padding) - (minY - padding);
+                          final normalizedY =
+                              (spot.y - (minY - padding)) / yRange;
+                          final yPosition =
+                              7 +
+                              (1 - normalizedY) *
+                                  chartHeight; // Add top padding, flip Y axis
+
+                          // Circle is 17px diameter (8.5px radius) to match FlDotCirclePainter
+                          final circleRadius = 8.5;
+                          final circleCenterY = yPosition;
+                          final circleBottomY =
+                              circleCenterY +
+                              circleRadius; // Bottom edge of circle
+                          final chartBottomY =
+                              constraints.maxHeight -
+                              30; // Bottom of chart area (with padding)
+                          final lineHeight =
+                              chartBottomY -
+                              circleBottomY; // Height of line from circle bottom to chart bottom
+
+                          return Stack(
+                            children: [
+                              // Custom vertical dashed line from bottom of chart to bottom of circle
+                              if (lineHeight > 0)
+                                Positioned(
+                                  left:
+                                      xPosition -
+                                      0.75, // Center the 1.5px line (0.75px on each side)
+                                  top: circleBottomY,
+                                  child: CustomPaint(
+                                    size: Size(1.5, lineHeight),
+                                    painter: _DashedLinePainter(
+                                      color: AppColors.warning,
+                                      strokeWidth: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              // Tappable news marker (circle and icon) - centered
+                              Positioned(
+                                left:
+                                    xPosition -
+                                    circleRadius, // Center the circle
+                                top:
+                                    yPosition -
+                                    circleRadius, // Center the circle
+                                child: GestureDetector(
+                                  onTap: () {
+                                    widget.onNewsEventTap?.call(event);
+                                  },
+                                  child: SizedBox(
+                                    width: circleRadius * 2,
+                                    height: circleRadius * 2,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        // Draw circle border manually to match fl_chart's circle
+                                        CustomPaint(
+                                          size: Size(
+                                            circleRadius * 2,
+                                            circleRadius * 2,
+                                          ),
+                                          painter: _CircleBorderPainter(
+                                            radius: circleRadius,
+                                            strokeWidth: 2,
+                                            color: AppColors.warning,
+                                          ),
+                                        ),
+                                        // Globe icon centered
+                                        Icon(
+                                          TablerIcons.world,
+                                          size: 14,
+                                          color: AppColors.warning,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
-                    },
-                  );
-                }),
-            ],
+                    }),
+                ],
+              );
+            },
           ),
         ),
         // Y-axis labels on the right - extends to the right edge
@@ -425,6 +519,181 @@ class _DashedLinePainter extends CustomPainter {
     }
 
     return dashPath;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Custom painter for chart grid lines (drawn behind the chart)
+class _ChartGridPainter extends CustomPainter {
+  final double horizontalInterval;
+  final double minY;
+  final double maxY;
+  final double chartWidth;
+  final double chartHeight;
+
+  _ChartGridPainter({
+    required this.horizontalInterval,
+    required this.minY,
+    required this.maxY,
+    required this.chartWidth,
+    required this.chartHeight,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.surface
+      ..strokeWidth = 0.5
+      ..style = PaintingStyle.stroke;
+
+    // Draw horizontal dashed lines
+    final yRange = maxY - minY;
+    var currentY = minY;
+    while (currentY <= maxY) {
+      final normalizedY = (currentY - minY) / yRange;
+      final yPosition = (1 - normalizedY) * chartHeight; // Flip Y axis
+
+      final path = Path();
+      path.moveTo(0, yPosition);
+      path.lineTo(chartWidth, yPosition);
+
+      final dashPath = _dashPath(path, dashArray: const [5, 5]);
+      canvas.drawPath(dashPath, paint);
+
+      currentY += horizontalInterval;
+    }
+  }
+
+  Path _dashPath(Path path, {required List<double> dashArray}) {
+    final dashPath = Path();
+    final dashArrayLength = dashArray.length;
+    final metrics = path.computeMetrics();
+
+    for (final metric in metrics) {
+      var distance = 0.0;
+      var dashIndex = 0;
+
+      while (distance < metric.length) {
+        final isDash = dashIndex % 2 == 0;
+        final dashLength = dashArray[dashIndex % dashArrayLength];
+
+        if (isDash) {
+          dashPath.addPath(
+            metric.extractPath(distance, distance + dashLength),
+            Offset.zero,
+          );
+        }
+
+        distance += dashLength;
+        dashIndex++;
+      }
+    }
+
+    return dashPath;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Custom painter for chart border box
+/// Top, left, and right sides are dashed; bottom is solid
+class _ChartBorderPainter extends CustomPainter {
+  final double chartWidth;
+  final double chartHeight;
+
+  _ChartBorderPainter({required this.chartWidth, required this.chartHeight});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.surface
+      ..strokeWidth = 0.5
+      ..style = PaintingStyle.stroke;
+
+    // Draw top dashed line
+    final topPath = Path();
+    topPath.moveTo(0, 0);
+    topPath.lineTo(chartWidth, 0);
+    final topDashPath = _dashPath(topPath, dashArray: const [5, 5]);
+    canvas.drawPath(topDashPath, paint);
+
+    // Draw left dashed line
+    final leftPath = Path();
+    leftPath.moveTo(0, 0);
+    leftPath.lineTo(0, chartHeight);
+    final leftDashPath = _dashPath(leftPath, dashArray: const [5, 5]);
+    canvas.drawPath(leftDashPath, paint);
+
+    // Draw right dashed line
+    final rightPath = Path();
+    rightPath.moveTo(chartWidth, 0);
+    rightPath.lineTo(chartWidth, chartHeight);
+    final rightDashPath = _dashPath(rightPath, dashArray: const [5, 5]);
+    canvas.drawPath(rightDashPath, paint);
+
+    // Draw bottom solid line
+    final bottomPath = Path();
+    bottomPath.moveTo(0, chartHeight);
+    bottomPath.lineTo(chartWidth, chartHeight);
+    canvas.drawPath(bottomPath, paint);
+  }
+
+  Path _dashPath(Path path, {required List<double> dashArray}) {
+    final dashPath = Path();
+    final dashArrayLength = dashArray.length;
+    final metrics = path.computeMetrics();
+
+    for (final metric in metrics) {
+      var distance = 0.0;
+      var dashIndex = 0;
+
+      while (distance < metric.length) {
+        final isDash = dashIndex % 2 == 0;
+        final dashLength = dashArray[dashIndex % dashArrayLength];
+
+        if (isDash) {
+          dashPath.addPath(
+            metric.extractPath(distance, distance + dashLength),
+            Offset.zero,
+          );
+        }
+
+        distance += dashLength;
+        dashIndex++;
+      }
+    }
+
+    return dashPath;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Custom painter for circle border (for news event markers)
+class _CircleBorderPainter extends CustomPainter {
+  final double radius;
+  final double strokeWidth;
+  final Color color;
+
+  _CircleBorderPainter({
+    required this.radius,
+    required this.strokeWidth,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    canvas.drawCircle(center, radius, paint);
   }
 
   @override
