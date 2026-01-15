@@ -321,8 +321,8 @@ class _StockChartWidgetState extends State<StockChartWidget> {
                                 left: xPosition - circleRadius,
                                 top: yPosition - circleRadius,
                                 child: GestureDetector(
-                                  onTap: () =>
-                                      widget.onNewsEventTap?.call(event),
+                                  // onTap: () =>
+                                  //     widget.onNewsEventTap?.call(event),
                                   child: SizedBox(
                                     width: circleRadius * 2,
                                     height: circleRadius * 2,

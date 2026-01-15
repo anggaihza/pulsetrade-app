@@ -8,7 +8,6 @@ import 'package:pulsetrade_app/features/home/presentation/providers/feed_state_p
 import 'package:pulsetrade_app/features/home/presentation/providers/video_controller_provider.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/interaction_sidebar.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/stock_chart_widget.dart';
-import 'package:pulsetrade_app/features/home/presentation/widgets/stock_description.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/video_player_widget.dart';
 
 /// A single feed item widget displaying stock video, chart, and interactions.
@@ -87,10 +86,6 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
     );
 
     final registry = ref.read(videoControllerProvider);
-
-    final isChartExpanded = ref.watch(
-      feedStateProvider.select((state) => state.isChartExpanded),
-    );
 
     return GestureDetector(
       onHorizontalDragEnd: (details) {
@@ -189,136 +184,46 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Combined container (collapsed + expanded)
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
+                              // Chart container (always expanded)
+                              Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: isChartExpanded
-                                      ? AppColors.background.withValues(
-                                          alpha: 0.9,
-                                        )
-                                      : AppColors.background.withValues(
-                                          alpha: 0.5,
-                                        ),
+                                  color: AppColors.background.withValues(
+                                    alpha: 0.9,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // Ticker row
-                                    GestureDetector(
-                                      onTap: widget.onToggleChart,
-                                      child: AnimatedCrossFade(
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        sizeCurve: Curves.easeInOut,
-                                        firstCurve: Curves.easeInOut,
-                                        secondCurve: Curves.easeInOut,
-                                        crossFadeState: isChartExpanded
-                                            ? CrossFadeState.showFirst
-                                            : CrossFadeState.showSecond,
-                                        firstChild: Container(
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.only(
-                                            bottom: 4,
-                                          ),
-                                          decoration: const BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: AppColors.surface,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            stock.ticker,
-                                            style: AppTextStyles.headlineLarge(
-                                              color: AppColors.textPrimary,
-                                            ).copyWith(fontSize: 24),
-                                          ),
-                                        ),
-                                        secondChild: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              stock.ticker,
-                                              style:
-                                                  AppTextStyles.headlineLarge(
-                                                    color:
-                                                        AppColors.textPrimary,
-                                                  ).copyWith(fontSize: 24),
-                                            ),
-                                            Container(
-                                              width: 118,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: AppColors.surface,
-                                                  width: 0.5,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              clipBehavior: Clip.hardEdge,
-                                              alignment: Alignment.bottomCenter,
-                                              child: SizedBox(
-                                                width: 200,
-                                                height: 84.925,
-                                                child: StockChartWidget(
-                                                  chartData: chartData,
-                                                  isExpanded: false,
-                                                  newsEvents: newsEvents,
-                                                  onNewsEventTap: (event) {
-                                                    widget.onNewsEventTap(
-                                                      event,
-                                                      stock.ticker,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: Text(
+                                        stock.ticker,
+                                        style: AppTextStyles.titleMedium(
+                                          color: AppColors.textPrimary,
+                                        ).copyWith(height: 0),
                                       ),
                                     ),
 
-                                    // Expanded chart
-                                    AnimatedSize(
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      curve: Curves.easeInOut,
-                                      child: isChartExpanded
-                                          ? Column(
-                                              children: [
-                                                const SizedBox(height: 8),
-                                                SizedBox(
-                                                  width: double.infinity,
-                                                  height: 164.5,
-                                                  child: StockChartWidget(
-                                                    chartData: chartData,
-                                                    isExpanded: true,
-                                                    newsEvents: newsEvents,
-                                                    onNewsEventTap: (event) {
-                                                      widget.onNewsEventTap(
-                                                        event,
-                                                        stock.ticker,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : const SizedBox.shrink(),
-                                    ),
-
+                                    // Chart (always expanded, more compact)
                                     const SizedBox(height: 8),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 120,
+                                      child: StockChartWidget(
+                                        chartData: chartData,
+                                        isExpanded: true,
+                                        newsEvents: newsEvents,
+                                        onNewsEventTap: (event) {
+                                          widget.onNewsEventTap(
+                                            event,
+                                            stock.ticker,
+                                          );
+                                        },
+                                      ),
+                                    ),
 
                                     // Price & change
                                     Row(
@@ -341,7 +246,7 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                       ],
                                     ),
 
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 4),
 
                                     // Sentiment bar
                                     Column(
