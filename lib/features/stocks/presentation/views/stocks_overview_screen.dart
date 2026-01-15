@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -397,44 +396,56 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // ✅ ini kuncinya
             children: [
               Text('My Investment', style: AppTextStyles.titleSmall()),
-              const SizedBox(height: 16),
-              // Donut chart
-              _buildInvestmentDonut(
-                progress: 0.22,
-                sharesText: '21.597 shares',
-                valueText: '\$1,809.63',
-              ),
-              const SizedBox(height: 16),
-              // Investment details
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.errorDarker,
-                  borderRadius: BorderRadius.circular(4),
+              const SizedBox(height: 32),
+
+              Center(
+                // optional: kalau donut harus tetap center
+                child: _buildInvestmentDonut(
+                  progress: 0.22,
+                  sharesText: '21.597 shares',
+                  valueText: '\$1,809.63',
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
-                        shape: BoxShape.circle,
+              ),
+
+              const SizedBox(height: 20),
+
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.errorDarker,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.error,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '\$0.50 (-2.5%)',
-                      style: AppTextStyles.labelSmall(color: AppColors.error),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '\$0.50 (-2.5%)',
+                        style: AppTextStyles.labelSmall(color: AppColors.error),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
               const SizedBox(height: 16),
-              // Investment stats
+
+              // Investment stats (ini memang sudah kiri-kanan)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -463,6 +474,7 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
             ],
           ),
         ),
+
         const SizedBox(height: 16),
         // Pending Order Section
         Column(
@@ -471,13 +483,14 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
             Text('Pending Order', style: AppTextStyles.titleSmall()),
             const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     children: [
@@ -497,23 +510,35 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Text('\$200.000', style: AppTextStyles.labelMedium()),
+                      const SizedBox(width: 12),
+                      Text(
+                        '\$200.000',
+                        style: AppTextStyles.labelMedium(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('MARKET', style: AppTextStyles.labelSmall()),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 16,
-                          color: AppColors.textPrimary,
+                      Text(
+                        'MARKET',
+                        style: AppTextStyles.labelSmall(
+                          color: AppColors.textLabel,
                         ),
-                        onPressed: () {
+                      ),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: () {
                           // TODO: Cancel order
                         },
+                        child: const Icon(
+                          TablerIcons.square_rounded_x_filled,
+                          color: AppColors.textSecondary,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -603,31 +628,4 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
       ),
     );
   }
-}
-
-/// Creates pie chart sections for investment donut chart
-List<PieChartSectionData> _createInvestmentSections() {
-  // Investment segment (blue) - approximately 22% based on Figma design
-  // The blue segment appears in the upper right portion
-  const investmentValue = 22.0;
-  const remainingValue = 78.0;
-
-  return [
-    // Investment segment (blue) - starts from top
-    PieChartSectionData(
-      value: investmentValue,
-      color: AppColors.primary,
-      radius: 89.7575, // Half of 179.515
-      showTitle: false,
-      borderSide: BorderSide.none,
-    ),
-    // Remaining segment (gray)
-    PieChartSectionData(
-      value: remainingValue,
-      color: AppColors.surface,
-      radius: 89.7575,
-      showTitle: false,
-      borderSide: BorderSide.none,
-    ),
-  ];
 }
