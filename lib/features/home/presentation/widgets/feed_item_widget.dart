@@ -71,6 +71,7 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
     final stock = widget.feedItem.stock;
     final chartData = widget.feedItem.chartData;
     final newsEvents = widget.feedItem.newsEvents;
+
     final isLiked = ref.watch(
       feedStateProvider.select(
         (state) => state.likedTickers.contains(stock.ticker),
@@ -84,22 +85,26 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
     final currentIndex = ref.watch(
       feedStateProvider.select((state) => state.currentFeedIndex),
     );
+
     final registry = ref.read(videoControllerProvider);
+
     final isChartExpanded = ref.watch(
       feedStateProvider.select((state) => state.isChartExpanded),
     );
 
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity != null) {
-          // Swipe left to navigate to trade screen
-          if (details.primaryVelocity! < -500) {
-            widget.onNavigateToTrade();
-          }
-          // Swipe right to navigate to stocks screen
-          else if (details.primaryVelocity! > 500) {
-            widget.onNavigateToStocks?.call();
-          }
+        if (details.primaryVelocity == null) return;
+
+        // Swipe left to navigate to trade screen
+        if (details.primaryVelocity! < -500) {
+          widget.onNavigateToTrade();
+          return;
+        }
+
+        // Swipe right to navigate to stocks screen
+        if (details.primaryVelocity! > 500) {
+          widget.onNavigateToStocks?.call();
         }
       },
       child: Stack(
@@ -111,51 +116,41 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
               isPlaying: widget.isPageActive && widget.index == currentIndex,
               onProgressUpdate: (progress) {
                 // Only update progress for the current video and when not seeking
-                if (widget.index == currentIndex &&
-                    mounted &&
-                    !widget.isSeeking) {
-                  // Verify this progress update is from the current video's controller
-                  final currentController = registry.controllerForIndex(
-                    currentIndex,
-                  );
-                  if (currentController != null &&
-                      currentController.value.isInitialized) {
-                    // If we recently seeked, ignore progress updates that are too different
-                    // This prevents old progress updates from overriding the seek position
-                    if (widget.lastSeekTime != null &&
-                        DateTime.now().difference(widget.lastSeekTime!) <
-                            const Duration(milliseconds: 500)) {
-                      if (widget.lastSeekedProgress != null) {
-                        final progressDiff =
-                            (progress - widget.lastSeekedProgress!).abs();
-                        // If progress is significantly different from seeked position, ignore it
-                        if (progressDiff > 0.1) {
-                          return; // Ignore this update
-                        }
-                      }
-                    }
-                    // Update immediately without deferring to avoid delays
-                    widget.onVideoProgressChanged(progress);
+                if (widget.index != currentIndex) return;
+                if (!mounted) return;
+                if (widget.isSeeking) return;
+
+                final currentController = registry.controllerForIndex(
+                  currentIndex,
+                );
+
+                if (currentController == null) return;
+                if (!currentController.value.isInitialized) return;
+
+                // If we recently seeked, ignore progress updates that are too different
+                if (widget.lastSeekTime != null &&
+                    DateTime.now().difference(widget.lastSeekTime!) <
+                        const Duration(milliseconds: 500)) {
+                  if (widget.lastSeekedProgress != null) {
+                    final diff = (progress - widget.lastSeekedProgress!).abs();
+                    if (diff > 0.1) return;
                   }
                 }
+
+                widget.onVideoProgressChanged(progress);
               },
               onControllerReady: (controller) {
-                // Track video controller for this specific video index
-                if (controller != null) {
-                  // Defer setState to avoid calling during widget tree finalization
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      registry.setController(widget.index, controller);
-                    }
-                  });
-                }
-                // Note: We don't handle controller == null here to avoid setState during disposal
-                // Controllers are cleaned up when video URL changes or page changes
+                if (controller == null) return;
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  registry.setController(widget.index, controller);
+                });
               },
             ),
           ),
 
-          // Gradient overlay for better text readability (subtle, bottom only)
+          // Gradient overlay (bottom only)
           Positioned.fill(
             child: IgnorePointer(
               child: DecoratedBox(
@@ -180,45 +175,42 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
           SafeArea(
             child: Column(
               children: [
-                // Spacer for floating header
                 const SizedBox(height: 80),
 
-                // Main content area
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // Left side - Combined stock info/chart and description
+                        // LEFT SIDE
                         Expanded(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Single unified container for both expanded and collapsed states
-                              GestureDetector(
-                                onTap: widget.onToggleChart,
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: isChartExpanded
-                                        ? AppColors.background.withValues(
-                                            alpha: 0.9,
-                                          )
-                                        : AppColors.background.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Ticker row (with mini chart when collapsed) - Animated
-                                      AnimatedCrossFade(
+                              // Combined container (collapsed + expanded)
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isChartExpanded
+                                      ? AppColors.background.withValues(
+                                          alpha: 0.9,
+                                        )
+                                      : AppColors.background.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Ticker row
+                                    GestureDetector(
+                                      onTap: widget.onToggleChart,
+                                      child: AnimatedCrossFade(
                                         duration: const Duration(
                                           milliseconds: 300,
                                         ),
@@ -254,7 +246,6 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [
-                                            // Ticker text (no border)
                                             Text(
                                               stock.ticker,
                                               style:
@@ -263,8 +254,6 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                                         AppColors.textPrimary,
                                                   ).copyWith(fontSize: 24),
                                             ),
-
-                                            // Mini chart with border container
                                             Container(
                                               width: 118,
                                               height: 50,
@@ -297,124 +286,126 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                           ],
                                         ),
                                       ),
+                                    ),
 
-                                      // Chart (only when expanded) - Animated
-                                      AnimatedSize(
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        curve: Curves.easeInOut,
-                                        child: isChartExpanded
-                                            ? Column(
-                                                children: [
-                                                  const SizedBox(height: 8),
-                                                  SizedBox(
-                                                    width: double.infinity,
-                                                    height: 164.5,
-                                                    child: StockChartWidget(
-                                                      chartData: chartData,
-                                                      isExpanded: true,
-                                                      newsEvents: newsEvents,
-                                                      onNewsEventTap: (event) {
-                                                        widget.onNewsEventTap(
-                                                          event,
-                                                          stock.ticker,
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : const SizedBox.shrink(),
+                                    // Expanded chart
+                                    AnimatedSize(
+                                      duration: const Duration(
+                                        milliseconds: 300,
                                       ),
-
-                                      const SizedBox(height: 8),
-
-                                      // Price and change (always visible, full width)
-                                      Row(
-                                        children: [
-                                          Text(
-                                            stock.price.toStringAsFixed(2),
-                                            style: AppTextStyles.labelLarge(
-                                              color: AppColors.textPrimary,
-                                            ).copyWith(fontSize: 14),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '${stock.change >= 0 ? '+' : ''}${stock.change.toStringAsFixed(2)}',
-                                            style: AppTextStyles.labelSmall(
-                                              color: stock.isPositive
-                                                  ? AppColors.success
-                                                  : AppColors.error,
-                                            ).copyWith(fontSize: 10),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-
-                                      // Sentiment bar (always visible, full width)
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            height: 4,
-                                            decoration: BoxDecoration(
-                                              color: AppColors.surface,
-                                              borderRadius:
-                                                  BorderRadius.circular(2),
-                                            ),
-                                            child: Row(
+                                      curve: Curves.easeInOut,
+                                      child: isChartExpanded
+                                          ? Column(
                                               children: [
-                                                Expanded(
-                                                  flex:
-                                                      (stock.sentimentScore *
-                                                              100)
-                                                          .round(),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.success,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            1,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex:
-                                                      ((1 - stock.sentimentScore) *
-                                                              100)
-                                                          .round(),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.error,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            1,
-                                                          ),
-                                                    ),
+                                                const SizedBox(height: 8),
+                                                SizedBox(
+                                                  width: double.infinity,
+                                                  height: 164.5,
+                                                  child: StockChartWidget(
+                                                    chartData: chartData,
+                                                    isExpanded: true,
+                                                    newsEvents: newsEvents,
+                                                    onNewsEventTap: (event) {
+                                                      widget.onNewsEventTap(
+                                                        event,
+                                                        stock.ticker,
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               ],
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+
+                                    const SizedBox(height: 8),
+
+                                    // Price & change
+                                    Row(
+                                      children: [
+                                        Text(
+                                          stock.price.toStringAsFixed(2),
+                                          style: AppTextStyles.labelLarge(
+                                            color: AppColors.textPrimary,
+                                          ).copyWith(fontSize: 14),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '${stock.change >= 0 ? '+' : ''}${stock.change.toStringAsFixed(2)}',
+                                          style: AppTextStyles.labelSmall(
+                                            color: stock.isPositive
+                                                ? AppColors.success
+                                                : AppColors.error,
+                                          ).copyWith(fontSize: 10),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 10),
+
+                                    // Sentiment bar
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: 4,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.surface,
+                                            borderRadius: BorderRadius.circular(
+                                              2,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            stock.sentiment,
-                                            style: AppTextStyles.bodySmall(
-                                              color: AppColors.textLabel,
-                                            ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex:
+                                                    (stock.sentimentScore * 100)
+                                                        .round(),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.success,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          1,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex:
+                                                    ((1 - stock.sentimentScore) *
+                                                            100)
+                                                        .round(),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.error,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          1,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          stock.sentiment,
+                                          style: AppTextStyles.bodySmall(
+                                            color: AppColors.textLabel,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
+
                               const SizedBox(height: 16),
 
-                              // Description
+                              // Description (outside container)
                               StockDescription(
                                 title: stock.newsTitle,
                                 description: stock.newsDescription,
@@ -424,9 +415,10 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                             ],
                           ),
                         ),
+
                         const SizedBox(width: 16),
 
-                        // Right side - Interaction buttons
+                        // RIGHT SIDE
                         InteractionSidebar(
                           stats: stock.stats,
                           isLiked: isLiked,
@@ -442,9 +434,7 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                 .read(feedStateProvider.notifier)
                                 .toggleBookmark(stock.ticker);
                           },
-                          onShare: () {
-                            widget.onShare(stock);
-                          },
+                          onShare: () => widget.onShare(stock),
                         ),
                       ],
                     ),
@@ -461,39 +451,39 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                   child: VideoProgressBar(
                     key: ValueKey('progress_$currentIndex'),
                     progress: widget.videoProgress,
-                    onDragStart: () {
-                      widget.onSeekingChanged(true);
-                    },
+                    onDragStart: () => widget.onSeekingChanged(true),
                     onDragEnd: () {
                       Future.delayed(const Duration(milliseconds: 100), () {
-                        if (mounted) {
-                          widget.onSeekingChanged(false);
-                        }
+                        if (!mounted) return;
+                        widget.onSeekingChanged(false);
                       });
                     },
                     onSeek: (progress) {
                       final controller = registry.controllerForIndex(
                         currentIndex,
                       );
-                      if (controller != null &&
-                          controller.value.isInitialized &&
-                          controller.value.duration.inMilliseconds > 0) {
-                        final duration = controller.value.duration;
-                        final position = duration * progress;
-                        controller.seekTo(position);
-                        widget.onVideoProgressChanged(progress);
-                        widget.onLastSeekedProgressChanged(progress);
-                        widget.onLastSeekTimeChanged(DateTime.now());
-                        Future.delayed(const Duration(milliseconds: 500), () {
-                          if (mounted) {
-                            widget.onSeekingChanged(false);
-                            widget.onLastSeekTimeChanged(null);
-                            widget.onLastSeekedProgressChanged(null);
-                          }
-                        });
-                      } else {
+
+                      if (controller == null ||
+                          !controller.value.isInitialized ||
+                          controller.value.duration.inMilliseconds <= 0) {
                         widget.onSeekingChanged(false);
+                        return;
                       }
+
+                      final duration = controller.value.duration;
+                      final position = duration * progress;
+
+                      controller.seekTo(position);
+                      widget.onVideoProgressChanged(progress);
+                      widget.onLastSeekedProgressChanged(progress);
+                      widget.onLastSeekTimeChanged(DateTime.now());
+
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        if (!mounted) return;
+                        widget.onSeekingChanged(false);
+                        widget.onLastSeekTimeChanged(null);
+                        widget.onLastSeekedProgressChanged(null);
+                      });
                     },
                   ),
                 ),
