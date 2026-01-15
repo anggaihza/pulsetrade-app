@@ -22,6 +22,7 @@ class MarketOrderView extends StatelessWidget {
     required this.numberOfShares,
     required this.valueInputType,
     required this.balance,
+    required this.stockPrice,
     required this.onValueChanged,
     required this.onInputTypeChanged,
   });
@@ -31,6 +32,7 @@ class MarketOrderView extends StatelessWidget {
   final int numberOfShares;
   final ValueInputType valueInputType;
   final double balance;
+  final double stockPrice;
   final ValueChanged<double> onValueChanged;
   final ValueChanged<ValueInputType> onInputTypeChanged;
 
@@ -47,15 +49,23 @@ class MarketOrderView extends StatelessWidget {
           maxValue: maxValue,
           numberOfShares: numberOfShares,
           inputType: valueInputType,
+          stockPrice: stockPrice,
           onInputTypeChanged: onInputTypeChanged,
+          onValueChanged: onValueChanged,
         ),
         const SizedBox(height: AppSpacing.md),
         // Slider for value
-        AppSlider(
-          value: value,
-          min: 0,
-          max: maxValue,
-          onChanged: onValueChanged,
+        GestureDetector(
+          // Unfocus TextField when tapping on slider
+          onTapDown: (_) {
+            FocusScope.of(context).unfocus();
+          },
+          child: AppSlider(
+            value: value,
+            min: 0,
+            max: maxValue,
+            onChanged: onValueChanged,
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         // Value and Balance
@@ -72,4 +82,3 @@ class MarketOrderView extends StatelessWidget {
     );
   }
 }
-

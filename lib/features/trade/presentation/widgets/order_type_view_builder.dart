@@ -63,15 +63,23 @@ class OrderTypeViewBuilder extends StatelessWidget {
           maxValue: maxValue,
           numberOfShares: shares,
           inputType: valueInputType,
+          stockPrice: stockData.price,
           onInputTypeChanged: onInputTypeChanged,
+          onValueChanged: onValueChanged,
         ),
         const SizedBox(height: AppSpacing.md),
         // Slider for value
-        AppSlider(
-          value: value,
-          min: 0,
-          max: maxValue,
-          onChanged: onValueChanged,
+        GestureDetector(
+          // Unfocus TextField when tapping on slider
+          onTapDown: (_) {
+            FocusScope.of(context).unfocus();
+          },
+          child: AppSlider(
+            value: value,
+            min: 0,
+            max: maxValue,
+            onChanged: onValueChanged,
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         // Value and Balance

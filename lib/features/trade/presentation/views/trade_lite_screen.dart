@@ -85,6 +85,7 @@ class _TradeLiteScreenState extends ConsumerState<TradeLiteScreen> {
                       numberOfShares: shares,
                       valueInputType: _valueInputType,
                       balance: _balance,
+                      stockPrice: stockData.price,
                       onValueChanged: (newValue) {
                         setState(() {
                           _value = newValue;
