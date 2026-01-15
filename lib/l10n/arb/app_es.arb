@@ -108,8 +108,8 @@
       }
     }
   },
-  "swipeRightForCharts": "Desliza a la derecha para ver gráficos",
-  "swipeLeftToBuy": "Desliza a la izquierda para comprar",
+  "swipeRightForCharts": "Desliza a la derecha para ver acciones",
+  "swipeLeftToBuy": "Desliza a la izquierda para operar",
   "buy": "COMPRAR",
   "chart": "GRÁFICO",
   "profile": "Perfil",

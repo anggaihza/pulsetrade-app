@@ -19,6 +19,7 @@ import 'package:pulsetrade_app/features/home/presentation/widgets/home_feed_head
 import 'package:pulsetrade_app/features/home/presentation/widgets/news_bottom_sheet.dart';
 import 'package:pulsetrade_app/features/home/presentation/providers/gesture_hint_provider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/views/stocks_overview_screen.dart';
 
 /// Main home screen with TikTok-style video feed
 class HomeScreen extends ConsumerStatefulWidget {
@@ -74,6 +75,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   void _navigateToTradeScreen(StockData stock) {
     context.push('${TradeScreen.routePath}?ticker=${stock.ticker}');
+  }
+
+  void _navigateToStocksScreen(StockData stock) {
+    context.push('${StocksOverviewScreen.routePath}?ticker=${stock.ticker}');
   }
 
   void _toggleChart() {
@@ -184,6 +189,8 @@ Shared via PulseTrade 📱''';
                 lastSeekedProgress: _lastSeekedProgress,
                 lastSeekTime: _lastSeekTime,
                 onNavigateToTrade: () => _navigateToTradeScreen(feedItem.stock),
+                // onNavigateToStocks: () =>
+                //     _navigateToStocksScreen(feedItem.stock),
                 onToggleChart: _toggleChart,
                 onDescriptionMoreToggle: _onDescriptionMoreToggle,
                 onShowComments: _showComments,

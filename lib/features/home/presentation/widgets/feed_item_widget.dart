@@ -28,6 +28,7 @@ class FeedItemWidget extends ConsumerStatefulWidget {
   final double? lastSeekedProgress;
   final DateTime? lastSeekTime;
   final VoidCallback onNavigateToTrade;
+  final VoidCallback? onNavigateToStocks;
   final VoidCallback onToggleChart;
   final VoidCallback onDescriptionMoreToggle;
   final void Function(String ticker) onShowComments;
@@ -48,6 +49,7 @@ class FeedItemWidget extends ConsumerStatefulWidget {
     this.lastSeekedProgress,
     this.lastSeekTime,
     required this.onNavigateToTrade,
+    this.onNavigateToStocks,
     required this.onToggleChart,
     required this.onDescriptionMoreToggle,
     required this.onShowComments,
@@ -89,10 +91,15 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
 
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        // Swipe left to navigate to trade screen
-        if (details.primaryVelocity != null &&
-            details.primaryVelocity! < -500) {
-          widget.onNavigateToTrade();
+        if (details.primaryVelocity != null) {
+          // Swipe left to navigate to trade screen
+          if (details.primaryVelocity! < -500) {
+            widget.onNavigateToTrade();
+          }
+          // Swipe right to navigate to stocks screen
+          else if (details.primaryVelocity! > 500) {
+            widget.onNavigateToStocks?.call();
+          }
         }
       },
       child: Stack(
@@ -119,8 +126,8 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                         DateTime.now().difference(widget.lastSeekTime!) <
                             const Duration(milliseconds: 500)) {
                       if (widget.lastSeekedProgress != null) {
-                        final progressDiff = (progress - widget.lastSeekedProgress!)
-                            .abs();
+                        final progressDiff =
+                            (progress - widget.lastSeekedProgress!).abs();
                         // If progress is significantly different from seeked position, ignore it
                         if (progressDiff > 0.1) {
                           return; // Ignore this update
@@ -252,9 +259,9 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                               stock.ticker,
                                               style:
                                                   AppTextStyles.headlineLarge(
-                                                color:
-                                                    AppColors.textPrimary,
-                                              ).copyWith(fontSize: 24),
+                                                    color:
+                                                        AppColors.textPrimary,
+                                                  ).copyWith(fontSize: 24),
                                             ),
 
                                             // Mini chart with border container
@@ -497,4 +504,3 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
     );
   }
 }
-

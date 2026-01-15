@@ -108,8 +108,8 @@
       }
     }
   },
-  "swipeRightForCharts": "Swipe right for charts",
-  "swipeLeftToBuy": "Swipe left to buy",
+  "swipeRightForCharts": "Swipe right for stocks",
+  "swipeLeftToBuy": "Swipe left to trade",
   "buy": "BUY",
   "chart": "CHART",
   "profile": "Profile",

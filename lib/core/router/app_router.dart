@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pulsetrade_app/features/trade/domain/models/order_confirmation_data.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_lite_screen.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/views/stocks_overview_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/choose_bucket_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/confirm_order_screen.dart';
 import 'package:pulsetrade_app/features/trade/presentation/providers/trading_mode_provider.dart';
@@ -120,6 +121,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final ticker = state.uri.queryParameters['ticker'];
           return TradeLiteScreen(ticker: ticker);
+        },
+      ),
+      GoRoute(
+        path: StocksOverviewScreen.routePath,
+        name: StocksOverviewScreen.routeName,
+        builder: (context, state) {
+          final ticker = state.uri.queryParameters['ticker'];
+          return StocksOverviewScreen(ticker: ticker);
         },
       ),
       GoRoute(
