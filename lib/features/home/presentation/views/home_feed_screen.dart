@@ -73,12 +73,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     });
   }
 
-  void _navigateToTradeScreen(StockData stock) {
-    context.push('${TradeScreen.routePath}?ticker=${stock.ticker}');
+  void _navigateToTradeScreen(StockData stock) async {
+    final currentIndex = ref.read(feedStateProvider).currentFeedIndex;
+    final registry = ref.read(videoControllerProvider);
+    // Pause video while navigating away from home
+    final controller = registry.controllerForIndex(currentIndex);
+    controller?.pause();
+    setState(() {
+      _isPageActive = false;
+    });
+
+    await context.push('${TradeScreen.routePath}?ticker=${stock.ticker}');
+
+    if (!mounted) return;
+
+    // Resume video when coming back to home
+    setState(() {
+      _isPageActive = true;
+    });
+    final currentController = registry.controllerForIndex(currentIndex);
+    if (currentController != null && currentController.value.isInitialized) {
+      currentController.play();
+    }
   }
 
-  void _navigateToStocksScreen(StockData stock) {
-    context.push('${StocksOverviewScreen.routePath}?ticker=${stock.ticker}');
+  void _navigateToStocksScreen(StockData stock) async {
+    final currentIndex = ref.read(feedStateProvider).currentFeedIndex;
+    final registry = ref.read(videoControllerProvider);
+    // Pause video while navigating away from home
+    final controller = registry.controllerForIndex(currentIndex);
+    controller?.pause();
+    setState(() {
+      _isPageActive = false;
+    });
+
+    await context.push(
+      '${StocksOverviewScreen.routePath}?ticker=${stock.ticker}',
+    );
+
+    if (!mounted) return;
+
+    // Resume video when coming back to home
+    setState(() {
+      _isPageActive = true;
+    });
+    final currentController = registry.controllerForIndex(currentIndex);
+    if (currentController != null && currentController.value.isInitialized) {
+      currentController.play();
+    }
   }
 
   void _toggleChart() {
@@ -189,8 +231,8 @@ Shared via PulseTrade 📱''';
                 lastSeekedProgress: _lastSeekedProgress,
                 lastSeekTime: _lastSeekTime,
                 onNavigateToTrade: () => _navigateToTradeScreen(feedItem.stock),
-                // onNavigateToStocks: () =>
-                //     _navigateToStocksScreen(feedItem.stock),
+                onNavigateToStocks: () =>
+                    _navigateToStocksScreen(feedItem.stock),
                 onToggleChart: _toggleChart,
                 onDescriptionMoreToggle: _onDescriptionMoreToggle,
                 onShowComments: _showComments,
