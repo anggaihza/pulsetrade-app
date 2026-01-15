@@ -9,6 +9,10 @@ import 'package:pulsetrade_app/features/home/presentation/providers/home_feed_pr
 import 'package:pulsetrade_app/features/stocks/presentation/providers/stocks_chart_data_provider.dart';
 import 'package:pulsetrade_app/features/stocks/presentation/widgets/stocks_chart_widget.dart';
 import 'package:pulsetrade_app/features/stocks/presentation/widgets/stocks_news_list.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/widgets/key_ratios_widget.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/widgets/dividend_info_widget.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/widgets/financials_widget.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/providers/stock_info_provider.dart';
 import 'package:pulsetrade_app/features/buckets/presentation/widgets/buckets_grid.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/bottom_navigation_bar.dart';
@@ -374,7 +378,7 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
       case 'Overview':
         return _buildOverviewContent(stock);
       case 'Info':
-        return _buildInfoContent();
+        return _buildInfoContent(stock);
       case 'News':
         return _buildNewsContent(stock);
       case 'Buckets':
@@ -602,11 +606,39 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
     );
   }
 
-  Widget _buildInfoContent() {
-    return const Center(
-      child: Text(
-        'Info content coming soon',
-        style: TextStyle(color: AppColors.textSecondary),
+  Widget _buildInfoContent(StockData stock) {
+    final stockInfoAsync = ref.watch(stockInfoProvider(stock.ticker));
+
+    return stockInfoAsync.when(
+      data: (stockInfo) => SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Key Ratios
+            KeyRatiosWidget(keyRatios: stockInfo.keyRatios),
+            const SizedBox(height: 16),
+            // Dividend Info
+            DividendInfoWidget(dividendInfo: stockInfo.dividendInfo),
+            const SizedBox(height: 16),
+            // Financials
+            FinancialsWidget(financials: stockInfo.financials),
+          ],
+        ),
+      ),
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (error, stackTrace) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Error loading stock info: $error',
+            style: AppTextStyles.bodyMedium(color: AppColors.error),
+          ),
+        ),
       ),
     );
   }
