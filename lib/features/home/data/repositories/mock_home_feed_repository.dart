@@ -237,27 +237,55 @@ class MockHomeFeedRepository implements HomeFeedRepository {
   }
 
   Map<String, List<ChartDataPoint>> _generateMockChartData() {
+    // Chart data from Figma design (ConfigAndData-Line-Don't remove!)
+    // Raw data is normalized 0-100, we'll map it to a price range
+    final List<int> figmaChartData = [
+      0, 0, 4, 11, 9, 8, 8, 8, 8, 6, 6, 7, 6, 10, 8, 16, 15, 19, 19, 26, 27,
+      31, 30, 36, 39, 47, 53, 59, 58, 56, 60, 63, 61, 61, 59, 60, 60, 59, 62,
+      67, 69, 73, 72, 70, 72, 77, 81, 81, 81, 83, 78, 79, 80, 81, 83, 84, 82,
+      78, 74, 76, 76, 72, 67, 64, 64, 65, 66, 63, 64, 61, 62, 56, 54, 46, 47,
+      49, 48, 42, 38, 39, 39, 41, 41, 42, 37, 31, 26, 27, 25, 20, 21, 22, 15,
+      16, 16, 17, 13, 9, 10, 7,
+    ];
+
+    // Map Figma data (0-100) to price ranges for each stock
+    // TSLA: Map to range 100-200 (matching Figma Y-axis 0-100)
+    final tslaBasePrice = 100.0;
+    final tslaPriceRange = 100.0;
+    
+    // NVDA: Map to range 350-450
+    final nvdaBasePrice = 350.0;
+    final nvdaPriceRange = 100.0;
+    
+    // MSFT: Map to range 300-400
+    final msftBasePrice = 300.0;
+    final msftPriceRange = 100.0;
+
     return {
-      'TSLA': List.generate(30, (i) {
+      'TSLA': figmaChartData.asMap().entries.map((entry) {
+        final normalizedValue = entry.value / 100.0;
+        final price = tslaBasePrice + (normalizedValue * tslaPriceRange);
         return ChartDataPoint(
-          date: DateTime.now().subtract(Duration(days: 30 - i)),
-          value: 150 + (i * 2.0) + (i % 5 * 5),
+          date: DateTime.now().subtract(Duration(days: figmaChartData.length - 1 - entry.key)),
+          value: price,
         );
-      }),
-      'NVDA': List.generate(30, (i) {
+      }).toList(),
+      'NVDA': figmaChartData.asMap().entries.map((entry) {
+        final normalizedValue = entry.value / 100.0;
+        final price = nvdaBasePrice + (normalizedValue * nvdaPriceRange);
         return ChartDataPoint(
-          date: DateTime.now().subtract(Duration(days: 30 - i)),
-          value: 420 + (i * 3.0) + (i % 7 * 10),
+          date: DateTime.now().subtract(Duration(days: figmaChartData.length - 1 - entry.key)),
+          value: price,
         );
-      }),
-      'MSFT': List.generate(30, (i) {
-        final mid = 15;
-        final distFromMid = (i - mid).abs();
+      }).toList(),
+      'MSFT': figmaChartData.asMap().entries.map((entry) {
+        final normalizedValue = entry.value / 100.0;
+        final price = msftBasePrice + (normalizedValue * msftPriceRange);
         return ChartDataPoint(
-          date: DateTime.now().subtract(Duration(days: 30 - i)),
-          value: 380 - (distFromMid * 2.0) + (i % 4 * 3),
+          date: DateTime.now().subtract(Duration(days: figmaChartData.length - 1 - entry.key)),
+          value: price,
         );
-      }),
+      }).toList(),
     };
   }
 

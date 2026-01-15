@@ -52,7 +52,7 @@ class _StockChartWidgetState extends State<StockChartWidget> {
         lineBarsData: [
           LineChartBarData(
             spots: spots,
-            isCurved: true,
+            isCurved: false, // Sharp line like stocks feature
             color: AppColors.primary,
             barWidth: 2,
             isStrokeCapRound: true,
@@ -63,7 +63,9 @@ class _StockChartWidgetState extends State<StockChartWidget> {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withValues(alpha: 0.3),
+                  AppColors.primary.withValues(
+                    alpha: 0.6,
+                  ), // Increased from 0.3 for better visibility
                   AppColors.primary.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
@@ -117,223 +119,257 @@ class _StockChartWidgetState extends State<StockChartWidget> {
           )
         : const FlDotData(show: false);
 
-    return Stack(
+    // Calculate Y-axis values for display
+    final yAxisInterval = (maxY - minY) / 5;
+    final yAxisValues = List.generate(6, (i) {
+      return (minY - padding + (yAxisInterval * i)).round();
+    });
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        LineChart(
-          LineChartData(
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: (maxY - minY) / 5,
-              getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: AppColors.surface,
-                  strokeWidth: 0.5,
-                  dashArray: const [5, 5], // Dashed line
-                );
-              },
-            ),
-            titlesData: FlTitlesData(
-              rightTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 40,
-                  getTitlesWidget: (value, meta) {
-                    return Text(
-                      value.toInt().toString(),
-                      style: AppTextStyles.labelSmall(
-                        color: AppColors.textLabel,
+        // Chart area (takes remaining space, leaving room for Y-axis)
+        Expanded(
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 7, left: 3),
+                child: LineChart(
+                  LineChartData(
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: (maxY - minY) / 5,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: AppColors.surface,
+                          strokeWidth: 0.5,
+                          dashArray: const [5, 5], // Dashed line
+                        );
+                      },
+                    ),
+                    titlesData: FlTitlesData(
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
                       ),
-                    );
-                  },
-                ),
-              ),
-              leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 30,
-                  interval: (widget.chartData.length / 10).ceilToDouble(),
-                  getTitlesWidget: (value, meta) {
-                    final index = value.toInt();
-                    if (index < 0 || index >= widget.chartData.length) {
-                      return const SizedBox.shrink();
-                    }
-                    final date = widget.chartData[index].date;
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        '${date.day}',
-                        style: AppTextStyles.labelSmall(
-                          color: AppColors.textLabel,
-                        ),
-                        textAlign: TextAlign.center,
+                      leftTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            borderData: FlBorderData(show: false),
-            minY: minY - padding,
-            maxY: maxY + padding,
-            lineTouchData: LineTouchData(
-              enabled: true,
-              touchCallback:
-                  (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                    if (touchResponse == null ||
-                        touchResponse.lineBarSpots == null) {
-                      setState(() {});
-                      return;
-                    }
-                    setState(() {
-                      // Touch detected - could be used for future interactions
-                    });
-                  },
-              touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (touchedSpot) => AppColors.warning,
-                getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                  return touchedBarSpots.map((barSpot) {
-                    return LineTooltipItem(
-                      '\$${barSpot.y.toStringAsFixed(2)}',
-                      AppTextStyles.labelSmall(
-                        color: AppColors.background,
-                      ).copyWith(fontSize: 10),
-                    );
-                  }).toList();
-                },
-              ),
-              getTouchedSpotIndicator:
-                  (LineChartBarData barData, List<int> spotIndexes) {
-                    return spotIndexes.map((spotIndex) {
-                      return TouchedSpotIndicatorData(
-                        FlLine(
-                          color: AppColors.textLabel,
-                          strokeWidth: 1,
-                          dashArray: const [5, 5],
-                        ),
-                        FlDotData(
-                          getDotPainter: (spot, percent, barData, index) {
-                            return FlDotCirclePainter(
-                              radius: 6,
-                              color: AppColors.warning,
-                              strokeWidth: 2,
-                              strokeColor: AppColors.textPrimary,
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          interval: (widget.chartData.length / 10)
+                              .ceilToDouble(),
+                          getTitlesWidget: (value, meta) {
+                            final index = value.toInt();
+                            if (index < 0 || index >= widget.chartData.length) {
+                              return const SizedBox.shrink();
+                            }
+                            final date = widget.chartData[index].date;
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                '${date.day}',
+                                style: AppTextStyles.labelSmall(
+                                  color: AppColors.textLabel,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             );
                           },
                         ),
-                      );
-                    }).toList();
-                  },
-            ),
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                isCurved: true,
-                color: AppColors.primary,
-                barWidth: 2,
-                isStrokeCapRound: true,
-                dotData: newsEventDotData,
-                belowBarData: BarAreaData(
-                  show: true,
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withValues(alpha: 0.3),
-                      AppColors.primary.withValues(alpha: 0.0),
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    minY: minY - padding,
+                    maxY: maxY + padding,
+                    lineTouchData: LineTouchData(
+                      enabled: true,
+                      touchCallback:
+                          (
+                            FlTouchEvent event,
+                            LineTouchResponse? touchResponse,
+                          ) {
+                            if (touchResponse == null ||
+                                touchResponse.lineBarSpots == null) {
+                              setState(() {});
+                              return;
+                            }
+                            setState(() {
+                              // Touch detected - could be used for future interactions
+                            });
+                          },
+                      touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor: (touchedSpot) => AppColors.warning,
+                        getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                          return touchedBarSpots.map((barSpot) {
+                            return LineTooltipItem(
+                              '\$${barSpot.y.toStringAsFixed(2)}',
+                              AppTextStyles.labelSmall(
+                                color: AppColors.background,
+                              ).copyWith(fontSize: 10),
+                            );
+                          }).toList();
+                        },
+                      ),
+                      getTouchedSpotIndicator:
+                          (LineChartBarData barData, List<int> spotIndexes) {
+                            return spotIndexes.map((spotIndex) {
+                              return TouchedSpotIndicatorData(
+                                FlLine(
+                                  color: AppColors.textLabel,
+                                  strokeWidth: 1,
+                                  dashArray: const [5, 5],
+                                ),
+                                FlDotData(
+                                  getDotPainter:
+                                      (spot, percent, barData, index) {
+                                        return FlDotCirclePainter(
+                                          radius: 6,
+                                          color: AppColors.warning,
+                                          strokeWidth: 2,
+                                          strokeColor: AppColors.textPrimary,
+                                        );
+                                      },
+                                ),
+                              );
+                            }).toList();
+                          },
+                    ),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: spots,
+                        isCurved: false, // Sharp line like stocks feature
+                        color: AppColors.primary,
+                        barWidth: 2,
+                        isStrokeCapRound: true,
+                        dotData: newsEventDotData,
+                        belowBarData: BarAreaData(
+                          show: true,
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.primary.withValues(
+                                alpha: 0.6,
+                              ), // Increased from 0.3 for better visibility
+                              AppColors.primary.withValues(alpha: 0.0),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
                     ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
                   ),
                 ),
               ),
+              // Overlay custom vertical dashed lines and icons for news event markers
+              if (widget.newsEvents != null && widget.newsEvents!.isNotEmpty)
+                ...widget.newsEvents!.map((event) {
+                  if (event.chartIndex < 0 ||
+                      event.chartIndex >= widget.chartData.length) {
+                    return const SizedBox.shrink();
+                  }
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Get the exact spot from the chart data
+                      final spot = spots[event.chartIndex];
+
+                      // Chart drawing area (excluding axes)
+                      // No right axis reserved space now, Bottom axis: 30px
+                      final chartWidth = constraints.maxWidth;
+                      final chartHeight = constraints.maxHeight - 30;
+
+                      // Calculate X position (same as vertical line)
+                      final xPercent = spot.x / (widget.chartData.length - 1);
+                      final xPosition = xPercent * chartWidth;
+
+                      // Calculate Y position based on the actual value at this point
+                      // This matches exactly where the chart line is (center of circle)
+                      final yRange = (maxY + padding) - (minY - padding);
+                      final normalizedY = (spot.y - (minY - padding)) / yRange;
+                      final yPosition =
+                          (1 - normalizedY) *
+                          chartHeight; // Flip Y axis (0 is top)
+
+                      // Circle is 20px (10px radius) - smaller circle with less gap
+                      final circleCenterY = yPosition;
+                      final circleBottomY =
+                          circleCenterY + 10; // Bottom edge of circle
+                      final chartBottomY = chartHeight; // Bottom of chart area
+                      final lineHeight =
+                          chartBottomY -
+                          circleBottomY; // Height of line from circle bottom to chart bottom
+
+                      return Stack(
+                        children: [
+                          // Custom vertical dashed line from bottom of chart to bottom of circle
+                          if (lineHeight > 0)
+                            Positioned(
+                              left:
+                                  xPosition -
+                                  0.75, // Center the 1.5px line (0.75px on each side)
+                              top: circleBottomY,
+                              child: CustomPaint(
+                                size: Size(1.5, lineHeight),
+                                painter: _DashedLinePainter(
+                                  color: AppColors.warning,
+                                  strokeWidth: 1.5,
+                                ),
+                              ),
+                            ),
+                          // Tappable news marker (circle and icon) - larger tap area for better UX
+                          Positioned(
+                            left: xPosition - 15, // Larger tap area (30px)
+                            top: yPosition - 15,
+                            child: GestureDetector(
+                              onTap: () {
+                                widget.onNewsEventTap?.call(event);
+                              },
+                              child: SizedBox(
+                                width: 30,
+                                height: 30,
+                                child: Center(
+                                  child: Icon(
+                                    TablerIcons.world, // Globe icon
+                                    size: 14, // Smaller icon to reduce gap
+                                    color: AppColors.warning, // Yellow icon
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }),
             ],
           ),
         ),
-        // Overlay custom vertical dashed lines and icons for news event markers
-        if (widget.newsEvents != null && widget.newsEvents!.isNotEmpty)
-          ...widget.newsEvents!.map((event) {
-            if (event.chartIndex < 0 ||
-                event.chartIndex >= widget.chartData.length) {
-              return const SizedBox.shrink();
-            }
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                // Get the exact spot from the chart data
-                final spot = spots[event.chartIndex];
-
-                // Chart drawing area (excluding axes)
-                // Right axis: 40px, Bottom axis: 30px
-                final chartWidth = constraints.maxWidth - 40;
-                final chartHeight = constraints.maxHeight - 30;
-
-                // Calculate X position (same as vertical line)
-                final xPercent = spot.x / (widget.chartData.length - 1);
-                final xPosition = xPercent * chartWidth;
-
-                // Calculate Y position based on the actual value at this point
-                // This matches exactly where the chart line is (center of circle)
-                final yRange = (maxY + padding) - (minY - padding);
-                final normalizedY = (spot.y - (minY - padding)) / yRange;
-                final yPosition =
-                    (1 - normalizedY) * chartHeight; // Flip Y axis (0 is top)
-
-                // Circle is 20px (10px radius) - smaller circle with less gap
-                final circleCenterY = yPosition;
-                final circleBottomY =
-                    circleCenterY + 10; // Bottom edge of circle
-                final chartBottomY = chartHeight; // Bottom of chart area
-                final lineHeight =
-                    chartBottomY -
-                    circleBottomY; // Height of line from circle bottom to chart bottom
-
-                return Stack(
-                  children: [
-                    // Custom vertical dashed line from bottom of chart to bottom of circle
-                    if (lineHeight > 0)
-                      Positioned(
-                        left:
-                            xPosition -
-                            0.75, // Center the 1.5px line (0.75px on each side)
-                        top: circleBottomY,
-                        child: CustomPaint(
-                          size: Size(1.5, lineHeight),
-                          painter: _DashedLinePainter(
-                            color: AppColors.warning,
-                            strokeWidth: 1.5,
-                          ),
-                        ),
-                      ),
-                    // Tappable news marker (circle and icon) - larger tap area for better UX
-                    Positioned(
-                      left: xPosition - 15, // Larger tap area (30px)
-                      top: yPosition - 15,
-                      child: GestureDetector(
-                        onTap: () {
-                          widget.onNewsEventTap?.call(event);
-                        },
-                        child: SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Center(
-                            child: Icon(
-                              TablerIcons.world, // Globe icon
-                              size: 14, // Smaller icon to reduce gap
-                              color: AppColors.warning, // Yellow icon
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+        // Y-axis labels on the right - extends to the right edge
+        SizedBox(
+          width: 40,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 7, bottom: 30),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: yAxisValues.map((value) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    value.toString(),
+                    style: AppTextStyles.labelSmall(color: AppColors.textLabel),
+                  ),
                 );
-              },
-            );
-          }),
+              }).toList(),
+            ),
+          ),
+        ),
       ],
     );
   }

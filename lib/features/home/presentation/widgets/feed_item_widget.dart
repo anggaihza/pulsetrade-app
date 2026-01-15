@@ -309,6 +309,7 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                                 children: [
                                                   const SizedBox(height: 8),
                                                   SizedBox(
+                                                    width: double.infinity,
                                                     height: 164.5,
                                                     child: StockChartWidget(
                                                       chartData: chartData,
