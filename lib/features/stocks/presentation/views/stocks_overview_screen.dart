@@ -8,6 +8,7 @@ import 'package:pulsetrade_app/features/home/domain/models/stock_data.dart';
 import 'package:pulsetrade_app/features/home/presentation/providers/home_feed_provider.dart';
 import 'package:pulsetrade_app/features/stocks/presentation/providers/stocks_chart_data_provider.dart';
 import 'package:pulsetrade_app/features/stocks/presentation/widgets/stocks_chart_widget.dart';
+import 'package:pulsetrade_app/features/stocks/presentation/widgets/stocks_news_list.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/bottom_navigation_bar.dart';
 
@@ -341,9 +342,7 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
               margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? (tab == 'Overview'
-                          ? const Color(0xFF0E2A59) // Foundation/Primary/Darker
-                          : AppColors.surface)
+                    ? const Color(0xFF0E2A59) // Foundation/Primary/Darker
                     : AppColors.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -376,7 +375,7 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
       case 'Info':
         return _buildInfoContent();
       case 'News':
-        return _buildNewsContent();
+        return _buildNewsContent(stock);
       case 'Buckets':
         return _buildBucketsContent();
       default:
@@ -611,12 +610,12 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
     );
   }
 
-  Widget _buildNewsContent() {
-    return const Center(
-      child: Text(
-        'News content coming soon',
-        style: TextStyle(color: AppColors.textSecondary),
-      ),
+  Widget _buildNewsContent(StockData stock) {
+    return StocksNewsList(
+      ticker: stock.ticker,
+      onNewsItemTap: (newsId) {
+        // TODO: Navigate to news detail screen or show bottom sheet
+      },
     );
   }
 
