@@ -81,7 +81,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
           inputType: valueInputType,
           balance: balance,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
         // Order type specific content
         ..._buildOrderTypeSpecificContent(context, l10n),
       ],
@@ -121,7 +121,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
         text: l10n.limitExplanation,
         padding: const EdgeInsets.all(AppSpacing.sm),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Price input
       if (limitPrice != null && onLimitPriceChanged != null)
         PriceInputStepper(
@@ -132,7 +132,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
             (limitPrice! - 1).clamp(0.0, double.infinity),
           ),
         ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Expiration
       ExpirationSelector(
         expirationType: expirationType,
@@ -148,7 +148,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
         text: l10n.limitExplanation,
         padding: const EdgeInsets.all(AppSpacing.sm),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Stop price input
       if (stopPrice != null && onStopPriceChanged != null)
         PriceInputStepper(
@@ -158,7 +158,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
           onDecrement: () =>
               onStopPriceChanged!((stopPrice! - 1).clamp(0.0, double.infinity)),
         ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Expiration
       ExpirationSelector(
         expirationType: expirationType,
@@ -185,7 +185,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Stop price input
       if (stopPrice != null && onStopPriceChanged != null)
         PriceInputStepper(
@@ -195,14 +195,14 @@ class OrderTypeViewBuilder extends StatelessWidget {
           onDecrement: () =>
               onStopPriceChanged!((stopPrice! - 1).clamp(0.0, double.infinity)),
         ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Second explanation
       const ExplanationCard(
         text:
             'Then, set the maximum price you are willing to pay per share', // TODO: Use l10n.stopLimitExplanation after regenerating localization
         padding: EdgeInsets.all(AppSpacing.sm),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Limit price input
       if (limitPrice != null && onLimitPriceChanged != null)
         PriceInputStepper(
@@ -213,7 +213,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
             (limitPrice! - 1).clamp(0.0, double.infinity),
           ),
         ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.md),
       // Expiration
       ExpirationSelector(
         expirationType: expirationType,

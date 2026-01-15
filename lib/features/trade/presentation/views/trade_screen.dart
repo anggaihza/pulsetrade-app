@@ -8,6 +8,7 @@ import 'package:pulsetrade_app/features/trade/domain/entities/order_type.dart';
 import 'package:pulsetrade_app/features/trade/domain/models/order_confirmation_data.dart';
 import 'package:pulsetrade_app/features/trade/domain/models/stock_data.dart';
 import 'package:pulsetrade_app/features/trade/domain/services/order_calculation_service.dart';
+import 'package:pulsetrade_app/features/trade/domain/utils/order_price_helper.dart';
 import 'package:pulsetrade_app/features/trade/presentation/providers/stock_data_provider.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/order_type_tabs.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/buy_sell_toggle.dart';
@@ -151,21 +152,20 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
   }
 
   void _navigateToConfirmOrder(StockData stockData) {
+    // Get prices based on order type
+    final prices = OrderPriceHelper.getOrderPrices(
+      _selectedOrderType,
+      _limitPrice,
+      _stopPrice,
+    );
+
     // Use order calculation service
     final calculation = OrderCalculationService.calculateOrderTotal(
       orderType: _selectedOrderType,
       value: _value,
       price: stockData.price,
-      limitPrice:
-          _selectedOrderType == OrderType.limit ||
-              _selectedOrderType == OrderType.stopLimit
-          ? _limitPrice
-          : null,
-      stopPrice:
-          _selectedOrderType == OrderType.stop ||
-              _selectedOrderType == OrderType.stopLimit
-          ? _stopPrice
-          : null,
+      limitPrice: prices['limitPrice'],
+      stopPrice: prices['stopPrice'],
     );
 
     final orderData = OrderConfirmationData(
@@ -175,16 +175,8 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
       isBuy: _isBuy,
       numberOfShares: calculation['numberOfShares'] as int,
       sharesValue: calculation['sharesValue'] as double,
-      limitPrice:
-          _selectedOrderType == OrderType.limit ||
-              _selectedOrderType == OrderType.stopLimit
-          ? _limitPrice
-          : null,
-      stopPrice:
-          _selectedOrderType == OrderType.stop ||
-              _selectedOrderType == OrderType.stopLimit
-          ? _stopPrice
-          : null,
+      limitPrice: prices['limitPrice'],
+      stopPrice: prices['stopPrice'],
       expirationType: _expirationType,
       commission: calculation['commission'] as double,
       tax: calculation['tax'] as double,
