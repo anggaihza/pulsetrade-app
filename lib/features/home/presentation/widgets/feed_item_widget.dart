@@ -403,15 +403,13 @@ class _FeedItemWidgetState extends ConsumerState<FeedItemWidget> {
                                 ),
                               ),
 
-                              const SizedBox(height: 16),
-
                               // Description (outside container)
-                              StockDescription(
-                                title: stock.newsTitle,
-                                description: stock.newsDescription,
-                                date: stock.date,
-                                onMoreToggle: widget.onDescriptionMoreToggle,
-                              ),
+                              // StockDescription(
+                              //   title: stock.newsTitle,
+                              //   description: stock.newsDescription,
+                              //   date: stock.date,
+                              //   onMoreToggle: widget.onDescriptionMoreToggle,
+                              // ),
                             ],
                           ),
                         ),
