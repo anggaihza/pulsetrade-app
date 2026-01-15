@@ -9,6 +9,7 @@ import 'package:pulsetrade_app/features/home/presentation/providers/home_feed_pr
 import 'package:pulsetrade_app/features/stocks/presentation/providers/stocks_chart_data_provider.dart';
 import 'package:pulsetrade_app/features/stocks/presentation/widgets/stocks_chart_widget.dart';
 import 'package:pulsetrade_app/features/stocks/presentation/widgets/stocks_news_list.dart';
+import 'package:pulsetrade_app/features/buckets/presentation/widgets/buckets_grid.dart';
 import 'package:pulsetrade_app/features/trade/presentation/views/trade_screen.dart';
 import 'package:pulsetrade_app/features/home/presentation/widgets/bottom_navigation_bar.dart';
 
@@ -377,7 +378,7 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
       case 'News':
         return _buildNewsContent(stock);
       case 'Buckets':
-        return _buildBucketsContent();
+        return _buildBucketsContent(stock);
       default:
         return const SizedBox.shrink();
     }
@@ -619,12 +620,12 @@ class _StocksOverviewScreenState extends ConsumerState<StocksOverviewScreen> {
     );
   }
 
-  Widget _buildBucketsContent() {
-    return const Center(
-      child: Text(
-        'Buckets content coming soon',
-        style: TextStyle(color: AppColors.textSecondary),
-      ),
+  Widget _buildBucketsContent(StockData stock) {
+    return BucketsGrid(
+      ticker: stock.ticker,
+      onBucketTap: (bucket) {
+        // TODO: Handle bucket selection - navigate to bucket detail or add stock to bucket
+      },
     );
   }
 }
