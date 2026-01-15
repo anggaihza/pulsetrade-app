@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -12,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   final sharedPreferences = await SharedPreferences.getInstance();
   await Hive.initFlutter();
   final cacheClient = HiveCacheClient();
@@ -21,7 +24,9 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
-        secureStorageProvider.overrideWithValue(const SecureStorage(FlutterSecureStorage())),
+        secureStorageProvider.overrideWithValue(
+          const SecureStorage(FlutterSecureStorage()),
+        ),
         cacheClientProvider.overrideWithValue(cacheClient),
       ],
       observers: const <ProviderObserver>[RiverpodLogger()],
