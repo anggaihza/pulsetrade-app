@@ -13,7 +13,7 @@ import 'package:pulsetrade_app/features/trade/presentation/widgets/price_input_s
 import 'package:pulsetrade_app/features/trade/presentation/widgets/expiration_selector.dart';
 import 'package:pulsetrade_app/features/trade/presentation/widgets/value_input_type_modal.dart';
 
-/// Unified builder for order type views (Limit, Stop, StopLimit)
+/// Unified builder for order type views (Market Order, Limit, Stop, StopLimit)
 /// Eliminates code duplication across different order type views
 class OrderTypeViewBuilder extends StatelessWidget {
   final OrderType orderType;
@@ -93,21 +93,28 @@ class OrderTypeViewBuilder extends StatelessWidget {
     AppLocalizations l10n,
   ) {
     switch (orderType) {
+      case OrderType.marketOrder:
+        return _buildMarketOrderContent(context, l10n);
       case OrderType.limit:
         return _buildLimitContent(context, l10n);
       case OrderType.stop:
         return _buildStopContent(context, l10n);
       case OrderType.stopLimit:
         return _buildStopLimitContent(context, l10n);
-      default:
-        return [];
     }
   }
 
-  List<Widget> _buildLimitContent(
+  List<Widget> _buildMarketOrderContent(
     BuildContext context,
     AppLocalizations l10n,
   ) {
+    return [
+      // Market order explanation
+      ExplanationCard(text: l10n.marketOrderExplanation),
+    ];
+  }
+
+  List<Widget> _buildLimitContent(BuildContext context, AppLocalizations l10n) {
     return [
       // Limit explanation
       ExplanationCard(
@@ -134,10 +141,7 @@ class OrderTypeViewBuilder extends StatelessWidget {
     ];
   }
 
-  List<Widget> _buildStopContent(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) {
+  List<Widget> _buildStopContent(BuildContext context, AppLocalizations l10n) {
     return [
       // Explanation
       ExplanationCard(
@@ -151,9 +155,8 @@ class OrderTypeViewBuilder extends StatelessWidget {
           label: l10n.stop,
           value: stopPrice!,
           onIncrement: () => onStopPriceChanged!(stopPrice! + 1),
-          onDecrement: () => onStopPriceChanged!(
-            (stopPrice! - 1).clamp(0.0, double.infinity),
-          ),
+          onDecrement: () =>
+              onStopPriceChanged!((stopPrice! - 1).clamp(0.0, double.infinity)),
         ),
       const SizedBox(height: 16),
       // Expiration
@@ -189,9 +192,8 @@ class OrderTypeViewBuilder extends StatelessWidget {
           label: l10n.stop,
           value: stopPrice!,
           onIncrement: () => onStopPriceChanged!(stopPrice! + 1),
-          onDecrement: () => onStopPriceChanged!(
-            (stopPrice! - 1).clamp(0.0, double.infinity),
-          ),
+          onDecrement: () =>
+              onStopPriceChanged!((stopPrice! - 1).clamp(0.0, double.infinity)),
         ),
       const SizedBox(height: 16),
       // Second explanation
@@ -220,4 +222,3 @@ class OrderTypeViewBuilder extends StatelessWidget {
     ];
   }
 }
-
